@@ -1,0 +1,46 @@
+name: Daily Ratings Update
+
+on:
+  schedule:
+    # Run at 6:00 AM EST (11:00 UTC) every day during basketball season
+    - cron: '0 11 * * *'
+  workflow_dispatch:  # Allow manual trigger from GitHub UI
+
+jobs:
+  update-ratings:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run ratings update
+        run: |
+          python update_ratings.py --season 2026
+
+      - name: Check for changes
+        id: changes
+        run: |
+          git diff --quiet historical_ratings/ || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push updated ratings
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add historical_ratings/
+          git commit -m "Update ratings $(date +'%Y-%m-%d')"
+          git push

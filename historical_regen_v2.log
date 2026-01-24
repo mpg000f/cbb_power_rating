@@ -1,0 +1,1265 @@
+
+================================================================================
+GENERATING RATINGS FOR 2005 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2005]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  2.37it/s]100%|██████████| 1/1 [00:00<00:00,  2.37it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 157 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 2.0252
+    Iteration 4: avg change = 0.6699
+    Iteration 7: avg change = 0.2997
+    Iteration 10: avg change = 0.1444
+    Iteration 13: avg change = 0.0744
+    Iteration 15: avg change = 0.0493
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 331 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2005.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank           team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1    North Carolina Tar Heels         33.22            35       120.44        86.14  76.57               0.58
+    2    Illinois Fighting Illini         31.28            37       119.32        86.97  65.99               0.74
+    3        Louisville Cardinals         29.33            35       118.17        87.76  70.34               0.63
+    4            Duke Blue Devils         28.72            29       114.55        84.75  69.73               0.61
+    5      Oklahoma State Cowboys         28.23            30       121.36        92.06  67.30               0.64
+    6              Florida Gators         27.62            29       115.60        86.90  67.78               0.51
+    7          Villanova Wildcats         26.50            31       113.94        86.36  66.20               0.53
+    8           Kentucky Wildcats         26.30            32       111.65        84.28  68.36               0.42
+    9     Michigan State Spartans         25.39            28       117.90        91.43  67.97               0.83
+   10            Oklahoma Sooners         25.22            30       113.79        87.50  67.00                0.5
+   11                   Utah Utes         23.88            26       114.14        89.19  60.47               0.57
+   12   Wake Forest Demon Deacons         23.62            29       121.20        96.50  72.86               0.73
+   13             Kansas Jayhawks         23.51            26       115.12        90.54  68.83               0.53
+   14           Wisconsin Badgers         23.22            31       111.53        87.24  63.64               0.69
+   15        Alabama Crimson Tide         23.14            27       117.43        93.22  65.51               0.41
+   16               UConn Huskies         22.59            29       110.83        87.17  71.97               0.55
+   17            Arizona Wildcats         21.81            34       115.44        92.56  71.47               0.56
+   18          Washington Huskies         21.20            31       117.52        95.25  75.29               0.48
+   19 Georgia Tech Yellow Jackets         20.80            28       109.44        87.57  71.41               0.28
+   20         Cincinnati Bearcats         20.25            30       110.96        89.63  69.45               0.65
+   21             Texas Longhorns         19.92            28       112.40        91.41  69.05               0.47
+   22               Iowa Hawkeyes         19.77            30       111.27        90.43  69.08                0.8
+   23           NC State Wolfpack         19.64            31       114.28        93.56  66.32               0.34
+   24       Boston College Eagles         18.58            27       112.20        92.54  66.65               0.81
+   25             Syracuse Orange         18.33            26       112.38        92.97  67.45                0.8
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 68.3 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2006 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2006]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  2.96it/s]100%|██████████| 1/1 [00:00<00:00,  2.95it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 192 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 2.0880
+    Iteration 4: avg change = 0.5384
+    Iteration 7: avg change = 0.1978
+    Iteration 10: avg change = 0.0782
+    Iteration 13: avg change = 0.0339
+    Iteration 15: avg change = 0.0204
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 334 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2006.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank          team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1            Texas Longhorns         28.66            36       116.43        86.84  66.50               0.55
+    2             Florida Gators         27.71            38       115.74        87.10  68.51               0.86
+    3              UConn Huskies         26.39            33       116.13        88.81  72.56               0.46
+    4           Duke Blue Devils         25.88            36       116.22        89.42  71.86               0.66
+    5            Kansas Jayhawks         25.03            33       108.84        82.89  70.45               0.44
+    6             Memphis Tigers         24.77            37       111.14        85.44  73.70               0.72
+    7         Villanova Wildcats         23.91            33       114.88        90.04  66.47               0.58
+    8   North Carolina Tar Heels         23.08            30       113.94        89.94  72.34               0.63
+    9                UCLA Bruins         22.64            37       108.77        85.21  63.67                0.7
+   10                 LSU Tigers         21.66            35       106.99        84.39  70.13               0.48
+   11   Illinois Fighting Illini         21.46            31       111.23        88.85  64.50               0.76
+   12         Washington Huskies         20.67            33       113.01        91.42  73.61               0.46
+   13        Pittsburgh Panthers         20.48            32       109.58        88.17  67.16               0.87
+   14 West Virginia Mountaineers         20.29            33       113.84        92.63  64.02               0.78
+   15           Georgetown Hoyas         20.24            32       112.55        91.39  59.57               0.85
+   16        Ohio State Buckeyes         19.83            31       111.93        91.18  66.79               0.47
+   17       Tennessee Volunteers         19.09            30       114.56        94.54  72.60               0.79
+   18          Air Force Falcons         18.70            30       113.26        93.63  57.02               0.73
+   19        Arkansas Razorbacks         18.54            32       109.80        90.33  69.28               0.78
+   20              Iowa Hawkeyes         18.19            34       101.54        82.42  67.07               0.56
+   21   South Carolina Gamecocks         17.74            38       111.76        93.09  62.57                0.6
+   22      Boston College Eagles         17.15            36       114.30        96.22  65.55               0.71
+   23     Northern Iowa Panthers         16.79            32       107.26        89.54  62.88               0.51
+   24          Kentucky Wildcats         16.47            34       111.37        93.97  66.17               0.67
+   25        Cincinnati Bearcats         16.29            33       109.60        92.38  70.58                0.6
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 68.1 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2007 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2007]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  2.07it/s]100%|██████████| 1/1 [00:00<00:00,  2.07it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 203 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 2.3430
+    Iteration 4: avg change = 0.4616
+    Iteration 7: avg change = 0.1665
+    Iteration 10: avg change = 0.0663
+    Iteration 13: avg change = 0.0292
+    Iteration 15: avg change = 0.0176
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 336 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2007.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank           team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1    North Carolina Tar Heels         32.47            35       118.66        85.26  74.06               0.74
+    2              Florida Gators         31.99            39       119.54        86.62  67.59               0.63
+    3             Kansas Jayhawks         29.47            36       112.80        82.39  70.02               0.57
+    4            Georgetown Hoyas         29.11            36       118.75        88.71  60.36               0.53
+    5            Texas A&M Aggies         29.08            34       115.73        85.71  66.20               0.58
+    6         Ohio State Buckeyes         28.53            37       116.89        87.43  65.95               0.83
+    7           Wisconsin Badgers         26.50            35       112.96        85.52  63.60               0.42
+    8                 UCLA Bruins         26.24            34       110.81        83.64  65.20               0.64
+    9              Memphis Tigers         25.39            36       112.13        85.81  71.39               0.64
+   10            Duke Blue Devils         24.24            32       108.96        83.79  66.95               0.86
+   11           Air Force Falcons         24.19            34       113.69        88.56  59.62               0.43
+   12          Maryland Terrapins         23.37            33       109.76        85.46  74.26               0.43
+   13           Kentucky Wildcats         22.62            32       114.02        90.46  67.99               0.74
+   14         Pittsburgh Panthers         22.02            37       113.12        90.17  64.33               0.66
+   15   Notre Dame Fighting Irish         21.73            31       115.13        92.47  70.82               0.51
+   16            Indiana Hoosiers         21.48            32       113.17        90.75  64.45               0.53
+   17     Michigan State Spartans         21.45            33       108.72        86.34  61.65               0.22
+   18 Georgia Tech Yellow Jackets         21.29            31       112.91        90.69  71.19               0.65
+   19             Butler Bulldogs         21.21            34       115.13        92.98  59.58               0.61
+   20                Oregon Ducks         20.78            37       114.83        93.11  67.34               0.77
+   21          Villanova Wildcats         20.32            32       110.19        88.93  66.39               0.72
+   22  West Virginia Mountaineers         20.30            36       113.81        92.58  64.63                0.4
+   23        Louisville Cardinals         20.26            34       110.23        89.03  66.74               0.86
+   24             Texas Longhorns         19.85            35       115.45        94.66  71.99               0.78
+   25           Xavier Musketeers         19.58            34       114.31        93.79  66.19                0.7
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 67.9 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2008 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2008]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  3.38it/s]100%|██████████| 1/1 [00:00<00:00,  3.37it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 190 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 1.9845
+    Iteration 4: avg change = 0.3919
+    Iteration 7: avg change = 0.1406
+    Iteration 10: avg change = 0.0573
+    Iteration 13: avg change = 0.0270
+    Iteration 15: avg change = 0.0176
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 342 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2008.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank          team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1            Kansas Jayhawks         37.64            39       120.40        81.74  68.93               0.63
+    2             Memphis Tigers         33.07            39       116.36        82.27  70.84               0.72
+    3                UCLA Bruins         32.27            38       115.73        82.45  65.44               0.64
+    4   North Carolina Tar Heels         30.74            38       120.79        89.03  76.50               0.55
+    5          Wisconsin Badgers         28.13            35       111.59        82.44  62.44               0.72
+    6            Texas Longhorns         28.07            37       119.60        90.51  65.66               0.83
+    7           Duke Blue Devils         26.02            33       113.80        86.76  74.23               0.64
+    8       Louisville Cardinals         25.79            35       110.22        83.42  67.47               0.87
+    9   Washington State Cougars         24.97            35       112.17        86.18  60.40               0.66
+   10           Georgetown Hoyas         24.60            33       111.38        85.76  62.94               0.68
+   11       Tennessee Volunteers         23.89            35       113.75        88.84  73.33               0.67
+   12          Davidson Wildcats         23.69            35       114.19        89.49  68.72               0.72
+   13           Texas A&M Aggies         23.54            35       111.81        87.25  65.89                0.3
+   14          Stanford Cardinal         22.92            35       111.28        87.34  65.43               0.57
+   15    Marquette Golden Eagles         22.15            35       111.31        88.15  69.48               0.52
+   16             Clemson Tigers         22.04            33       111.21        88.15  72.93               0.61
+   17             Drake Bulldogs         21.31            32       116.26        93.94  64.57               0.96
+   18          Xavier Musketeers         21.12            36       113.31        91.18  65.99               0.47
+   19            Butler Bulldogs         20.93            33       113.56        91.61  60.87               0.65
+   20    Michigan State Spartans         20.61            36       112.37        90.74  65.00               0.32
+   21 West Virginia Mountaineers         20.52            37       111.81        90.27  67.58               0.26
+   22           Gonzaga Bulldogs         20.22            32       111.15        89.91  69.27                0.6
+   23           Indiana Hoosiers         20.10            33       112.79        91.67  67.82               0.46
+   24      Kansas State Wildcats         19.72            32       111.28        90.54  72.94               0.63
+   25           Arizona Wildcats         19.59            33       113.81        93.21  65.85               0.59
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 68.1 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2009 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2009]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  3.53it/s]100%|██████████| 1/1 [00:00<00:00,  3.53it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 201 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 1.9246
+    Iteration 4: avg change = 0.5948
+    Iteration 7: avg change = 0.2733
+    Iteration 10: avg change = 0.1440
+    Iteration 13: avg change = 0.0820
+    Iteration 15: avg change = 0.0572
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 345 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2009.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank          team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1   North Carolina Tar Heels         32.08            38       121.91        88.85  76.10               0.88
+    2              UConn Huskies         30.83            35       115.40        83.59  69.93               0.58
+    3             Memphis Tigers         30.32            37       111.87        80.58  69.04               0.56
+    4       Louisville Cardinals         27.82            37       111.28        82.48  69.17               0.45
+    5            Missouri Tigers         27.30            38       115.61        87.33  72.57               0.55
+    6        Pittsburgh Panthers         26.77            35       119.39        91.64  67.13               0.57
+    7           Gonzaga Bulldogs         26.12            34       115.52        88.42  69.22                0.6
+    8           Duke Blue Devils         24.87            37       115.19        89.34  69.71               0.65
+    9                UCLA Bruins         24.82            35       117.48        91.68  66.02               0.54
+   10            Kansas Jayhawks         24.67            35       112.69        87.05  69.64               0.62
+   11 West Virginia Mountaineers         24.66            35       113.03        87.40  65.93               0.35
+   12           Oklahoma Sooners         23.84            36       116.02        91.19  69.54               0.87
+   13    Michigan State Spartans         23.75            38       112.20        87.48  67.12               0.51
+   14   Arizona State Sun Devils         23.49            35       115.79        91.32  61.34                0.6
+   15         Villanova Wildcats         22.95            38       112.23        88.30  69.93                0.7
+   16                BYU Cougars         22.18            33       112.73        89.57  68.78               0.75
+   17        Purdue Boilermakers         22.11            37       108.29        85.21  66.50                0.6
+   18            Syracuse Orange         21.96            38       113.81        90.87  73.63               0.81
+   19         Washington Huskies         21.60            35       110.38        87.81  73.15               0.67
+   20    Marquette Golden Eagles         20.64            35       114.66        93.04  69.77               0.68
+   21             Clemson Tigers         20.55            32       114.38        92.85  70.62               0.71
+   22     Oklahoma State Cowboys         20.34            35       115.91        94.59  72.28               0.63
+   23          Xavier Musketeers         19.40            34       108.56        88.19  66.89               0.71
+   24   Illinois Fighting Illini         19.27            34       105.30        85.05  63.65               0.42
+   25            Texas Longhorns         19.09            35       110.13        90.06  68.22               0.68
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 67.5 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2010 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2010]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  2.66it/s]100%|██████████| 1/1 [00:00<00:00,  2.65it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 261 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 2.0071
+    Iteration 4: avg change = 0.4884
+    Iteration 7: avg change = 0.2186
+    Iteration 10: avg change = 0.1127
+    Iteration 13: avg change = 0.0629
+    Iteration 15: avg change = 0.0435
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 347 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2010.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank          team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1           Duke Blue Devils         34.45            39       120.45        84.97  66.58               0.54
+    2            Kansas Jayhawks         31.56            36       118.89        86.30  70.19               0.63
+    3          Kentucky Wildcats         28.00            37       114.44        85.40  70.72               0.44
+    4                BYU Cougars         27.20            36       117.00        88.77  71.14               0.67
+    5               Baylor Bears         26.01            36       117.53        90.49  67.65               0.77
+    6            Syracuse Orange         25.30            35       114.72        88.38  71.14               0.73
+    7      Kansas State Wildcats         25.18            37       114.59        88.38  72.26               0.89
+    8          Wisconsin Badgers         24.92            33       114.00        88.05  60.27               0.43
+    9         Maryland Terrapins         24.00            33       116.42        91.39  70.95                0.4
+   10        Ohio State Buckeyes         24.00            36       114.59        89.56  65.54               0.55
+   11 West Virginia Mountaineers         23.80            38       114.29        89.46  64.96               0.78
+   12          Utah State Aggies         22.52            35       115.26        91.70  62.76                0.4
+   13            Butler Bulldogs         22.12            38       108.76        85.61  64.20               0.82
+   14            Texas Longhorns         21.56            34       112.20        89.60  74.59               0.64
+   15    California Golden Bears         21.54            35       117.13        94.55  68.42               0.67
+   16           Texas A&M Aggies         21.48            34       109.98        87.47  67.26               0.72
+   17            Missouri Tigers         21.45            34       110.20        87.72  71.59               0.32
+   18        Purdue Boilermakers         21.21            35       107.36        85.11  67.02               0.66
+   19   Minnesota Golden Gophers         20.91            34       111.97        90.03  66.33               0.51
+   20          Xavier Musketeers         20.43            35       114.09        92.63  71.56               0.55
+   21             Clemson Tigers         19.73            32       108.52        87.76  70.27               0.43
+   22           Georgetown Hoyas         19.72            34       113.62        92.86  66.89               0.65
+   23         Washington Huskies         19.67            36       110.72        90.02  72.94               0.46
+   24    Michigan State Spartans         19.12            37       110.88        90.72  66.43               0.65
+   25         Villanova Wildcats         19.09            33       114.53        94.40  72.18               0.82
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 67.9 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2011 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2011]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  3.10it/s]100%|██████████| 1/1 [00:00<00:00,  3.10it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 258 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 2.1509
+    Iteration 4: avg change = 0.3833
+    Iteration 7: avg change = 0.1401
+    Iteration 10: avg change = 0.0581
+    Iteration 13: avg change = 0.0272
+    Iteration 15: avg change = 0.0174
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 346 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2011.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank         team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1       Ohio State Buckeyes         34.45            37       122.14        86.78  64.25                0.4
+    2           Kansas Jayhawks         30.40            38       117.49        86.19  70.01               0.53
+    3          Duke Blue Devils         29.29            37       117.49        87.29  70.25               0.71
+    4           Texas Longhorns         26.69            36       112.99        85.40  68.33                0.8
+    5       Pittsburgh Panthers         26.03            34       117.26        90.33  63.57               0.59
+    6    San Diego State Aztecs         25.69            37       112.88        86.28  64.36               0.49
+    7         Kentucky Wildcats         25.62            38       115.63        89.10  66.28               0.83
+    8         Wisconsin Badgers         24.63            34       119.64        94.10  57.77               0.31
+    9               BYU Cougars         23.91            37       114.97        90.15  71.94               0.76
+   10       Purdue Boilermakers         23.38            34       112.03        87.74  66.20                0.8
+   11        Washington Huskies         22.85            35       116.08        92.32  72.46                0.4
+   12           Syracuse Orange         22.67            34       112.55        88.97  66.59               0.46
+   13 Notre Dame Fighting Irish         21.99            34       118.03        95.14  65.23               0.27
+   14         Utah State Aggies         21.80            34       110.32        87.62  64.41               0.58
+   15      Louisville Cardinals         21.77            35       109.53        86.85  69.14               0.56
+   16             UConn Huskies         21.30            41       111.95        89.75  66.23               0.79
+   17  North Carolina Tar Heels         21.03            37       108.91        86.97  73.06               0.34
+   18            Florida Gators         20.75            37       113.03        91.37  65.44               0.83
+   19          Arizona Wildcats         20.37            38       115.23        93.96  67.55               0.56
+   20               UNLV Rebels         19.73            33       108.31        87.68  67.37               0.35
+   21    Wichita State Shockers         19.49            37       111.88        91.48  65.15               0.86
+   22          Gonzaga Bulldogs         19.40            35       110.64        90.33  68.79               0.28
+   23  Illinois Fighting Illini         19.18            34       109.93        89.84  66.41               0.58
+   24        Saint Mary's Gaels         18.90            34       115.86        96.05  67.19                0.6
+   25    New Orleans Privateers         18.79            20       105.07        85.37  66.32               0.59
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 67.5 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2012 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2012]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  3.57it/s]100%|██████████| 1/1 [00:00<00:00,  3.55it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 255 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 1.7546
+    Iteration 4: avg change = 0.4063
+    Iteration 7: avg change = 0.1474
+    Iteration 10: avg change = 0.0609
+    Iteration 13: avg change = 0.0284
+    Iteration 15: avg change = 0.0179
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 345 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2012.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank        team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1        Kentucky Wildcats         33.74            39       120.88        86.26  66.50               0.68
+    2      Ohio State Buckeyes         30.45            38       114.47        83.15  67.18                0.7
+    3          Kansas Jayhawks         28.54            38       113.27        83.85  67.37                0.6
+    4  Michigan State Spartans         26.86            36       112.54        84.80  65.75               0.38
+    5        Wisconsin Badgers         25.92            36       112.07        85.27  58.86               0.39
+    6          Syracuse Orange         25.52            37       115.61        89.22  65.48               0.52
+    7 North Carolina Tar Heels         25.43            37       112.61        86.30  73.12               0.54
+    8          Missouri Tigers         25.12            35       122.71        96.70  66.59                0.8
+    9         New Mexico Lobos         24.37            35       111.37        86.12  66.44               0.54
+   10   Wichita State Shockers         23.41            32       114.04        89.76  67.74               0.47
+   11           Memphis Tigers         23.34            35       112.22        88.01  68.11               0.62
+   12         Indiana Hoosiers         22.77            36       118.04        94.40  67.10               0.48
+   13           Florida Gators         22.54            37       118.61        95.20  65.74               0.64
+   14         Georgetown Hoyas         21.87            33       109.48        86.73  64.02               0.51
+   15             Baylor Bears         21.70            38       114.13        91.56  67.38               0.68
+   16         Gonzaga Bulldogs         20.88            33       111.97        90.22  66.53               0.82
+   17  Marquette Golden Eagles         19.73            35       109.18        88.58  70.71               0.38
+   18     Louisville Cardinals         19.62            40       103.34        82.84  67.93               0.87
+   19         Duke Blue Devils         19.38            34       114.73        94.47  68.66               0.84
+   20    Saint Louis Billikens         19.27            34       108.43        88.29  63.51               0.85
+   21    Vanderbilt Commodores         19.00            35       112.42        92.55  66.42               0.75
+   22  California Golden Bears         18.57            34       109.40        89.96  66.25                0.4
+   23              UNLV Rebels         18.47            35       109.06        89.72  70.53               0.49
+   24       Saint Mary's Gaels         18.15            33       113.16        94.14  65.06               0.64
+   25    Kansas State Wildcats         17.93            33       108.17        89.37  67.62                0.5
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 66.9 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2013 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2013]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  3.43it/s]100%|██████████| 1/1 [00:00<00:00,  3.42it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 234 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 1.5997
+    Iteration 4: avg change = 0.4022
+    Iteration 7: avg change = 0.1488
+    Iteration 10: avg change = 0.0615
+    Iteration 13: avg change = 0.0284
+    Iteration 15: avg change = 0.0176
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 347 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2013.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank        team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1           Florida Gators         33.83            36       116.86        82.21  62.75               0.73
+    2     Louisville Cardinals         32.70            40       115.49        81.97  67.53               0.85
+    3         Indiana Hoosiers         31.32            36       119.73        87.58  67.54                0.5
+    4         Gonzaga Bulldogs         30.31            35       119.03        87.90  65.34               0.78
+    5      Michigan Wolverines         29.09            39       120.85        90.94  64.54               0.57
+    6         Duke Blue Devils         26.72            36       117.06        89.51  68.25               0.52
+    7          Kansas Jayhawks         26.53            37       111.48        84.13  68.95               0.56
+    8        Wisconsin Badgers         25.73            34       108.62        82.06  62.28               0.46
+    9  Michigan State Spartans         25.46            36       110.84        84.55  64.62               0.81
+   10      Ohio State Buckeyes         25.45            36       113.48        87.20  65.10               0.64
+   11          Syracuse Orange         24.50            40       110.88        85.56  65.71               0.41
+   12      Pittsburgh Panthers         23.13            33       113.39        89.44  61.53               0.28
+   13         Arizona Wildcats         22.78            35       113.65        90.05  66.88               0.88
+   14       Creighton Bluejays         22.73            36       116.58        93.02  64.75               0.51
+   15         Miami Hurricanes         21.55            35       110.58        88.21  64.07                0.6
+   16   Wichita State Shockers         21.40            39       110.65        88.42  64.66               0.93
+   17      Colorado State Rams         21.32            35       116.59        94.44  64.66               0.55
+   18       Saint Mary's Gaels         21.30            35       115.17        93.05  64.90               0.51
+   19         Georgetown Hoyas         21.01            32       106.06        84.23  63.17               0.58
+   20             Baylor Bears         20.26            37       113.28        92.19  69.02               0.33
+   21         New Mexico Lobos         20.07            35       108.40        87.50  65.02               0.53
+   22 Minnesota Golden Gophers         19.93            34       112.03        91.28  63.73                0.4
+   23                 VCU Rams         19.82            35       112.14        91.49  69.22               0.49
+   24          Missouri Tigers         19.62            34       113.62        93.17  68.77               0.29
+   25    Saint Louis Billikens         19.61            34       106.89        86.45  65.07               0.63
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 66.7 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2014 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2014]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  2.80it/s]100%|██████████| 1/1 [00:00<00:00,  2.80it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 275 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 4.5157
+    Iteration 4: avg change = 0.3478
+    Iteration 7: avg change = 0.1244
+    Iteration 10: avg change = 0.0506
+    Iteration 13: avg change = 0.0234
+    Iteration 15: avg change = 0.0145
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 351 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2014.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank       team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1        Arizona Wildcats         30.20            38       112.14        81.17  64.66               0.71
+    2    Louisville Cardinals         29.24            37       113.41        83.40  69.11               0.46
+    3          Florida Gators         26.25            39       110.42        83.39  62.94               0.88
+    4       Wisconsin Badgers         24.62            38       116.90        91.50  63.08               0.75
+    5      Virginia Cavaliers         23.96            37       108.99        84.26  60.52               0.55
+    6  Wichita State Shockers         23.00            36       111.34        87.56  64.78               0.97
+    7  San Diego State Aztecs         22.92            36       106.56        82.86  64.51               0.37
+    8    Tennessee Volunteers         22.81            37       113.22        89.63  63.24               0.23
+    9        Duke Blue Devils         21.80            35       118.09        95.52  65.77               0.61
+   10             UCLA Bruins         21.36            37       113.70        91.57  70.42               0.42
+   11         Kansas Jayhawks         21.18            35       113.35        91.39  69.38               0.61
+   12     Michigan Wolverines         21.08            37       117.91        96.05  62.87               0.44
+   13 Michigan State Spartans         20.81            38       112.52        90.93  66.73               0.39
+   14           UConn Huskies         19.89            40       107.80        87.13  65.64               0.39
+   15       Kentucky Wildcats         19.54            40       112.14        91.82  66.63               0.57
+   16      Villanova Wildcats         19.44            34       109.47        89.25  68.73               0.74
+   17           Iowa Hawkeyes         19.22            33       114.02        94.02  70.77               0.51
+   18        Gonzaga Bulldogs         19.04            36       109.33        89.51  67.07               0.44
+   19  Oklahoma State Cowboys         18.93            34       110.04        90.33  71.26               0.65
+   20     Ohio State Buckeyes         18.45            35       103.80        84.58  65.70               0.41
+   21     Iowa State Cyclones         18.36            36       113.17        94.03  73.07               0.68
+   22     Pittsburgh Panthers         18.30            36       110.54        91.46  63.75               0.48
+   23      Creighton Bluejays         18.24            35       117.61        98.60  65.33               0.41
+   24            Baylor Bears         17.95            38       114.00        95.28  65.10               0.35
+   25        New Mexico Lobos         17.92            34       109.37        90.68  66.51               0.69
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 67.5 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2015 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2015]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  4.14it/s]100%|██████████| 1/1 [00:00<00:00,  4.13it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 286 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 2.4791
+    Iteration 4: avg change = 0.3880
+    Iteration 7: avg change = 0.1368
+    Iteration 10: avg change = 0.0531
+    Iteration 13: avg change = 0.0226
+    Iteration 15: avg change = 0.0133
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 351 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2015.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank             team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1             Kentucky Wildcats         36.24            39       117.04        79.98  64.49               0.71
+    2             Wisconsin Badgers         32.84            40       124.66        91.00  59.78                0.8
+    3              Duke Blue Devils         32.38            39       121.25        88.05  66.20               0.55
+    4              Arizona Wildcats         31.13            38       115.51        83.57  66.81                0.9
+    5              Gonzaga Bulldogs         29.25            38       119.02        88.96  65.13               0.52
+    6            Villanova Wildcats         29.06            36       118.12        88.24  65.25               0.66
+    7            Virginia Cavaliers         28.20            34       110.59        81.57  59.05                0.6
+    8                     Utah Utes         26.75            35       113.17        85.61  63.03                0.3
+    9      North Carolina Tar Heels         22.50            38       114.75        91.43  69.75               0.57
+   10     Notre Dame Fighting Irish         22.49            38       120.69        97.38  64.84               0.72
+   11        Wichita State Shockers         22.47            35       112.07        88.78  62.38               0.63
+   12           Ohio State Buckeyes         21.26            35       112.33        90.25  66.66               0.43
+   13                  Baylor Bears         20.59            34       111.71        90.30  63.37               0.63
+   14              Oklahoma Sooners         20.50            35       107.75        86.43  68.07               0.83
+   15        Northern Iowa Panthers         20.49            35       112.54        91.23  58.08               0.86
+   16           Iowa State Cyclones         20.45            34       113.99        92.72  69.63               0.67
+   17               Kansas Jayhawks         20.39            36       110.15        88.94  67.03               0.45
+   18       Michigan State Spartans         20.39            39       112.01        90.80  64.77               0.72
+   19          Louisville Cardinals         19.97            36       105.98        85.20  66.06               0.62
+   20                 Iowa Hawkeyes         18.61            34       109.69        90.26  64.81               0.67
+   21                   BYU Cougars         18.40            35       116.05        96.83  71.62                0.7
+   22 Stephen F. Austin Lumberjacks         18.22            34       112.02        92.98  68.02               0.44
+   23               Butler Bulldogs         18.13            34       105.66        86.71  65.13               0.52
+   24             Xavier Musketeers         17.40            37       111.78        93.57  66.54               0.68
+   25               Texas Longhorns         17.00            34       107.91        90.10  63.79               0.65
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 65.8 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2016 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2016]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  3.87it/s]100%|██████████| 1/1 [00:00<00:00,  3.86it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 288 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 3.8286
+    Iteration 4: avg change = 0.3327
+    Iteration 7: avg change = 0.1129
+    Iteration 10: avg change = 0.0429
+    Iteration 13: avg change = 0.0188
+    Iteration 15: avg change = 0.0115
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 351 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2016.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank             team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1            Villanova Wildcats         27.81            39       116.44        87.74  67.49               0.35
+    2               Kansas Jayhawks         27.36            38       115.41        87.16  70.62               0.53
+    3       Michigan State Spartans         26.38            34       117.42        90.16  67.58               0.66
+    4      North Carolina Tar Heels         25.63            40       117.80        91.28  70.41               0.66
+    5            Virginia Cavaliers         25.36            36       114.14        87.89  61.73               0.67
+    6             Kentucky Wildcats         23.80            35       116.67        91.98  68.73                0.6
+    7          Louisville Cardinals         23.08            31       108.80        84.83  66.59               0.27
+    8              Indiana Hoosiers         22.97            35       117.65        93.79  69.18               0.44
+    9           Purdue Boilermakers         22.76            35       112.73        89.08  68.64               0.32
+   10              Gonzaga Bulldogs         22.50            36       113.64        90.26  68.18               0.35
+   11        Wichita State Shockers         22.09            35       107.72        84.74  66.48               0.64
+   12                  SMU Mustangs         21.38            30       114.46        92.19  66.01                0.3
+   13              Arizona Wildcats         21.23            34       112.45        90.33  71.41               0.56
+   14                  Oregon Ducks         21.18            37       113.59        91.52  69.82               0.91
+   15    West Virginia Mountaineers         20.98            34       109.09        87.22  71.25               0.43
+   16            Saint Mary's Gaels         19.82            35       114.31        93.60  61.94               0.37
+   17              Duke Blue Devils         19.51            35       116.52        96.12  68.66               0.62
+   18              Oklahoma Sooners         19.51            36       111.95        91.56  71.48               0.71
+   19             Xavier Musketeers         19.43            33       111.35        91.02  72.26               0.66
+   20              Texas A&M Aggies         19.13            37       108.41        88.39  69.66               0.75
+   21 Stephen F. Austin Lumberjacks         18.86            34       108.89        89.13  69.79               0.34
+   22              Miami Hurricanes         18.85            34       113.00        93.25  66.11               0.58
+   23            Maryland Terrapins         18.31            35       111.18        91.98  67.93               0.49
+   24                     Utah Utes         18.13            35       112.15        93.13  68.56               0.29
+   25       California Golden Bears         17.69            33       107.90        89.32  69.12               0.67
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 69.9 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2017 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2017]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  2.66it/s]100%|██████████| 1/1 [00:00<00:00,  2.65it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 291 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 3.7457
+    Iteration 4: avg change = 0.3332
+    Iteration 7: avg change = 0.1048
+    Iteration 10: avg change = 0.0363
+    Iteration 13: avg change = 0.0141
+    Iteration 15: avg change = 0.0081
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 350 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2017.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank          team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1           Gonzaga Bulldogs         30.75            39       113.35        81.80  71.12               0.79
+    2   North Carolina Tar Heels         26.77            40       115.58        88.01  72.78               0.56
+    3     Wichita State Shockers         26.29            36       114.31        87.21  69.19               0.47
+    4         Villanova Wildcats         26.10            36       116.10        89.19  65.49               0.74
+    5             Florida Gators         25.53            36       111.87        85.54  70.51               0.56
+    6 West Virginia Mountaineers         25.09            37       111.19        85.30  72.56               0.68
+    7            Kansas Jayhawks         24.88            36       116.54        90.86  72.10               0.69
+    8          Kentucky Wildcats         24.81            38       113.52        87.90  74.60               0.76
+    9         Saint Mary's Gaels         24.72            34       114.83        89.30  61.03               0.59
+   10               Oregon Ducks         24.37            39       113.85        88.67  68.87                0.7
+   11       Louisville Cardinals         24.17            34       112.63        87.65  68.80               0.43
+   12               SMU Mustangs         23.22            35       115.08        91.05  63.66               0.72
+   13           Duke Blue Devils         23.12            37       116.17        92.25  69.62                0.7
+   14         Virginia Cavaliers         22.38            34       106.92        83.74  61.03               0.22
+   15        Michigan Wolverines         22.23            38       117.71        94.68  64.22                0.5
+   16           Arizona Wildcats         21.72            37       113.53        91.01  66.90               0.69
+   17        Purdue Boilermakers         21.60            35       111.87        89.47  70.80               0.66
+   18               Baylor Bears         21.54            35       112.21        89.87  65.37               0.58
+   19                UCLA Bruins         21.22            36       117.95        95.93  74.32               0.62
+   20        Iowa State Cyclones         20.70            35       113.94        92.43  71.71               0.71
+   21          Wisconsin Badgers         20.69            37       109.57        88.07  65.43               0.45
+   22        Cincinnati Bearcats         19.27            36       109.69        89.61  65.77               0.54
+   23  Notre Dame Fighting Irish         18.54            36       113.23        93.88  67.67               0.68
+   24     Oklahoma State Cowboys         18.50            33       119.22        99.92  72.77               0.73
+   25            Butler Bulldogs         18.40            34       112.47        93.27  67.39               0.81
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 70.3 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2018 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2018]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  3.66it/s]100%|██████████| 1/1 [00:00<00:00,  3.65it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 307 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 4.2461
+    Iteration 4: avg change = 0.3320
+    Iteration 7: avg change = 0.1086
+    Iteration 10: avg change = 0.0397
+    Iteration 13: avg change = 0.0160
+    Iteration 15: avg change = 0.0090
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 351 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2018.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank              team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1             Villanova Wildcats         29.86            40       121.39        90.71  70.53                0.8
+    2               Duke Blue Devils         26.78            37       116.76        89.16  71.02               0.48
+    3             Virginia Cavaliers         25.83            34       108.94        82.29  60.77               0.81
+    4            Purdue Boilermakers         24.69            37       116.77        91.25  68.43               0.45
+    5        Michigan State Spartans         24.56            35       114.82        89.43  68.29               0.44
+    6            Cincinnati Bearcats         22.77            36       107.56        83.96  66.25               0.65
+    7            Michigan Wolverines         22.39            41       109.53        86.32  66.11               0.57
+    8               Gonzaga Bulldogs         22.11            37       113.28        90.35  70.60                0.7
+    9                Kansas Jayhawks         20.83            39       115.16        93.51  70.38               0.64
+   10         Texas Tech Red Raiders         20.40            37       107.81        86.59  68.51               0.65
+   11            Ohio State Buckeyes         19.29            34       110.50        90.38  68.75               0.58
+   12       North Carolina Tar Heels         18.99            37       113.58        93.77  72.23               0.46
+   13     West Virginia Mountaineers         18.65            37       112.38        92.91  71.01               0.65
+   14           Tennessee Volunteers         18.35            35       108.38        89.21  67.70               0.66
+   15              Xavier Musketeers         17.90            35       113.49        94.77  72.93               0.64
+   16                 Clemson Tigers         17.23            35       107.30        89.24  68.16               0.74
+   17                Houston Cougars         17.20            35       108.46        90.44  68.46               0.63
+   18              Kentucky Wildcats         16.52            37       109.65        92.31  70.18               0.53
+   19                Butler Bulldogs         16.43            35       110.24        92.98  71.11               0.35
+   20             Saint Mary's Gaels         16.37            36       113.82        96.62  64.25                0.6
+   21           South Dakota Coyotes         16.19            35       107.47        90.46  71.90               0.67
+   22         Wichita State Shockers         16.08            33       114.79        97.89  70.35                0.7
+   23       Penn State Nittany Lions         16.01            39       107.99        91.16  68.54               0.68
+   24               TCU Horned Frogs         15.97            33       113.71        96.91  71.03               0.67
+   25 South Dakota State Jackrabbits         15.67            35       111.81        95.31  72.87               0.44
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 70.3 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2019 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2019]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  4.13it/s]100%|██████████| 1/1 [00:00<00:00,  4.12it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 299 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 3.3213
+    Iteration 4: avg change = 0.3844
+    Iteration 7: avg change = 0.1319
+    Iteration 10: avg change = 0.0497
+    Iteration 13: avg change = 0.0205
+    Iteration 15: avg change = 0.0120
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 353 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2019.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank          team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1           Gonzaga Bulldogs         34.89            37       120.23        84.60  71.37               0.61
+    2         Virginia Cavaliers         30.29            38       117.42        86.40  61.40               0.61
+    3     Texas Tech Red Raiders         28.14            38       109.80        80.93  67.68               0.42
+    4           Duke Blue Devils         27.84            38       114.12        85.55  73.43                0.6
+    5    Michigan State Spartans         27.61            39       115.56        87.22  68.15               0.85
+    6          Kentucky Wildcats         26.85            37       113.45        85.87  67.41               0.78
+    7           Wofford Terriers         24.85            35       115.93        90.34  69.09               0.35
+    8        Michigan Wolverines         24.10            37       108.48        83.65  65.00               0.62
+    9   North Carolina Tar Heels         24.04            36       113.84        89.07  76.24               0.65
+   10        Purdue Boilermakers         23.56            36       116.77        92.48  66.65               0.52
+   11       Tennessee Volunteers         23.36            37       116.73        92.64  70.58               0.86
+   12            Houston Cougars         22.50            37       110.89        87.66  67.27                0.7
+   13              Auburn Tigers         22.24            40       114.96        91.99  70.03               0.79
+   14       Virginia Tech Hokies         22.05            35       112.91        90.12  64.74               0.43
+   15              Buffalo Bulls         18.80            36       110.90        91.37  74.56               0.89
+   16        Iowa State Cyclones         18.52            35       113.04        93.79  68.63               0.69
+   17    Florida State Seminoles         18.34            37       107.16        88.08  70.53               0.73
+   18            Kansas Jayhawks         18.20            36       108.42        89.49  71.20               0.76
+   19 Mississippi State Bulldogs         17.41            34       112.40        94.26  69.04               0.68
+   20                 LSU Tigers         17.31            35       112.09        94.04  72.20               0.81
+   21          Wisconsin Badgers         17.30            34       104.61        86.58  65.86               0.45
+   22       Louisville Cardinals         16.95            34       108.51        90.82  69.36               0.68
+   23           Nevada Wolf Pack         16.87            34       109.26        91.66  70.96               0.48
+   24      Kansas State Wildcats         16.44            34       102.94        85.77  65.02               0.57
+   25         Saint Mary's Gaels         16.15            34       110.20        93.32  64.43               0.45
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 69.9 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2020 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2020]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  2.36it/s]100%|██████████| 1/1 [00:00<00:00,  2.36it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 305 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 1.6311
+    Iteration 4: avg change = 0.4150
+    Iteration 7: avg change = 0.1699
+    Iteration 10: avg change = 0.0772
+    Iteration 13: avg change = 0.0380
+    Iteration 15: avg change = 0.0248
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 353 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2020.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank               team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1                Gonzaga Bulldogs         28.73            33       120.55        90.97  72.81               0.55
+    2                 Kansas Jayhawks         28.47            31       114.18        84.85  68.18               0.54
+    3          San Diego State Aztecs         24.10            32       112.82        87.86  66.05               0.81
+    4         Michigan State Spartans         23.15            31       112.51        88.50  69.24               0.55
+    5                     BYU Cougars         22.50            32       114.95        91.60  70.52               0.56
+    6                Duke Blue Devils         22.41            31       112.83        89.57  74.28               0.33
+    7                    Baylor Bears         21.89            30       109.80        87.06  66.94               0.73
+    8                   Dayton Flyers         21.26            31       114.64        92.52  69.19               0.97
+    9             Ohio State Buckeyes         19.58            31       110.86        90.43  66.81                0.6
+   10                Arizona Wildcats         19.32            32       108.66        88.48  70.81               0.32
+   11 East Tennessee State Buccaneers         19.28            34       109.96        89.82  68.14               0.51
+   12                    Oregon Ducks         18.87            31       115.06        95.33  67.98               0.38
+   13      West Virginia Mountaineers         18.81            31       105.22        85.54  69.72               0.65
+   14               Utah State Aggies         18.80            34       109.07        89.41  69.54               0.72
+   15             Michigan Wolverines         18.38            31       109.90        90.66  69.86               0.46
+   16          Texas Tech Red Raiders         18.18            31       107.32        88.28  69.42               0.25
+   17            Louisville Cardinals         18.12            31       111.29        92.32  67.79               0.45
+   18              Creighton Bluejays         18.07            31       114.50        95.57  70.43                0.6
+   19                 Houston Cougars         17.58            31       109.29        90.85  67.17               0.88
+   20              Maryland Terrapins         17.07            31       109.91        91.99  67.54               0.79
+   21         Florida State Seminoles         17.03            31       108.71        90.82  70.08               0.57
+   22               Wisconsin Badgers         16.99            31       107.91        90.06  64.37               0.55
+   23              Saint Mary's Gaels         16.40            34       113.18        95.92  66.92               0.29
+   24         Rutgers Scarlet Knights         16.38            31       105.36        88.12  68.26               0.51
+   25                 Butler Bulldogs         16.30            31       109.10        91.94  64.25               0.77
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 69.9 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2021 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2021]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  2.99it/s]100%|██████████| 1/1 [00:00<00:00,  2.98it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 145 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 2.1478
+    Iteration 4: avg change = 0.8205
+    Iteration 7: avg change = 0.5143
+    Iteration 10: avg change = 0.3444
+    Iteration 13: avg change = 0.2401
+    Iteration 15: avg change = 0.1909
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 348 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2021.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank        team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1         Gonzaga Bulldogs         35.67            32       124.36        87.62  74.55               0.86
+    2             Baylor Bears         30.86            30       121.58        89.65  69.52               0.56
+    3          Houston Cougars         27.47            32       116.71        88.18  66.30               0.65
+    4  Loyola Chicago Ramblers         26.74            31       111.18        83.38  64.08               0.51
+    5 Illinois Fighting Illini         26.32            31       114.59        87.21  71.80               0.62
+    6      Michigan Wolverines         26.05            28       114.26        87.14  67.41               0.69
+    7              USC Trojans         25.85            33       113.21        86.30  68.67               0.63
+    8       Colorado Buffaloes         23.55            32       113.76        89.15  66.25                0.5
+    9     Alabama Crimson Tide         23.21            33       110.60        86.32  74.54               0.52
+   10            Iowa Hawkeyes         22.95            31       119.95        95.94  71.09               0.41
+   11              BYU Cougars         22.44            27       113.56        90.06  71.05               0.32
+   12   Texas Tech Red Raiders         21.66            29       111.24        88.52  67.18               0.57
+   13              UCLA Bruins         20.64            32       114.22        92.51  67.17               0.69
+   14      Arkansas Razorbacks         19.26            32       108.79        88.46  75.71               0.43
+   15          Kansas Jayhawks         18.81            30       108.21        88.34  69.53               0.43
+   16         Arizona Wildcats         18.71            26       112.96        93.18  68.84                0.5
+   17     Tennessee Volunteers         18.63            27       106.66        86.97  68.60               0.17
+   18          Tarleton Texans         18.60            20       108.06        88.40  68.89               0.05
+   19     Weber State Wildcats         18.52            22       112.85        93.27  72.36               0.24
+   20             Oregon Ducks         18.51            28       113.78        94.21  68.21               0.73
+   21   San Diego State Aztecs         18.45            28       109.02        89.50  67.17                0.4
+   22      Ohio State Buckeyes         18.29            31       116.05        96.70  68.56               0.74
+   23               LSU Tigers         18.23            29       116.78        97.49  72.88               0.69
+   24          Texas Longhorns         18.09            27       110.27        91.12  70.29               0.79
+   25           Memphis Tigers         17.89            28       103.06        84.11  72.03               0.66
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 70.1 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2022 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2022]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  4.05it/s]100%|██████████| 1/1 [00:00<00:00,  4.04it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 319 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 2.3481
+    Iteration 4: avg change = 0.4575
+    Iteration 7: avg change = 0.1754
+    Iteration 10: avg change = 0.0733
+    Iteration 13: avg change = 0.0329
+    Iteration 15: avg change = 0.0204
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 360 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2022.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank        team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1         Gonzaga Bulldogs         31.52            32       118.31        86.02  73.65               0.74
+    2          Houston Cougars         27.32            38       113.89        85.81  65.69               0.68
+    3     Tennessee Volunteers         24.54            35       109.47        84.17  69.08               0.29
+    4   Texas Tech Red Raiders         24.52            37       108.57        83.29  67.73               0.41
+    5             Baylor Bears         24.51            34       114.06        88.78  69.23               0.69
+    6          Kansas Jayhawks         24.50            40       115.10        89.84  70.17               0.89
+    7        Kentucky Wildcats         23.67            34       116.31        91.88  69.80               0.35
+    8         Arizona Wildcats         22.87            37       114.45        90.81  73.34               0.67
+    9         Duke Blue Devils         21.41            39       117.03        94.85  68.40               0.76
+   10              UCLA Bruins         20.89            35       112.28        90.63  67.63               0.55
+   11       Villanova Wildcats         20.43            38       113.13        91.93  63.65               0.46
+   12            Auburn Tigers         20.17            34       108.65        87.72  72.56               0.87
+   13            Iowa Hawkeyes         19.32            36       116.22        96.14  70.97               0.43
+   14       Saint Mary's Gaels         19.21            34       107.73        87.76  65.32               0.65
+   15      Purdue Boilermakers         18.96            37       116.57        96.84  67.51               0.67
+   16      Murray State Racers         18.77            34       111.47        91.94  68.74               0.46
+   17          Texas Longhorns         18.70            34       108.18        88.72  64.98               0.44
+   18               LSU Tigers         18.26            34       104.35        85.33  70.91               0.64
+   19      Arkansas Razorbacks         17.82            37       106.47        87.89  72.67               0.72
+   20              UAB Blazers         17.78            35       111.38        92.84  71.11               0.56
+   21       San Francisco Dons         17.43            34       109.26        91.07  71.06               0.68
+   22  Loyola Chicago Ramblers         17.11            33       106.38        88.50  66.82               0.35
+   23 Illinois Fighting Illini         16.83            33       109.07        91.48  68.08                0.4
+   24   North Texas Mean Green         16.78            32       105.38        87.84  60.92               0.74
+   25 North Carolina Tar Heels         16.71            39       109.89        92.42  70.87               0.69
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 69.0 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2023 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2023]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  3.87it/s]100%|██████████| 1/1 [00:00<00:00,  3.86it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 343 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 3.4675
+    Iteration 4: avg change = 0.3719
+    Iteration 7: avg change = 0.1363
+    Iteration 10: avg change = 0.0559
+    Iteration 13: avg change = 0.0256
+    Iteration 15: avg change = 0.0158
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 363 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2023.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank       team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1         Houston Cougars         25.01            37       112.10        86.39  64.89               0.61
+    2    Alabama Crimson Tide         24.22            37       110.39        85.47  74.18               0.45
+    3           UConn Huskies         23.37            39       113.37        89.30  68.48               0.88
+    4             UCLA Bruins         23.21            37       109.02        85.11  67.29               0.71
+    5        Gonzaga Bulldogs         23.12            37       118.33        94.51  71.91               0.45
+    6    Tennessee Volunteers         22.89            36       106.70        83.10  65.82               0.33
+    7         Texas Longhorns         20.86            38       110.11        88.55  70.90               0.62
+    8      Saint Mary's Gaels         20.06            35       107.53        86.77  64.40               0.76
+    9          Liberty Flames         19.74            36       110.20        89.76  65.57               0.61
+   10   Florida Atlantic Owls         19.15            39       110.71        90.86  68.87               0.87
+   11    Sam Houston Bearkats         18.95            34       105.09        85.44  67.42               0.23
+   12     Purdue Boilermakers         18.67            35       110.96        91.59  63.89               0.78
+   13        Arizona Wildcats         18.58            35       112.32        93.03  72.47               0.43
+   14         Kansas Jayhawks         18.35            36       108.35        89.29  70.46               0.63
+   15  San Diego State Aztecs         17.50            39       105.17        86.97  67.31               0.63
+   16  Utah Valley Wolverines         16.70            37       105.41        88.01  73.04               0.79
+   17  North Texas Mean Green         16.45            38       106.02        88.87  60.27               0.55
+   18       Utah State Aggies         15.97            35       111.17        94.50  69.23               0.74
+   19 Marquette Golden Eagles         15.79            36       111.11        94.62  70.06                0.9
+   20        Duke Blue Devils         15.73            36       107.28        90.85  65.74               0.45
+   21      Creighton Bluejays         15.71            37       108.12        91.71  69.69               0.46
+   22            Baylor Bears         15.11            34       113.85        98.04  68.26               0.71
+   23             UAB Blazers         14.63            39       108.38        93.04  72.82               0.63
+   24   Kansas State Wildcats         14.33            36       107.00        91.98  71.74               0.63
+   25     Boise State Broncos         14.13            34       105.94        91.11  67.32               0.47
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 68.8 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2024 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2024]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  4.30it/s]100%|██████████| 1/1 [00:00<00:00,  4.29it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 355 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 5.2286
+    Iteration 4: avg change = 0.4062
+    Iteration 7: avg change = 0.1391
+    Iteration 10: avg change = 0.0534
+    Iteration 13: avg change = 0.0229
+    Iteration 15: avg change = 0.0134
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 362 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2024.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank        team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1            UConn Huskies         29.65            40       118.32        88.03  66.00               0.69
+    2          Houston Cougars         29.40            37       111.64        81.60  64.68               0.59
+    3      Purdue Boilermakers         25.45            39       116.68        90.59  68.81               0.68
+    4       Saint Mary's Gaels         23.23            34       110.57        86.71  64.04               0.17
+    5      Iowa State Cyclones         22.90            37       107.04        83.50  68.17               0.49
+    6            Auburn Tigers         22.75            35       112.28        88.89  71.08                0.5
+    7         Arizona Wildcats         22.13            36       112.29        89.53  74.47               0.57
+    8         Gonzaga Bulldogs         21.81            35       116.24        93.79  69.67               0.37
+    9         Duke Blue Devils         21.48            36       113.48        91.35  67.29               0.71
+   10     Tennessee Volunteers         21.35            36       108.21        86.22  70.23               0.75
+   11 North Carolina Tar Heels         20.42            37       111.35        90.29  71.46               0.94
+   12     Alabama Crimson Tide         19.12            37       117.91        98.15  74.32               0.45
+   13              BYU Cougars         18.27            34       113.22        94.31  69.82               0.53
+   14 Illinois Fighting Illini         18.15            38       116.21        97.43  70.69               0.65
+   15       Creighton Bluejays         18.02            35       112.40        93.75  69.29               0.39
+   16             Baylor Bears         17.92            35       114.98        96.42  68.54               0.22
+   17  Marquette Golden Eagles         16.21            37       109.18        92.33  69.64               0.56
+   18         New Mexico Lobos         16.03            35       107.38        90.71  72.38               0.62
+   19   San Diego State Aztecs         15.99            37       105.61        88.98  68.12                0.9
+   20      Boise State Broncos         15.75            33       108.85        92.46  67.30               0.37
+   21          McNeese Cowboys         15.30            34       108.65        92.71  67.50               0.41
+   22          Texas Longhorns         15.23            34       108.28        92.41  68.44               0.52
+   23  Indiana State Sycamores         15.05            39       113.07        97.38  71.49               0.87
+   24       Grand Canyon Lopes         14.93            35       107.52        91.95  70.14               0.82
+   25            Dayton Flyers         14.70            33       110.52        95.18  64.74               0.51
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 69.3 possessions/game
+
+================================================================================
+GENERATING RATINGS FOR 2025 SEASON
+================================================================================
+
+Loading game data from sportsdataverse...
+Loading team boxscores for seasons: [2025]
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00,  3.14it/s]100%|██████████| 1/1 [00:00<00:00,  3.14it/s]
+Calculating game statistics...
+Merging opponent data...
+Filtering D1 teams...
+  Filtered out 335 non-D1 teams (fewer than 10 games)
+Calculating opponent-adjusted efficiency (with recency weighting)...
+  Running opponent adjustment (15 iterations)...
+    Iteration 1: avg change = 6.2683
+    Iteration 4: avg change = 0.3806
+    Iteration 7: avg change = 0.1241
+    Iteration 10: avg change = 0.0436
+    Iteration 13: avg change = 0.0171
+    Iteration 15: avg change = 0.0096
+Aggregating to team-season level...
+Applying SOS-based regression...
+Calculating consistency scores...
+Calculating power ratings...
+
+Saved 365 team ratings to /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings/ratings_2025.csv
+
+====================================================================================================
+TOP 25 POWER RATINGS (Per 100 Possessions, Opponent-Adjusted)
+====================================================================================================
+ rank        team_display_name  power_rating  games_played  adj_off_eff  adj_def_eff  tempo  consistency_score
+    1         Duke Blue Devils         33.82            39       120.53        86.09  66.52               0.61
+    2          Houston Cougars         30.45            40       113.51        82.44  63.51               0.82
+    3           Florida Gators         28.70            40       117.13        87.80  70.52               0.92
+    4            Auburn Tigers         28.09            38       116.56        87.84  69.25               0.84
+    5         Gonzaga Bulldogs         25.42            35       116.11        90.06  70.94               0.54
+    6     Alabama Crimson Tide         24.30            37       117.01        92.08  76.32               0.74
+    7     Tennessee Volunteers         24.25            38       110.87        85.99  64.71               0.55
+    8   Texas Tech Red Raiders         22.35            37       115.61        92.63  67.75               0.75
+    9       Maryland Terrapins         22.21            36       109.67        86.83  70.66               0.69
+   10  Michigan State Spartans         21.48            37       108.79        86.68  69.32               0.86
+   11         Arizona Wildcats         21.13            37       114.43        92.67  70.79               0.39
+   12      Iowa State Cyclones         20.80            35       109.70        88.27  70.25               0.57
+   13       Saint Mary's Gaels         19.83            35       106.83        86.38  64.10               0.59
+   14     St. John's Red Storm         19.75            36       104.81        84.43  71.22               0.68
+   15        Wisconsin Badgers         19.65            37       112.49        92.21  68.85               0.62
+   16     UC San Diego Tritons         19.35            35       108.83        88.86  67.38               0.71
+   17      Purdue Boilermakers         19.12            36       114.51        94.76  66.21               0.61
+   18          Missouri Tigers         18.46            34       115.15        96.06  70.03               0.41
+   19 Illinois Fighting Illini         18.37            35       112.25        93.25  72.97               0.27
+   20                 VCU Rams         18.37            35       109.09        90.09  66.78                0.7
+   21              UCLA Bruins         18.23            34       108.33        89.48  66.30                0.4
+   22        Kentucky Wildcats         17.70            36       113.10        94.78  72.68               0.67
+   23           Clemson Tigers         16.97            34       108.46        90.87  66.40               0.87
+   24      Michigan Wolverines         16.60            37       106.80        89.58  71.21               0.46
+   25             Oregon Ducks         16.54            35       108.05        90.89  69.16               0.91
+
+----------------------------------------------------------------------------------------------------
+Rating = Efficiency margin per 100 possessions | Use tempo to calculate expected spreads
+National Avg Tempo: 68.9 possessions/game
+
+================================================================================
+HISTORICAL RATINGS GENERATION COMPLETE
+Files saved to: /mnt/c/Users/mpgra/Documents/cbb_power_rating/historical_ratings
+================================================================================

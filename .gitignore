@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/*.log
+
+# Data (too large for git, downloaded via sportsdataverse)
+data/*.parquet
+data/*.csv
+!data/.gitkeep
+
+# Temporary files
+*.tmp
+*.bak
+*_current.csv
+*_with_preseason.csv
+returning_production_*.csv
+backtest_results_*.csv
+
+# Submodules / nested repos
+cbbdata_src/
