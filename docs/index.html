@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Ratings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            border-bottom: 1px solid #222;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        select, input[type="text"] {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #e0e0e0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input[type="text"]:focus {
+            border-color: #667eea;
+        }
+
+        input[type="text"] {
+            width: 200px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 30px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #111;
+            border-radius: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #222;
+        }
+
+        th {
+            background: #111;
+            color: #888;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            user-select: none;
+            position: sticky;
+            top: 0;
+        }
+
+        th:hover {
+            color: #667eea;
+        }
+
+        th.sorted-asc::after {
+            content: ' ▲';
+        }
+
+        th.sorted-desc::after {
+            content: ' ▼';
+        }
+
+        tr:hover {
+            background: #151515;
+        }
+
+        .rank {
+            font-weight: 700;
+            color: #667eea;
+            width: 60px;
+        }
+
+        .team {
+            font-weight: 600;
+        }
+
+        .rating {
+            font-weight: 700;
+            color: #4ade80;
+        }
+
+        .rating.negative {
+            color: #f87171;
+        }
+
+        .number {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+            color: #999;
+        }
+
+        .spread-calculator {
+            background: #111;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .spread-calculator h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #888;
+        }
+
+        .spread-inputs {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .spread-inputs .control-group {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .spread-result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .spread-result.visible {
+            display: block;
+        }
+
+        .spread-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4ade80;
+        }
+
+        .spread-details {
+            margin-top: 10px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #888;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            border-color: #667eea;
+            color: #e0e0e0;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #444;
+            font-size: 0.85rem;
+            border-top: 1px solid #222;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            th, td {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+
+            .hide-mobile {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Power Ratings</h1>
+        <p class="subtitle">Opponent-adjusted efficiency ratings for college basketball</p>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" data-sport="cbb">College Basketball</div>
+            <div class="tab" data-sport="cfb" style="opacity: 0.5; cursor: not-allowed;">College Football (Coming Soon)</div>
+            <div class="tab" data-sport="nfl" style="opacity: 0.5; cursor: not-allowed;">NFL (Coming Soon)</div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="season">Season:</label>
+                <select id="season">
+                    <option value="2026">2025-26</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="search">Search:</label>
+                <input type="text" id="search" placeholder="Team name...">
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-value" id="stat-teams">-</div>
+                <div class="stat-label">Teams</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-top-rating">-</div>
+                <div class="stat-label">Top Rating</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-avg-tempo">-</div>
+                <div class="stat-label">Avg Tempo</div>
+            </div>
+        </div>
+
+        <div class="spread-calculator">
+            <h2>Spread Calculator</h2>
+            <div class="spread-inputs">
+                <div class="control-group">
+                    <label for="team-a">Team A:</label>
+                    <input type="text" id="team-a" placeholder="e.g. Duke">
+                </div>
+                <div class="control-group">
+                    <label for="team-b">Team B:</label>
+                    <input type="text" id="team-b" placeholder="e.g. North Carolina">
+                </div>
+                <div class="control-group">
+                    <label for="home-team">Home Team:</label>
+                    <select id="home-team">
+                        <option value="">Neutral</option>
+                        <option value="a">Team A</option>
+                        <option value="b">Team B</option>
+                    </select>
+                </div>
+                <button onclick="calculateSpread()">Calculate</button>
+            </div>
+            <div class="spread-result" id="spread-result">
+                <div class="spread-value" id="spread-value"></div>
+                <div class="spread-details" id="spread-details"></div>
+            </div>
+        </div>
+
+        <div id="ratings-container">
+            <div class="loading">Loading ratings...</div>
+        </div>
+    </div>
+
+    <footer>
+        Power Ratings | Opponent-adjusted efficiency per 100 possessions
+    </footer>
+
+    <script>
+        let allRatings = [];
+        let currentSort = { column: 'rank', direction: 'asc' };
+
+        async function loadSeasons() {
+            try {
+                const response = await fetch('data/seasons.json');
+                const data = await response.json();
+                const select = document.getElementById('season');
+                select.innerHTML = data.seasons.map(s =>
+                    `<option value="${s}">${s-1}-${String(s).slice(2)}</option>`
+                ).join('');
+            } catch (e) {
+                console.error('Failed to load seasons:', e);
+            }
+        }
+
+        async function loadRatings() {
+            const season = document.getElementById('season').value;
+            const container = document.getElementById('ratings-container');
+
+            container.innerHTML = '<div class="loading">Loading ratings...</div>';
+
+            try {
+                const response = await fetch(`data/ratings_${season}.json`);
+                const data = await response.json();
+
+                if (data.error) {
+                    container.innerHTML = `<div class="loading">${data.error}</div>`;
+                    return;
+                }
+
+                allRatings = data.ratings;
+                updateStats(allRatings);
+                renderTable(allRatings);
+            } catch (e) {
+                container.innerHTML = '<div class="loading">Failed to load ratings</div>';
+                console.error(e);
+            }
+        }
+
+        function updateStats(ratings) {
+            document.getElementById('stat-teams').textContent = ratings.length;
+            if (ratings.length > 0) {
+                document.getElementById('stat-top-rating').textContent = ratings[0].rating.toFixed(1);
+                const avgTempo = ratings.reduce((sum, r) => sum + (r.tempo || 0), 0) / ratings.length;
+                document.getElementById('stat-avg-tempo').textContent = avgTempo.toFixed(1);
+            }
+        }
+
+        function renderTable(ratings) {
+            const container = document.getElementById('ratings-container');
+
+            if (ratings.length === 0) {
+                container.innerHTML = '<div class="loading">No teams found</div>';
+                return;
+            }
+
+            const headers = [
+                { key: 'rank', label: 'Rank' },
+                { key: 'team', label: 'Team' },
+                { key: 'rating', label: 'Rating' },
+                { key: 'adjO', label: 'AdjO' },
+                { key: 'adjD', label: 'AdjD' },
+                { key: 'tempo', label: 'Tempo', hideOnMobile: true },
+                { key: 'sos', label: 'SOS', hideOnMobile: true },
+                { key: 'games', label: 'Games', hideOnMobile: true }
+            ];
+
+            const headerHtml = headers.map(h => {
+                const sortClass = currentSort.column === h.key
+                    ? `sorted-${currentSort.direction}`
+                    : '';
+                const mobileClass = h.hideOnMobile ? 'hide-mobile' : '';
+                return `<th class="${sortClass} ${mobileClass}" data-column="${h.key}">${h.label}</th>`;
+            }).join('');
+
+            const rowsHtml = ratings.map(r => {
+                const ratingClass = r.rating >= 0 ? 'rating' : 'rating negative';
+                return `
+                    <tr>
+                        <td class="rank">${r.rank}</td>
+                        <td class="team">${r.team}</td>
+                        <td class="${ratingClass}">${r.rating?.toFixed(2) || '-'}</td>
+                        <td class="number">${r.adjO?.toFixed(1) || '-'}</td>
+                        <td class="number">${r.adjD?.toFixed(1) || '-'}</td>
+                        <td class="number hide-mobile">${r.tempo?.toFixed(1) || '-'}</td>
+                        <td class="number hide-mobile">${r.sos?.toFixed(2) || '-'}</td>
+                        <td class="number hide-mobile">${r.games || '-'}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <table>
+                    <thead><tr>${headerHtml}</tr></thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>
+            `;
+
+            // Add sort listeners
+            container.querySelectorAll('th').forEach(th => {
+                th.addEventListener('click', () => sortTable(th.dataset.column));
+            });
+        }
+
+        function sortTable(column) {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = column === 'rank' ? 'asc' : 'desc';
+            }
+
+            const sorted = [...allRatings].sort((a, b) => {
+                let valA = a[column];
+                let valB = b[column];
+
+                if (typeof valA === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
+                }
+
+                if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
+                if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            renderTable(sorted);
+        }
+
+        function filterRatings() {
+            const search = document.getElementById('search').value.toLowerCase();
+            const filtered = allRatings.filter(r =>
+                r.team.toLowerCase().includes(search)
+            );
+            renderTable(filtered);
+        }
+
+        function calculateSpread() {
+            const teamAInput = document.getElementById('team-a').value.toLowerCase();
+            const teamBInput = document.getElementById('team-b').value.toLowerCase();
+            const home = document.getElementById('home-team').value;
+
+            if (!teamAInput || !teamBInput) {
+                alert('Please enter both team names');
+                return;
+            }
+
+            // Find teams in current ratings (client-side lookup)
+            const teamA = allRatings.find(r => r.team.toLowerCase().includes(teamAInput));
+            const teamB = allRatings.find(r => r.team.toLowerCase().includes(teamBInput));
+
+            const resultDiv = document.getElementById('spread-result');
+            const valueDiv = document.getElementById('spread-value');
+            const detailsDiv = document.getElementById('spread-details');
+
+            if (!teamA) {
+                valueDiv.textContent = 'Error';
+                detailsDiv.textContent = `Team not found: ${teamAInput}`;
+                resultDiv.classList.add('visible');
+                return;
+            }
+            if (!teamB) {
+                valueDiv.textContent = 'Error';
+                detailsDiv.textContent = `Team not found: ${teamBInput}`;
+                resultDiv.classList.add('visible');
+                return;
+            }
+
+            // Calculate spread (client-side math)
+            const ratingDiff = teamA.rating - teamB.rating;
+            const avgTempo = ((teamA.tempo || 68) + (teamB.tempo || 68)) / 2;
+            const tempoFactor = avgTempo / 100;
+
+            let spread = ratingDiff * tempoFactor;
+
+            // Home court adjustment (~3.5 points)
+            const homeAdvantage = 3.5 * tempoFactor;
+            if (home === 'a') spread += homeAdvantage;
+            else if (home === 'b') spread -= homeAdvantage;
+
+            const favorite = spread > 0 ? teamA.team : teamB.team;
+            const spreadStr = Math.abs(spread).toFixed(1);
+
+            valueDiv.textContent = `${favorite} -${spreadStr}`;
+            detailsDiv.innerHTML = `
+                ${teamA.team}: ${teamA.rating.toFixed(1)} | ${teamB.team}: ${teamB.rating.toFixed(1)}<br>
+                Expected tempo: ${avgTempo.toFixed(1)} | Venue: ${home === '' ? 'Neutral' : home === 'a' ? teamA.team + ' home' : teamB.team + ' home'}
+            `;
+
+            resultDiv.classList.add('visible');
+        }
+
+        // Event listeners
+        document.getElementById('season').addEventListener('change', loadRatings);
+        document.getElementById('search').addEventListener('input', filterRatings);
+
+        // Initial load
+        loadSeasons().then(loadRatings);
+    </script>
+</body>
+</html>
