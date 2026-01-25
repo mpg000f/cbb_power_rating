@@ -70,11 +70,12 @@ class RatingConfig:
     opp_adjust_weight: float = 0.8   # How much to weight opponent strength
     opp_adjust_shrinkage: float = 0.0  # Shrinkage toward mean (0 = disabled)
 
-    # SOS-based regression (replaces conference tiers)
-    # Teams with weak SOS get regressed toward the mean
-    sos_regression_factor: float = 0.75  # How much to regress weak-SOS teams (increased from 0.6)
-    sos_regression_power: float = 1.8  # Power curve - heavily penalize very weak schedules (increased from 1.5)
-    sos_boost_factor: float = 0.15  # Small boost for above-average SOS teams
+    # SOS-based regression using WIN50 method (Sagarin)
+    # WIN50 SOS = rating needed to go .500 against schedule (more robust than averaging)
+    # Teams with weak SOS get efficiency regressed toward the mean
+    sos_regression_factor: float = 0.04  # Regression per point of SOS below baseline
+    sos_boost_factor: float = 0.01  # Small boost per point of SOS above baseline
+    sos_max_regression: float = 0.25  # Maximum regression (25% toward mean)
 
     # Recency weighting - bucket approach
     # Most recent N games get full weight, earlier games fall off
@@ -1138,35 +1139,103 @@ def merge_opponent_stats(df: pd.DataFrame) -> pd.DataFrame:
 # SOS-BASED REGRESSION (Replaces hardcoded conference tiers)
 # =============================================================================
 
-def calculate_team_sos(game_data: pd.DataFrame, adj_efficiency: pd.DataFrame) -> pd.DataFrame:
+def calculate_win_probability(rating_diff: float, home_advantage: float = 0) -> float:
     """
-    Calculate Strength of Schedule for each team based on opponent ratings.
+    Calculate win probability given rating difference.
 
-    SOS = average opponent rating (AdjO - AdjD) across all games played.
+    Uses logistic function calibrated so that ~11 points = 75% win probability
+    (similar to KenPom's observed calibration).
+
+    Args:
+        rating_diff: Team rating minus opponent rating (positive = favorite)
+        home_advantage: Additional points for home team (typically 3.5-4)
+
+    Returns:
+        Win probability (0 to 1)
+    """
+    # Logistic function: P = 1 / (1 + 10^(-diff/scale))
+    # Scale of 10 means 10 point favorite ≈ 75% win probability
+    adjusted_diff = rating_diff + home_advantage
+    return 1 / (1 + 10 ** (-adjusted_diff / 10))
+
+
+def calculate_win50_sos(game_data: pd.DataFrame, adj_efficiency: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate Strength of Schedule using Sagarin's WIN50 method.
+
+    WIN50 SOS = the rating a team would need to go .500 against their schedule.
+
+    This method is more robust than simple averaging because:
+    - Outliers (very weak or very strong opponents) have less impact
+    - Whether you played #350 vs #351 doesn't matter much
+    - Whether you played #1 vs #5 matters more appropriately
+
+    Uses binary search to find the rating that gives 50% expected wins.
     """
     # Create opponent rating lookup
     adj_efficiency = adj_efficiency.copy()
     adj_efficiency['opp_rating'] = adj_efficiency['adj_off_eff'] - adj_efficiency['adj_def_eff']
     rating_lookup = dict(zip(adj_efficiency['team_id'], adj_efficiency['opp_rating']))
 
-    # For each team, calculate average opponent rating
     sos_data = []
+
     for team_id in game_data['team_id'].unique():
         team_games = game_data[game_data['team_id'] == team_id]
+
+        # Get opponent ratings for all games
         opp_ratings = []
         for _, game in team_games.iterrows():
             opp_id = game['opp_team_id']
-            opp_rating = rating_lookup.get(opp_id, 0)  # 0 = average if not found
+            opp_rating = rating_lookup.get(opp_id, 0)
             opp_ratings.append(opp_rating)
 
-        if opp_ratings:
-            sos_data.append({
-                'team_id': team_id,
-                'sos': np.mean(opp_ratings),
-                'sos_std': np.std(opp_ratings) if len(opp_ratings) > 1 else 0
-            })
+        if not opp_ratings:
+            continue
+
+        num_games = len(opp_ratings)
+        target_wins = num_games * 0.5  # We want 50% expected wins
+
+        # Binary search to find rating that gives 50% expected wins
+        low, high = -50, 50  # Search range for rating
+
+        for _ in range(50):  # 50 iterations gives very precise result
+            mid = (low + high) / 2
+
+            # Calculate expected wins with this rating
+            expected_wins = sum(
+                calculate_win_probability(mid - opp_rating)
+                for opp_rating in opp_ratings
+            )
+
+            if expected_wins < target_wins:
+                low = mid  # Need higher rating to get more wins
+            else:
+                high = mid  # Rating is high enough
+
+        win50_sos = (low + high) / 2
+
+        # Also calculate simple average for comparison
+        avg_sos = np.mean(opp_ratings)
+
+        sos_data.append({
+            'team_id': team_id,
+            'sos': win50_sos,  # Use WIN50 as primary SOS
+            'sos_avg': avg_sos,  # Keep average for reference
+            'sos_std': np.std(opp_ratings) if len(opp_ratings) > 1 else 0,
+            'num_games': num_games
+        })
 
     return pd.DataFrame(sos_data)
+
+
+def calculate_team_sos(game_data: pd.DataFrame, adj_efficiency: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate Strength of Schedule for each team.
+
+    Uses WIN50 method (Sagarin) - the rating that would go .500 against the schedule.
+    This is more robust than simple averaging of opponent ratings.
+    """
+    return calculate_win50_sos(game_data, adj_efficiency)
 
 
 def apply_sos_regression(
@@ -1176,25 +1245,20 @@ def apply_sos_regression(
     config: RatingConfig
 ) -> pd.DataFrame:
     """
-    Apply SOS-based regression to efficiency metrics.
+    Apply SOS-based regression to efficiency metrics using WIN50 SOS.
 
-    Teams with weak strength of schedule get regressed toward the mean.
-    This is purely mathematical - no hardcoded conference tiers.
+    WIN50 SOS represents the rating a team would need to go .500 against their schedule.
+    - Positive WIN50 = tough schedule (need to be good to go .500)
+    - Negative WIN50 = weak schedule (could be bad and still go .500)
+    - Zero WIN50 = average schedule
 
-    When use_raw_margin_sos is True, uses raw point margins to calculate SOS,
-    breaking the circular dependency where SOS depends on adjusted ratings.
-
-    Formula:
-        sos_gap = (avg_sos - team_sos) / sos_spread
-        regression_factor = max(0, sos_gap) * config.sos_regression_factor
-        adjusted_rating = raw_rating - (raw_rating - mean) * regression_factor
-
-    Teams with above-average SOS get 0 regression.
-    Teams with below-average SOS get regressed proportionally to how weak their schedule is.
+    Teams with weak SOS get regressed toward the mean proportionally to how weak
+    their schedule is. This is simpler than previous approaches because WIN50
+    already handles outliers (playing #350 vs #351 doesn't matter much).
     """
     df = team_stats.copy()
 
-    # Calculate SOS for each team - use raw margins if configured to break circular dependency
+    # Calculate WIN50 SOS for each team
     if config.use_raw_margin_sos:
         sos_df = calculate_raw_margin_sos(game_data)
         sos_df = sos_df.rename(columns={'raw_sos': 'sos'})
@@ -1203,36 +1267,32 @@ def apply_sos_regression(
 
     # Merge SOS into team stats
     df = df.merge(sos_df, on='team_id', how='left')
-    df['sos'] = df['sos'].fillna(0)  # Average SOS if not calculated
+    df['sos'] = df['sos'].fillna(0)
 
-    # Calculate SOS-based regression
-    avg_sos = df['sos'].mean()
-    sos_std = df['sos'].std()
+    # Use median SOS of top 50 teams as baseline
+    # This compares everyone to contender-level schedules, not D1 average
+    # Teams playing weak schedules compared to top teams get penalized
+    top_teams = df.nlargest(50, 'adj_off_eff')
+    baseline_sos = top_teams['sos'].median()
 
-    if sos_std > 0:
-        # How many standard deviations from average is this team's SOS?
-        # Positive = weak schedule (below avg), Negative = strong schedule (above avg)
-        df['sos_gap'] = (avg_sos - df['sos']) / sos_std
+    # Calculate regression based on SOS gap from contender baseline
+    # Positive gap = weaker schedule than contenders = regression toward mean
+    df['sos_gap'] = baseline_sos - df['sos']  # Positive when schedule is weaker than baseline
 
-        # Apply asymmetric treatment:
-        # - Weak schedules (sos_gap > 0): penalize with power curve
-        # - Strong schedules (sos_gap < 0): small boost
+    df['sos_regression'] = 0.0
 
-        df['sos_regression'] = 0.0
+    # Weak schedule: regress toward mean
+    # Regression factor scales with how weak the schedule is
+    weak_mask = df['sos_gap'] > 0
+    weak_gap = df.loc[weak_mask, 'sos_gap']
+    regression = (weak_gap * config.sos_regression_factor).clip(0, config.sos_max_regression)
+    df.loc[weak_mask, 'sos_regression'] = regression
 
-        # Weak schedule penalty (non-linear)
-        weak_mask = df['sos_gap'] > 0
-        weak_gap = df.loc[weak_mask, 'sos_gap'].clip(0, 2.5)  # Cap at 2.5 std devs
-        # Apply power curve: makes very weak schedules get hit much harder
-        df.loc[weak_mask, 'sos_regression'] = (weak_gap ** config.sos_regression_power) * config.sos_regression_factor
-
-        # Strong schedule boost (linear, smaller effect)
-        strong_mask = df['sos_gap'] < 0
-        strong_gap = df.loc[strong_mask, 'sos_gap'].abs().clip(0, 1.5)  # Cap boost at 1.5 std devs
-        df.loc[strong_mask, 'sos_regression'] = -strong_gap * config.sos_boost_factor  # Negative = boost
-    else:
-        df['sos_gap'] = 0
-        df['sos_regression'] = 0
+    # Strong schedule: small boost
+    strong_mask = df['sos_gap'] < 0
+    strong_gap = df.loc[strong_mask, 'sos_gap'].abs()
+    boost = (strong_gap * config.sos_boost_factor).clip(0, 0.10)  # Cap boost at 10%
+    df.loc[strong_mask, 'sos_regression'] = -boost  # Negative = boost
 
     # Apply regression to adjusted efficiency
     if 'adj_off_eff' in df.columns:
@@ -1931,6 +1991,23 @@ def filter_d1_teams(df: pd.DataFrame, config: RatingConfig) -> pd.DataFrame:
     return filtered
 
 
+def filter_non_d1_opponents(df: pd.DataFrame, d1_team_ids: set) -> pd.DataFrame:
+    """
+    Filter out games against non-D1 opponents.
+
+    Games against D2/D3/NAIA teams inflate efficiency numbers and should not
+    be included in rating calculations.
+    """
+    before_count = len(df)
+    filtered = df[df['opp_team_id'].isin(d1_team_ids)]
+    removed_count = before_count - len(filtered)
+
+    if removed_count > 0:
+        print(f"  Removed {removed_count} games against non-D1 opponents")
+
+    return filtered
+
+
 def run_power_ratings(
     current_season: int,
     prior_season: Optional[int] = None,
@@ -1967,6 +2044,13 @@ def run_power_ratings(
     # Filter out non-D1 teams
     print("Filtering D1 teams...")
     current_games = filter_d1_teams(current_games, config)
+
+    # Get set of D1 team IDs for opponent filtering
+    d1_team_ids = set(current_games['team_id'].unique())
+
+    # Filter out games against non-D1 opponents
+    print("Filtering games against non-D1 opponents...")
+    current_games = filter_non_d1_opponents(current_games, d1_team_ids)
 
     # Apply home/away adjustment to neutralize home court in base ratings
     print("Applying home/away adjustment...")
