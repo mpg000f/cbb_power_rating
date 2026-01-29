@@ -308,7 +308,7 @@
     <div class="container">
         <div class="tabs">
             <div class="tab active" data-sport="cbb">College Basketball</div>
-            <div class="tab" data-sport="cfb" style="opacity: 0.5; cursor: not-allowed;">College Football (Coming Soon)</div>
+            <div class="tab" data-sport="cfb">College Football</div>
             <div class="tab" data-sport="nfl" style="opacity: 0.5; cursor: not-allowed;">NFL (Coming Soon)</div>
         </div>
 
@@ -379,10 +379,16 @@
     <script>
         let allRatings = [];
         let currentSort = { column: 'rank', direction: 'asc' };
+        let currentSport = 'cbb';
+
+        function getDataPath() {
+            return currentSport === 'cbb' ? 'data' : `data/${currentSport}`;
+        }
 
         async function loadSeasons() {
             try {
-                const response = await fetch('data/seasons.json');
+                const basePath = currentSport === 'cbb' ? 'data/seasons.json' : 'data/cfb/seasons.json';
+                const response = await fetch(basePath);
                 const data = await response.json();
                 const select = document.getElementById('season');
                 select.innerHTML = data.seasons.map(s =>
@@ -400,7 +406,8 @@
             container.innerHTML = '<div class="loading">Loading ratings...</div>';
 
             try {
-                const response = await fetch(`data/ratings_${season}.json`);
+                const basePath = currentSport === 'cbb' ? 'data' : 'data/cfb';
+                const response = await fetch(`${basePath}/ratings_${season}.json`);
                 const data = await response.json();
 
                 if (data.error) {
@@ -415,6 +422,23 @@
                 container.innerHTML = '<div class="loading">Failed to load ratings</div>';
                 console.error(e);
             }
+        }
+
+        function switchSport(sport) {
+            if (sport === 'nfl') return; // Not available yet
+            currentSport = sport;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab[data-sport="${sport}"]`).classList.add('active');
+
+            // Update subtitle
+            const subtitle = document.querySelector('.subtitle');
+            if (sport === 'cbb') {
+                subtitle.textContent = 'Opponent-adjusted efficiency ratings for college basketball';
+            } else if (sport === 'cfb') {
+                subtitle.textContent = 'Opponent-adjusted efficiency ratings for college football';
+            }
+
+            loadSeasons().then(loadRatings);
         }
 
         function updateStats(ratings) {
@@ -560,6 +584,14 @@
         // Event listeners
         document.getElementById('season').addEventListener('change', loadRatings);
         document.getElementById('search').addEventListener('input', filterRatings);
+
+        // Tab click handlers
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const sport = tab.dataset.sport;
+                if (sport !== 'nfl') switchSport(sport);
+            });
+        });
 
         // Initial load
         loadSeasons().then(loadRatings);

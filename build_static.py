@@ -141,13 +141,28 @@ def build_static_site():
         html_content = src_html.read_text()
 
         # Update API paths to use static JSON files
+        # CBB paths
         html_content = html_content.replace(
-            "fetch('/api/seasons')",
-            "fetch('data/seasons.json')"
+            "'/api/seasons/cbb'",
+            "'data/seasons.json'"
         )
         html_content = html_content.replace(
-            "fetch(`/api/ratings/${season}`)",
-            "fetch(`data/ratings_${season}.json`)"
+            "'/api/ratings/cbb'",
+            "'data'"
+        )
+        # CFB paths
+        html_content = html_content.replace(
+            "'/api/seasons/cfb'",
+            "'data/cfb/seasons.json'"
+        )
+        html_content = html_content.replace(
+            "'/api/ratings/cfb'",
+            "'data/cfb'"
+        )
+        # Fix the ratings fetch pattern
+        html_content = html_content.replace(
+            "${basePath}/${season}",
+            "${basePath}/ratings_${season}.json"
         )
 
         # Write modified HTML
