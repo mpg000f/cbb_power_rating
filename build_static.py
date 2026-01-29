@@ -3,7 +3,8 @@
 Build static JSON files from CSV ratings for GitHub Pages.
 
 This script generates:
-- docs/data/ratings_{season}.json for each season
+- docs/data/ratings_{season}.json for each CBB season
+- docs/data/cfb/ratings_{season}.json for each CFB season
 - docs/data/seasons.json with list of available seasons
 - Copies index.html to docs/
 
@@ -18,25 +19,37 @@ import shutil
 # Paths
 PROJECT_ROOT = Path(__file__).parent
 RATINGS_DIR = PROJECT_ROOT / "historical_ratings"
+CFB_RATINGS_DIR = PROJECT_ROOT.parent / "cfb_power_rating" / "historical_ratings"
 DOCS_DIR = PROJECT_ROOT / "docs"
 DATA_DIR = DOCS_DIR / "data"
+CFB_DATA_DIR = DATA_DIR / "cfb"
 
 
-def csv_to_json(csv_path: Path) -> list:
+def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
     """Convert a ratings CSV to a list of dicts for JSON."""
     df = pd.read_csv(csv_path)
 
-    # Select and rename columns for the frontend
-    columns = {
-        'rank': 'rank',
-        'team_display_name': 'team',
-        'power_rating': 'rating',
-        'adj_off_eff': 'adjO',
-        'adj_def_eff': 'adjD',
-        'tempo': 'tempo',
-        'games_played': 'games',
-        'sos': 'sos',
-    }
+    # Select and rename columns for the frontend (different for each sport)
+    if sport == "cfb":
+        columns = {
+            'rank': 'rank',
+            'team': 'team',
+            'power_rating': 'rating',
+            'off_rating': 'adjO',
+            'def_rating': 'adjD',
+            'games': 'games',
+        }
+    else:  # cbb
+        columns = {
+            'rank': 'rank',
+            'team_display_name': 'team',
+            'power_rating': 'rating',
+            'adj_off_eff': 'adjO',
+            'adj_def_eff': 'adjD',
+            'tempo': 'tempo',
+            'games_played': 'games',
+            'sos': 'sos',
+        }
 
     available = [c for c in columns.keys() if c in df.columns]
     result = df[available].rename(columns=columns)
@@ -56,8 +69,10 @@ def build_static_site():
     # Create directories
     DOCS_DIR.mkdir(exist_ok=True)
     DATA_DIR.mkdir(exist_ok=True)
+    CFB_DATA_DIR.mkdir(exist_ok=True)
 
-    # Find all rating files and convert to JSON
+    # ===== CBB Ratings =====
+    print("\n  College Basketball:")
     seasons = []
     for csv_file in sorted(RATINGS_DIR.glob("ratings_*.csv")):
         try:
@@ -65,7 +80,7 @@ def build_static_site():
             seasons.append(season)
 
             # Convert to JSON
-            ratings = csv_to_json(csv_file)
+            ratings = csv_to_json(csv_file, sport="cbb")
             json_path = DATA_DIR / f"ratings_{season}.json"
 
             with open(json_path, 'w') as f:
@@ -75,16 +90,49 @@ def build_static_site():
                     'ratings': ratings
                 }, f)
 
-            print(f"  Generated {json_path.name} ({len(ratings)} teams)")
+            print(f"    Generated {json_path.name} ({len(ratings)} teams)")
 
         except Exception as e:
-            print(f"  Error processing {csv_file.name}: {e}")
+            print(f"    Error processing {csv_file.name}: {e}")
 
     # Generate seasons list
     seasons_path = DATA_DIR / "seasons.json"
     with open(seasons_path, 'w') as f:
         json.dump({'seasons': sorted(seasons, reverse=True)}, f)
-    print(f"  Generated seasons.json ({len(seasons)} seasons)")
+    print(f"    Generated seasons.json ({len(seasons)} seasons)")
+
+    # ===== CFB Ratings =====
+    if CFB_RATINGS_DIR.exists():
+        print("\n  College Football:")
+        cfb_seasons = []
+        for csv_file in sorted(CFB_RATINGS_DIR.glob("ratings_*.csv")):
+            try:
+                season = int(csv_file.stem.split("_")[1])
+                cfb_seasons.append(season)
+
+                # Convert to JSON
+                ratings = csv_to_json(csv_file, sport="cfb")
+                json_path = CFB_DATA_DIR / f"ratings_{season}.json"
+
+                with open(json_path, 'w') as f:
+                    json.dump({
+                        'season': season,
+                        'count': len(ratings),
+                        'ratings': ratings
+                    }, f)
+
+                print(f"    Generated cfb/{json_path.name} ({len(ratings)} teams)")
+
+            except Exception as e:
+                print(f"    Error processing {csv_file.name}: {e}")
+
+        # Generate CFB seasons list
+        cfb_seasons_path = CFB_DATA_DIR / "seasons.json"
+        with open(cfb_seasons_path, 'w') as f:
+            json.dump({'seasons': sorted(cfb_seasons, reverse=True)}, f)
+        print(f"    Generated cfb/seasons.json ({len(cfb_seasons)} seasons)")
+    else:
+        print(f"\n  CFB ratings not found at {CFB_RATINGS_DIR}")
 
     # Copy static HTML
     src_html = PROJECT_ROOT / "website" / "static" / "index.html"

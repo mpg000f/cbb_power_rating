@@ -2,7 +2,7 @@ name: Daily Ratings Update
 
 on:
   schedule:
-    # Run at 6:00 AM EST (11:00 UTC) every day during basketball season
+    # Run at 6:00 AM EST (11:00 UTC) every day
     - cron: '0 11 * * *'
   workflow_dispatch:  # Allow manual trigger from GitHub UI
 
@@ -11,37 +11,66 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout CBB repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          path: cbb_power_rating
+
+      - name: Checkout CFB repository
+        uses: actions/checkout@v4
+        with:
+          repository: mpg000f/cfb_power_rating
+          path: cfb_power_rating
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
+          cache-dependency-path: cbb_power_rating/requirements.txt
 
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r cbb_power_rating/requirements.txt
+          pip install requests  # For CFB API
 
-      - name: Run ratings update
+      - name: Update CBB ratings
+        working-directory: cbb_power_rating
         run: |
           python update_ratings.py --season 2026
 
+      - name: Update CFB ratings
+        working-directory: cfb_power_rating
+        env:
+          CFB_API_KEY: ${{ secrets.CFB_API_KEY }}
+        run: |
+          # Determine current CFB season (Aug-Jan = current year, Feb-Jul = previous year)
+          MONTH=$(date +%m)
+          YEAR=$(date +%Y)
+          if [ "$MONTH" -lt 8 ]; then
+            SEASON=$((YEAR - 1))
+          else
+            SEASON=$YEAR
+          fi
+          echo "Updating CFB season: $SEASON"
+          python update_ratings.py --season $SEASON || echo "CFB update skipped (may be offseason)"
+
       - name: Build static site
+        working-directory: cbb_power_rating
         run: |
           python build_static.py
 
       - name: Check for changes
         id: changes
+        working-directory: cbb_power_rating
         run: |
           git diff --quiet historical_ratings/ docs/ || echo "changed=true" >> $GITHUB_OUTPUT
 
       - name: Commit and push updated ratings
         if: steps.changes.outputs.changed == 'true'
+        working-directory: cbb_power_rating
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
