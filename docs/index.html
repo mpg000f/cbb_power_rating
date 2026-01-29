@@ -308,7 +308,7 @@
     <div class="container">
         <div class="tabs">
             <div class="tab active" data-sport="cbb">College Basketball</div>
-            <div class="tab" data-sport="cfb">College Football</div>
+            <div class="tab" data-sport="cfb" style="opacity: 0.5; cursor: not-allowed;">College Football (Coming Soon)</div>
             <div class="tab" data-sport="nfl" style="opacity: 0.5; cursor: not-allowed;">NFL (Coming Soon)</div>
         </div>
 
@@ -379,26 +379,14 @@
     <script>
         let allRatings = [];
         let currentSort = { column: 'rank', direction: 'asc' };
-        let currentSport = 'cbb';
-
-        function getDataPath() {
-            return currentSport === 'cbb' ? 'data' : `data/${currentSport}`;
-        }
-
-        function formatSeason(season) {
-            if (currentSport === 'cfb') {
-                return season.toString();  // CFB uses single year (2024)
-            }
-            return `${season-1}-${String(season).slice(2)}`;  // CBB uses 2024-25
-        }
 
         async function loadSeasons() {
             try {
-                const response = await fetch(`${getDataPath()}/seasons.json`);
+                const response = await fetch('data/seasons.json');
                 const data = await response.json();
                 const select = document.getElementById('season');
                 select.innerHTML = data.seasons.map(s =>
-                    `<option value="${s}">${formatSeason(s)}</option>`
+                    `<option value="${s}">${s-1}-${String(s).slice(2)}</option>`
                 ).join('');
             } catch (e) {
                 console.error('Failed to load seasons:', e);
@@ -412,7 +400,7 @@
             container.innerHTML = '<div class="loading">Loading ratings...</div>';
 
             try {
-                const response = await fetch(`${getDataPath()}/ratings_${season}.json`);
+                const response = await fetch(`data/ratings_${season}.json`);
                 const data = await response.json();
 
                 if (data.error) {
@@ -433,41 +421,9 @@
             document.getElementById('stat-teams').textContent = ratings.length;
             if (ratings.length > 0) {
                 document.getElementById('stat-top-rating').textContent = ratings[0].rating.toFixed(1);
-                if (currentSport === 'cbb') {
-                    const avgTempo = ratings.reduce((sum, r) => sum + (r.tempo || 0), 0) / ratings.length;
-                    document.getElementById('stat-avg-tempo').textContent = avgTempo.toFixed(1);
-                    document.querySelector('.stat:nth-child(3) .stat-label').textContent = 'Avg Tempo';
-                } else {
-                    const avgGames = ratings.reduce((sum, r) => sum + (r.games || 0), 0) / ratings.length;
-                    document.getElementById('stat-avg-tempo').textContent = avgGames.toFixed(1);
-                    document.querySelector('.stat:nth-child(3) .stat-label').textContent = 'Avg Games';
-                }
+                const avgTempo = ratings.reduce((sum, r) => sum + (r.tempo || 0), 0) / ratings.length;
+                document.getElementById('stat-avg-tempo').textContent = avgTempo.toFixed(1);
             }
-        }
-
-        function getHeaders() {
-            if (currentSport === 'cfb') {
-                return [
-                    { key: 'rank', label: 'Rank' },
-                    { key: 'team', label: 'Team' },
-                    { key: 'rating', label: 'IPR' },
-                    { key: 'adjO', label: 'Off Rtg' },
-                    { key: 'adjD', label: 'Def Rtg' },
-                    { key: 'adjOffPPA', label: 'Off PPA', hideOnMobile: true },
-                    { key: 'adjDefPPA', label: 'Def PPA', hideOnMobile: true },
-                    { key: 'games', label: 'Games', hideOnMobile: true }
-                ];
-            }
-            return [
-                { key: 'rank', label: 'Rank' },
-                { key: 'team', label: 'Team' },
-                { key: 'rating', label: 'Rating' },
-                { key: 'adjO', label: 'AdjO' },
-                { key: 'adjD', label: 'AdjD' },
-                { key: 'tempo', label: 'Tempo', hideOnMobile: true },
-                { key: 'sos', label: 'SOS', hideOnMobile: true },
-                { key: 'games', label: 'Games', hideOnMobile: true }
-            ];
         }
 
         function renderTable(ratings) {
@@ -478,7 +434,16 @@
                 return;
             }
 
-            const headers = getHeaders();
+            const headers = [
+                { key: 'rank', label: 'Rank' },
+                { key: 'team', label: 'Team' },
+                { key: 'rating', label: 'Rating' },
+                { key: 'adjO', label: 'AdjO' },
+                { key: 'adjD', label: 'AdjD' },
+                { key: 'tempo', label: 'Tempo', hideOnMobile: true },
+                { key: 'sos', label: 'SOS', hideOnMobile: true },
+                { key: 'games', label: 'Games', hideOnMobile: true }
+            ];
 
             const headerHtml = headers.map(h => {
                 const sortClass = currentSort.column === h.key
@@ -550,87 +515,51 @@
             renderTable(filtered);
         }
 
-        function calculateSpread() {
-            const teamAInput = document.getElementById('team-a').value.toLowerCase();
-            const teamBInput = document.getElementById('team-b').value.toLowerCase();
+        async function calculateSpread() {
+            const teamA = document.getElementById('team-a').value;
+            const teamB = document.getElementById('team-b').value;
             const home = document.getElementById('home-team').value;
+            const season = document.getElementById('season').value;
 
-            if (!teamAInput || !teamBInput) {
+            if (!teamA || !teamB) {
                 alert('Please enter both team names');
                 return;
             }
 
-            // Find teams in current ratings (client-side lookup)
-            const teamA = allRatings.find(r => r.team.toLowerCase().includes(teamAInput));
-            const teamB = allRatings.find(r => r.team.toLowerCase().includes(teamBInput));
+            try {
+                const url = `/api/spread?team_a=${encodeURIComponent(teamA)}&team_b=${encodeURIComponent(teamB)}&season=${season}${home ? `&home=${home}` : ''}`;
+                const response = await fetch(url);
+                const data = await response.json();
 
-            const resultDiv = document.getElementById('spread-result');
-            const valueDiv = document.getElementById('spread-value');
-            const detailsDiv = document.getElementById('spread-details');
+                const resultDiv = document.getElementById('spread-result');
+                const valueDiv = document.getElementById('spread-value');
+                const detailsDiv = document.getElementById('spread-details');
 
-            if (!teamA) {
-                valueDiv.textContent = 'Error';
-                detailsDiv.textContent = `Team not found: ${teamAInput}`;
+                if (data.error) {
+                    valueDiv.textContent = 'Error';
+                    detailsDiv.textContent = data.error;
+                } else {
+                    const spread = data.predicted_spread;
+                    const favorite = spread > 0 ? data.team_a : data.team_b;
+                    const spreadStr = Math.abs(spread).toFixed(1);
+
+                    valueDiv.textContent = `${favorite} -${spreadStr}`;
+                    detailsDiv.innerHTML = `
+                        ${data.team_a}: ${data.team_a_rating} | ${data.team_b}: ${data.team_b_rating}<br>
+                        Expected tempo: ${data.expected_tempo} | Venue: ${data.home === 'neutral' ? 'Neutral' : data.home === 'a' ? data.team_a + ' home' : data.team_b + ' home'}
+                    `;
+                }
+
                 resultDiv.classList.add('visible');
-                return;
+            } catch (e) {
+                console.error(e);
+                alert('Failed to calculate spread');
             }
-            if (!teamB) {
-                valueDiv.textContent = 'Error';
-                detailsDiv.textContent = `Team not found: ${teamBInput}`;
-                resultDiv.classList.add('visible');
-                return;
-            }
-
-            // Calculate spread (client-side math)
-            const ratingDiff = teamA.rating - teamB.rating;
-            const avgTempo = ((teamA.tempo || 68) + (teamB.tempo || 68)) / 2;
-            const tempoFactor = avgTempo / 100;
-
-            let spread = ratingDiff * tempoFactor;
-
-            // Home court adjustment (~3.5 points)
-            const homeAdvantage = 3.5 * tempoFactor;
-            if (home === 'a') spread += homeAdvantage;
-            else if (home === 'b') spread -= homeAdvantage;
-
-            const favorite = spread > 0 ? teamA.team : teamB.team;
-            const spreadStr = Math.abs(spread).toFixed(1);
-
-            valueDiv.textContent = `${favorite} -${spreadStr}`;
-            detailsDiv.innerHTML = `
-                ${teamA.team}: ${teamA.rating.toFixed(1)} | ${teamB.team}: ${teamB.rating.toFixed(1)}<br>
-                Expected tempo: ${avgTempo.toFixed(1)} | Venue: ${home === '' ? 'Neutral' : home === 'a' ? teamA.team + ' home' : teamB.team + ' home'}
-            `;
-
-            resultDiv.classList.add('visible');
-        }
-
-        // Sport tab switching
-        function switchSport(sport) {
-            if (sport === 'nfl') return;  // Not yet available
-
-            currentSport = sport;
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`.tab[data-sport="${sport}"]`).classList.add('active');
-
-            // Update subtitle
-            const subtitle = document.querySelector('.subtitle');
-            if (sport === 'cfb') {
-                subtitle.textContent = 'PPA and success rate-based power ratings for college football';
-            } else {
-                subtitle.textContent = 'Opponent-adjusted efficiency ratings for college basketball';
-            }
-
-            loadSeasons().then(loadRatings);
         }
 
         // Event listeners
         document.getElementById('season').addEventListener('change', loadRatings);
         document.getElementById('search').addEventListener('input', filterRatings);
-
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => switchSport(tab.dataset.sport));
-        });
 
         // Initial load
         loadSeasons().then(loadRatings);
