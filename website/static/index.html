@@ -309,7 +309,7 @@
         <div class="tabs">
             <div class="tab active" data-sport="cbb">College Basketball</div>
             <div class="tab" data-sport="cfb">College Football</div>
-            <div class="tab" data-sport="nfl" style="opacity: 0.5; cursor: not-allowed;">NFL (Coming Soon)</div>
+            <div class="tab" data-sport="nfl">NFL</div>
         </div>
 
         <div class="controls">
@@ -387,13 +387,21 @@
 
         async function loadSeasons() {
             try {
-                const basePath = currentSport === 'cbb' ? '/api/seasons/cbb' : '/api/seasons/cfb';
+                const pathMap = { cbb: '/api/seasons/cbb', cfb: '/api/seasons/cfb', nfl: '/api/seasons/nfl' };
+                const basePath = pathMap[currentSport];
                 const response = await fetch(basePath);
                 const data = await response.json();
                 const select = document.getElementById('season');
-                select.innerHTML = data.seasons.map(s =>
-                    `<option value="${s}">${s-1}-${String(s).slice(2)}</option>`
-                ).join('');
+                // NFL uses single year (2024), others use academic year (2025-26)
+                if (currentSport === 'nfl') {
+                    select.innerHTML = data.seasons.map(s =>
+                        `<option value="${s}">${s}</option>`
+                    ).join('');
+                } else {
+                    select.innerHTML = data.seasons.map(s =>
+                        `<option value="${s}">${s-1}-${String(s).slice(2)}</option>`
+                    ).join('');
+                }
             } catch (e) {
                 console.error('Failed to load seasons:', e);
             }
@@ -406,7 +414,8 @@
             container.innerHTML = '<div class="loading">Loading ratings...</div>';
 
             try {
-                const basePath = currentSport === 'cbb' ? '/api/ratings/cbb' : '/api/ratings/cfb';
+                const pathMap = { cbb: '/api/ratings/cbb', cfb: '/api/ratings/cfb', nfl: '/api/ratings/nfl' };
+                const basePath = pathMap[currentSport];
                 const response = await fetch(`${basePath}/${season}`);
                 const data = await response.json();
 
@@ -425,7 +434,6 @@
         }
 
         function switchSport(sport) {
-            if (sport === 'nfl') return; // Not available yet
             currentSport = sport;
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelector(`.tab[data-sport="${sport}"]`).classList.add('active');
@@ -436,6 +444,8 @@
                 subtitle.textContent = 'Opponent-adjusted efficiency ratings for college basketball';
             } else if (sport === 'cfb') {
                 subtitle.textContent = 'Opponent-adjusted efficiency ratings for college football';
+            } else if (sport === 'nfl') {
+                subtitle.textContent = 'Opponent-adjusted EPA and success rate ratings';
             }
 
             loadSeasons().then(loadRatings);
@@ -458,16 +468,61 @@
                 return;
             }
 
-            const headers = [
-                { key: 'rank', label: 'Rank' },
-                { key: 'team', label: 'Team' },
-                { key: 'rating', label: 'Rating' },
-                { key: 'adjO', label: 'AdjO' },
-                { key: 'adjD', label: 'AdjD' },
-                { key: 'tempo', label: 'Tempo', hideOnMobile: true },
-                { key: 'sos', label: 'SOS', hideOnMobile: true },
-                { key: 'games', label: 'Games', hideOnMobile: true }
-            ];
+            let headers, rowsHtml;
+
+            if (currentSport === 'nfl') {
+                headers = [
+                    { key: 'rank', label: 'Rank' },
+                    { key: 'team', label: 'Team' },
+                    { key: 'rating', label: 'Rating' },
+                    { key: 'adjO', label: 'Off EPA' },
+                    { key: 'adjD', label: 'Def EPA' },
+                    { key: 'offSuccess', label: 'Off SR%', hideOnMobile: true },
+                    { key: 'defSuccess', label: 'Def SR%', hideOnMobile: true },
+                    { key: 'games', label: 'Games', hideOnMobile: true }
+                ];
+                rowsHtml = ratings.map(r => {
+                    const ratingClass = r.rating >= 0 ? 'rating' : 'rating negative';
+                    return `
+                        <tr>
+                            <td class="rank">${r.rank}</td>
+                            <td class="team">${r.team}</td>
+                            <td class="${ratingClass}">${r.rating?.toFixed(2) || '-'}</td>
+                            <td class="number">${r.adjO?.toFixed(3) || '-'}</td>
+                            <td class="number">${r.adjD?.toFixed(3) || '-'}</td>
+                            <td class="number hide-mobile">${r.offSuccess ? (r.offSuccess * 100).toFixed(1) + '%' : '-'}</td>
+                            <td class="number hide-mobile">${r.defSuccess ? (r.defSuccess * 100).toFixed(1) + '%' : '-'}</td>
+                            <td class="number hide-mobile">${r.games || '-'}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                headers = [
+                    { key: 'rank', label: 'Rank' },
+                    { key: 'team', label: 'Team' },
+                    { key: 'rating', label: 'Rating' },
+                    { key: 'adjO', label: 'AdjO' },
+                    { key: 'adjD', label: 'AdjD' },
+                    { key: 'tempo', label: 'Tempo', hideOnMobile: true },
+                    { key: 'sos', label: 'SOS', hideOnMobile: true },
+                    { key: 'games', label: 'Games', hideOnMobile: true }
+                ];
+                rowsHtml = ratings.map(r => {
+                    const ratingClass = r.rating >= 0 ? 'rating' : 'rating negative';
+                    return `
+                        <tr>
+                            <td class="rank">${r.rank}</td>
+                            <td class="team">${r.team}</td>
+                            <td class="${ratingClass}">${r.rating?.toFixed(2) || '-'}</td>
+                            <td class="number">${r.adjO?.toFixed(1) || '-'}</td>
+                            <td class="number">${r.adjD?.toFixed(1) || '-'}</td>
+                            <td class="number hide-mobile">${r.tempo?.toFixed(1) || '-'}</td>
+                            <td class="number hide-mobile">${r.sos?.toFixed(2) || '-'}</td>
+                            <td class="number hide-mobile">${r.games || '-'}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
 
             const headerHtml = headers.map(h => {
                 const sortClass = currentSort.column === h.key
@@ -475,22 +530,6 @@
                     : '';
                 const mobileClass = h.hideOnMobile ? 'hide-mobile' : '';
                 return `<th class="${sortClass} ${mobileClass}" data-column="${h.key}">${h.label}</th>`;
-            }).join('');
-
-            const rowsHtml = ratings.map(r => {
-                const ratingClass = r.rating >= 0 ? 'rating' : 'rating negative';
-                return `
-                    <tr>
-                        <td class="rank">${r.rank}</td>
-                        <td class="team">${r.team}</td>
-                        <td class="${ratingClass}">${r.rating?.toFixed(2) || '-'}</td>
-                        <td class="number">${r.adjO?.toFixed(1) || '-'}</td>
-                        <td class="number">${r.adjD?.toFixed(1) || '-'}</td>
-                        <td class="number hide-mobile">${r.tempo?.toFixed(1) || '-'}</td>
-                        <td class="number hide-mobile">${r.sos?.toFixed(2) || '-'}</td>
-                        <td class="number hide-mobile">${r.games || '-'}</td>
-                    </tr>
-                `;
             }).join('');
 
             container.innerHTML = `
@@ -600,7 +639,7 @@
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 const sport = tab.dataset.sport;
-                if (sport !== 'nfl') switchSport(sport);
+                switchSport(sport);
             });
         });
 
