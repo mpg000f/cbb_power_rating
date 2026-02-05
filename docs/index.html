@@ -392,10 +392,10 @@
                 const response = await fetch(basePath);
                 const data = await response.json();
                 const select = document.getElementById('season');
-                // NFL uses single year (2024), others use academic year (2025-26)
+                // NFL uses "2024-25" format, college uses "2025-26" format
                 if (currentSport === 'nfl') {
                     select.innerHTML = data.seasons.map(s =>
-                        `<option value="${s}">${s}</option>`
+                        `<option value="${s}">${s}-${String(s+1).slice(2)}</option>`
                     ).join('');
                 } else {
                     select.innerHTML = data.seasons.map(s =>
