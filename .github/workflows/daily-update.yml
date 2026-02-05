@@ -34,19 +34,24 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r cbb_power_rating/requirements.txt
-          pip install requests  # For CFB API
+          pip install requests
+
+      - name: Verify imports
+        run: |
+          python -c "import sportsdataverse.mbb as mbb; print('sportsdataverse OK')"
+          python -c "import pandas; import numpy; print('pandas/numpy OK')"
 
       - name: Update CBB ratings
         working-directory: cbb_power_rating
         run: |
           python update_ratings.py --season 2026
 
-      - name: Update CFB ratings
+      - name: Update CFB ratings (offseason = skip)
         working-directory: cfb_power_rating
+        continue-on-error: true
         env:
           CFB_API_KEY: ${{ secrets.CFB_API_KEY }}
         run: |
-          # Determine current CFB season (Aug-Jan = current year, Feb-Jul = previous year)
           MONTH=$(date +%m)
           YEAR=$(date +%Y)
           if [ "$MONTH" -lt 8 ]; then
