@@ -539,46 +539,57 @@
             renderTable(filtered);
         }
 
-        async function calculateSpread() {
-            const teamA = document.getElementById('team-a').value;
-            const teamB = document.getElementById('team-b').value;
+        function calculateSpread() {
+            const teamAInput = document.getElementById('team-a').value.toLowerCase().trim();
+            const teamBInput = document.getElementById('team-b').value.toLowerCase().trim();
             const home = document.getElementById('home-team').value;
-            const season = document.getElementById('season').value;
 
-            if (!teamA || !teamB) {
+            if (!teamAInput || !teamBInput) {
                 alert('Please enter both team names');
                 return;
             }
 
-            try {
-                const url = `/api/spread?team_a=${encodeURIComponent(teamA)}&team_b=${encodeURIComponent(teamB)}&season=${season}${home ? `&home=${home}` : ''}`;
-                const response = await fetch(url);
-                const data = await response.json();
+            const resultDiv = document.getElementById('spread-result');
+            const valueDiv = document.getElementById('spread-value');
+            const detailsDiv = document.getElementById('spread-details');
 
-                const resultDiv = document.getElementById('spread-result');
-                const valueDiv = document.getElementById('spread-value');
-                const detailsDiv = document.getElementById('spread-details');
+            // Find teams by partial match
+            const teamA = allRatings.find(r => r.team.toLowerCase().includes(teamAInput));
+            const teamB = allRatings.find(r => r.team.toLowerCase().includes(teamBInput));
 
-                if (data.error) {
-                    valueDiv.textContent = 'Error';
-                    detailsDiv.textContent = data.error;
-                } else {
-                    const spread = data.predicted_spread;
-                    const favorite = spread > 0 ? data.team_a : data.team_b;
-                    const spreadStr = Math.abs(spread).toFixed(1);
-
-                    valueDiv.textContent = `${favorite} -${spreadStr}`;
-                    detailsDiv.innerHTML = `
-                        ${data.team_a}: ${data.team_a_rating} | ${data.team_b}: ${data.team_b_rating}<br>
-                        Expected tempo: ${data.expected_tempo} | Venue: ${data.home === 'neutral' ? 'Neutral' : data.home === 'a' ? data.team_a + ' home' : data.team_b + ' home'}
-                    `;
-                }
-
+            if (!teamA) {
+                valueDiv.textContent = 'Error';
+                detailsDiv.textContent = `Team not found: "${document.getElementById('team-a').value}"`;
                 resultDiv.classList.add('visible');
-            } catch (e) {
-                console.error(e);
-                alert('Failed to calculate spread');
+                return;
             }
+            if (!teamB) {
+                valueDiv.textContent = 'Error';
+                detailsDiv.textContent = `Team not found: "${document.getElementById('team-b').value}"`;
+                resultDiv.classList.add('visible');
+                return;
+            }
+
+            const HOME_COURT_ADVANTAGE = 3.5;
+            const tempoA = teamA.tempo || 70.0;
+            const tempoB = teamB.tempo || 70.0;
+            const nationalAvgTempo = allRatings.reduce((sum, r) => sum + (r.tempo || 70), 0) / allRatings.length;
+            const expectedTempo = (tempoA * tempoB) / nationalAvgTempo;
+
+            let spread = (teamA.rating - teamB.rating) * (expectedTempo / 100);
+            if (home === 'a') spread += HOME_COURT_ADVANTAGE;
+            else if (home === 'b') spread -= HOME_COURT_ADVANTAGE;
+
+            const favorite = spread > 0 ? teamA.team : teamB.team;
+            const spreadStr = Math.abs(spread).toFixed(1);
+            const venueLabel = !home ? 'Neutral' : home === 'a' ? teamA.team + ' home' : teamB.team + ' home';
+
+            valueDiv.textContent = spread === 0 ? "Pick'em" : `${favorite} -${spreadStr}`;
+            detailsDiv.innerHTML = `
+                ${teamA.team}: ${teamA.rating.toFixed(2)} | ${teamB.team}: ${teamB.rating.toFixed(2)}<br>
+                Expected tempo: ${expectedTempo.toFixed(1)} | Venue: ${venueLabel}
+            `;
+            resultDiv.classList.add('visible');
         }
 
         // Event listeners
