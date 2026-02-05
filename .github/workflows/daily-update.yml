@@ -35,10 +35,12 @@ jobs:
           pip install --upgrade pip
           pip install -r cbb_power_rating/requirements.txt
           pip install requests
+          pip list | grep -i sports
 
       - name: Verify imports
         run: |
-          python -c "import sportsdataverse.mbb as mbb; print('sportsdataverse OK')"
+          python -c "import sportsdataverse; print(f'sportsdataverse {sportsdataverse.__version__} OK')"
+          python -c "import sportsdataverse.mbb as mbb; print('sportsdataverse.mbb OK')"
           python -c "import pandas; import numpy; print('pandas/numpy OK')"
 
       - name: Update CBB ratings
