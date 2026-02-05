@@ -475,10 +475,12 @@
                     { key: 'rank', label: 'Rank' },
                     { key: 'team', label: 'Team' },
                     { key: 'rating', label: 'Rating' },
-                    { key: 'adjO', label: 'Off EPA' },
-                    { key: 'adjD', label: 'Def EPA' },
-                    { key: 'offSuccess', label: 'Off SR%', hideOnMobile: true },
-                    { key: 'defSuccess', label: 'Def SR%', hideOnMobile: true },
+                    { key: 'adjOffEpa', label: 'Adj Off EPA' },
+                    { key: 'adjDefEpa', label: 'Adj Def EPA' },
+                    { key: 'adjOffSuccess', label: 'Adj Off SR%', hideOnMobile: true },
+                    { key: 'adjDefSuccess', label: 'Adj Def SR%', hideOnMobile: true },
+                    { key: 'rawOffEpa', label: 'Raw Off EPA', hideOnMobile: true },
+                    { key: 'rawDefEpa', label: 'Raw Def EPA', hideOnMobile: true },
                     { key: 'games', label: 'Games', hideOnMobile: true }
                 ];
                 rowsHtml = ratings.map(r => {
@@ -487,11 +489,13 @@
                         <tr>
                             <td class="rank">${r.rank}</td>
                             <td class="team">${r.team}</td>
-                            <td class="${ratingClass}">${r.rating?.toFixed(2) || '-'}</td>
-                            <td class="number">${r.adjO?.toFixed(3) || '-'}</td>
-                            <td class="number">${r.adjD?.toFixed(3) || '-'}</td>
-                            <td class="number hide-mobile">${r.offSuccess ? (r.offSuccess * 100).toFixed(1) + '%' : '-'}</td>
-                            <td class="number hide-mobile">${r.defSuccess ? (r.defSuccess * 100).toFixed(1) + '%' : '-'}</td>
+                            <td class="${ratingClass}">${r.rating?.toFixed(1) || '-'}</td>
+                            <td class="number">${r.adjOffEpa?.toFixed(3) || '-'}</td>
+                            <td class="number">${r.adjDefEpa?.toFixed(3) || '-'}</td>
+                            <td class="number hide-mobile">${r.adjOffSuccess ? (r.adjOffSuccess * 100).toFixed(1) + '%' : '-'}</td>
+                            <td class="number hide-mobile">${r.adjDefSuccess ? (r.adjDefSuccess * 100).toFixed(1) + '%' : '-'}</td>
+                            <td class="number hide-mobile">${r.rawOffEpa?.toFixed(3) || '-'}</td>
+                            <td class="number hide-mobile">${r.rawDefEpa?.toFixed(3) || '-'}</td>
                             <td class="number hide-mobile">${r.games || '-'}</td>
                         </tr>
                     `;

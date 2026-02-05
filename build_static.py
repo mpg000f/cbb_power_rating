@@ -46,10 +46,16 @@ def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
             'rank': 'rank',
             'team': 'team',
             'power_rating': 'rating',
-            'off_epa': 'adjO',
-            'def_epa': 'adjD',
-            'off_success': 'offSuccess',
-            'def_success': 'defSuccess',
+            # Adjusted stats
+            'adj_off_epa': 'adjOffEpa',
+            'adj_def_epa': 'adjDefEpa',
+            'adj_off_success': 'adjOffSuccess',
+            'adj_def_success': 'adjDefSuccess',
+            # Raw stats
+            'raw_off_epa': 'rawOffEpa',
+            'raw_def_epa': 'rawDefEpa',
+            'raw_off_success': 'rawOffSuccess',
+            'raw_def_success': 'rawDefSuccess',
             'games_played': 'games',
         }
     else:  # cbb
@@ -68,7 +74,9 @@ def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
     result = df[available].rename(columns=columns)
 
     # Round numeric columns
-    for col in ['rating', 'adjO', 'adjD', 'tempo', 'sos', 'offSuccess', 'defSuccess']:
+    for col in ['rating', 'adjO', 'adjD', 'tempo', 'sos',
+                'adjOffEpa', 'adjDefEpa', 'adjOffSuccess', 'adjDefSuccess',
+                'rawOffEpa', 'rawDefEpa', 'rawOffSuccess', 'rawDefSuccess']:
         if col in result.columns:
             result[col] = result[col].round(3)
 
