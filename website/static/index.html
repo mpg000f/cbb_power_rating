@@ -392,14 +392,16 @@
                 const response = await fetch(basePath);
                 const data = await response.json();
                 const select = document.getElementById('season');
-                // NFL uses "2024-25" format, college uses "2025-26" format
-                if (currentSport === 'nfl') {
-                    select.innerHTML = data.seasons.map(s =>
-                        `<option value="${s}">${s}-${String(s+1).slice(2)}</option>`
-                    ).join('');
-                } else {
+                // NFL and CFB use start-year naming (2024 = 2024-25 season)
+                // CBB uses end-year naming (2025 = 2024-25 season)
+                if (currentSport === 'cbb') {
                     select.innerHTML = data.seasons.map(s =>
                         `<option value="${s}">${s-1}-${String(s).slice(2)}</option>`
+                    ).join('');
+                } else {
+                    // NFL and CFB both use start-year
+                    select.innerHTML = data.seasons.map(s =>
+                        `<option value="${s}">${s}-${String(s+1).slice(2)}</option>`
                     ).join('');
                 }
             } catch (e) {
