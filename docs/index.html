@@ -741,15 +741,50 @@
         let efficiencyChart = null;
         const logoCache = {};
 
+        // ESPN team ID mapping for CFB teams
+        const cfbTeamIds = {
+            'Alabama': 333, 'Arizona': 12, 'Arizona State': 9, 'Arkansas': 8, 'Auburn': 2,
+            'Baylor': 239, 'Boston College': 103, 'BYU': 252, 'California': 25, 'Cincinnati': 2132,
+            'Clemson': 228, 'Colorado': 38, 'Duke': 150, 'Florida': 57, 'Florida State': 52,
+            'Georgia': 61, 'Georgia Tech': 59, 'Houston': 248, 'Illinois': 356, 'Indiana': 84,
+            'Iowa': 2294, 'Iowa State': 66, 'Kansas': 2305, 'Kansas State': 2306, 'Kentucky': 96,
+            'Louisville': 97, 'LSU': 99, 'Maryland': 120, 'Miami': 2390, 'Michigan': 130,
+            'Michigan State': 127, 'Minnesota': 135, 'Mississippi State': 344, 'Missouri': 142,
+            'Nebraska': 158, 'North Carolina': 153, 'NC State': 152, 'Northwestern': 77,
+            'Notre Dame': 87, 'Ohio State': 194, 'Oklahoma': 201, 'Oklahoma State': 197,
+            'Ole Miss': 145, 'Oregon': 2483, 'Oregon State': 204, 'Penn State': 213,
+            'Pittsburgh': 221, 'Purdue': 2509, 'Rutgers': 164, 'SMU': 2567, 'South Carolina': 2579,
+            'Stanford': 24, 'Syracuse': 183, 'TCU': 2628, 'Tennessee': 2633, 'Texas': 251,
+            'Texas A&M': 245, 'Texas Tech': 2641, 'UCF': 2116, 'UCLA': 26, 'USC': 30,
+            'Utah': 254, 'Vanderbilt': 238, 'Virginia': 258, 'Virginia Tech': 259,
+            'Wake Forest': 154, 'Washington': 264, 'Washington State': 265, 'West Virginia': 277,
+            'Wisconsin': 275, 'Memphis': 235, 'Tulane': 2655, 'Navy': 2426, 'Army': 349,
+            'Air Force': 2005, 'Boise State': 68, 'San Diego State': 21, 'Fresno State': 278,
+            'Colorado State': 36, 'UNLV': 2439, 'Nevada': 2440, 'Wyoming': 2704, 'Hawaii': 62,
+            'San Jose State': 23, 'Utah State': 328, 'New Mexico': 167, 'Coastal Carolina': 324,
+            'Appalachian State': 2026, 'James Madison': 256, 'Liberty': 2335, 'Marshall': 276,
+            'Jacksonville State': 55, 'Sam Houston': 2534, 'UTSA': 2636, 'North Texas': 249,
+            'Rice': 242, 'Tulsa': 202, 'East Carolina': 151, 'Charlotte': 2429, 'FAU': 2226,
+            'Temple': 218, 'UAB': 5, 'South Florida': 58, 'Buffalo': 2084, 'Miami (OH)': 193,
+            'Ohio': 195, 'Bowling Green': 189, 'Toledo': 2649, 'Western Michigan': 2711,
+            'Central Michigan': 2117, 'Eastern Michigan': 2199, 'Akron': 2006, 'Kent State': 2309,
+            'Ball State': 2050, 'Northern Illinois': 2459, 'Troy': 2653, 'South Alabama': 6,
+            'Louisiana': 309, 'Arkansas State': 2032, 'Texas State': 326, 'Georgia State': 2247,
+            'Georgia Southern': 290, 'Old Dominion': 295, 'UConn': 41, 'UMass': 113,
+            'New Mexico State': 166, 'Kennesaw State': 338, 'UTEP': 2638, 'Louisiana Tech': 2348,
+            'Middle Tennessee': 2393, 'FIU': 2229, 'Western Kentucky': 98, 'Southern Miss': 2572
+        };
+
         function getLogoUrl(team) {
             if (currentSport === 'nfl') {
                 return `https://a.espncdn.com/i/teamlogos/nfl/500/${team.team.toLowerCase()}.png`;
             } else if (currentSport === 'cbb' && team.teamId) {
                 return `https://a.espncdn.com/i/teamlogos/ncaa/500/${team.teamId}.png`;
             } else if (currentSport === 'cfb') {
-                // Use a CDN that accepts team names
-                const slug = team.team.toLowerCase().replace(/[^a-z]/g, '-').replace(/-+/g, '-');
-                return `https://a.espncdn.com/i/teamlogos/ncaa/500/${slug}.png`;
+                const espnId = cfbTeamIds[team.team];
+                if (espnId) {
+                    return `https://a.espncdn.com/i/teamlogos/ncaa/500/${espnId}.png`;
+                }
             }
             return null;
         }
@@ -842,7 +877,7 @@
                     meta.data.forEach((point, index) => {
                         const d = dataPoints[index];
                         if (d && d.logo) {
-                            const size = 24;
+                            const size = 40;
                             ctx.drawImage(d.logo, point.x - size/2, point.y - size/2, size, size);
                         }
                     });
@@ -855,8 +890,8 @@
                     datasets: [{
                         data: dataPoints,
                         backgroundColor: 'transparent',
-                        pointRadius: 12,
-                        pointHoverRadius: 16
+                        pointRadius: 20,
+                        pointHoverRadius: 24
                     }]
                 },
                 options: {
