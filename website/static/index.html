@@ -772,7 +772,11 @@
             'Louisiana': 309, 'Arkansas State': 2032, 'Texas State': 326, 'Georgia State': 2247,
             'Georgia Southern': 290, 'Old Dominion': 295, 'UConn': 41, 'UMass': 113,
             'New Mexico State': 166, 'Kennesaw State': 338, 'UTEP': 2638, 'Louisiana Tech': 2348,
-            'Middle Tennessee': 2393, 'FIU': 2229, 'Western Kentucky': 98, 'Southern Miss': 2572
+            'Middle Tennessee': 2393, 'FIU': 2229, 'Western Kentucky': 98, 'Southern Miss': 2572,
+            // Alternative spellings
+            'Hawai\'i': 62, 'Hawaii': 62, 'San José State': 23, 'Florida Atlantic': 2226,
+            'Florida International': 2229, 'App State': 2026, 'UL Monroe': 2433,
+            'Massachusetts': 113, 'UMass': 113
         };
 
         function getLogoUrl(team) {
@@ -876,9 +880,26 @@
                     const meta = chart.getDatasetMeta(0);
                     meta.data.forEach((point, index) => {
                         const d = dataPoints[index];
-                        if (d && d.logo) {
-                            const size = 40;
-                            ctx.drawImage(d.logo, point.x - size/2, point.y - size/2, size, size);
+                        if (d) {
+                            if (d.logo) {
+                                const size = 40;
+                                ctx.drawImage(d.logo, point.x - size/2, point.y - size/2, size, size);
+                            } else {
+                                // Fallback: draw colored dot based on rank
+                                const size = 16;
+                                ctx.beginPath();
+                                ctx.arc(point.x, point.y, size/2, 0, 2 * Math.PI);
+                                if (d.rank <= Math.ceil(dataPoints.length * 0.1)) {
+                                    ctx.fillStyle = '#4ade80'; // Elite
+                                } else if (d.rank <= Math.ceil(dataPoints.length * 0.25)) {
+                                    ctx.fillStyle = '#667eea'; // Good
+                                } else if (d.rank <= Math.ceil(dataPoints.length * 0.5)) {
+                                    ctx.fillStyle = '#888'; // Average
+                                } else {
+                                    ctx.fillStyle = '#f87171'; // Below average
+                                }
+                                ctx.fill();
+                            }
                         }
                     });
                 }
