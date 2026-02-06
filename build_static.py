@@ -63,6 +63,7 @@ def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
     else:  # cbb
         columns = {
             'rank': 'rank',
+            'team_id': 'teamId',
             'team_display_name': 'team',
             'power_rating': 'rating',
             'record': 'record',

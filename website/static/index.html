@@ -324,6 +324,33 @@
             border-radius: 50%;
         }
 
+        .chart-controls {
+            margin-bottom: 15px;
+        }
+
+        .toggle-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .toggle-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        #power-teams-toggle {
+            display: none;
+        }
+
+        .show-power-toggle #power-teams-toggle {
+            display: inline-flex;
+        }
+
         @media (max-width: 768px) {
             .controls {
                 flex-direction: column;
@@ -411,6 +438,12 @@
 
         <div class="efficiency-grid">
             <h2>Efficiency Grid</h2>
+            <div class="chart-controls">
+                <label class="toggle-label" id="power-teams-toggle">
+                    <input type="checkbox" id="power-teams-only" checked>
+                    <span>Power Teams Only (Top 50)</span>
+                </label>
+            </div>
             <div class="chart-container">
                 <canvas id="efficiency-chart"></canvas>
             </div>
@@ -706,13 +739,59 @@
         }
 
         let efficiencyChart = null;
+        const logoCache = {};
 
-        function renderEfficiencyChart(ratings) {
+        function getLogoUrl(team) {
+            if (currentSport === 'nfl') {
+                return `https://a.espncdn.com/i/teamlogos/nfl/500/${team.team.toLowerCase()}.png`;
+            } else if (currentSport === 'cbb' && team.teamId) {
+                return `https://a.espncdn.com/i/teamlogos/ncaa/500/${team.teamId}.png`;
+            } else if (currentSport === 'cfb') {
+                // Use a CDN that accepts team names
+                const slug = team.team.toLowerCase().replace(/[^a-z]/g, '-').replace(/-+/g, '-');
+                return `https://a.espncdn.com/i/teamlogos/ncaa/500/${slug}.png`;
+            }
+            return null;
+        }
+
+        function loadImage(url) {
+            return new Promise((resolve) => {
+                if (logoCache[url]) {
+                    resolve(logoCache[url]);
+                    return;
+                }
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => {
+                    logoCache[url] = img;
+                    resolve(img);
+                };
+                img.onerror = () => resolve(null);
+                img.src = url;
+            });
+        }
+
+        async function renderEfficiencyChart(ratings) {
             const ctx = document.getElementById('efficiency-chart').getContext('2d');
 
             // Destroy existing chart if any
             if (efficiencyChart) {
                 efficiencyChart.destroy();
+            }
+
+            // Show/hide power teams toggle (not needed for NFL - only 32 teams)
+            const gridContainer = document.querySelector('.efficiency-grid');
+            if (currentSport === 'nfl') {
+                gridContainer.classList.remove('show-power-toggle');
+            } else {
+                gridContainer.classList.add('show-power-toggle');
+            }
+
+            // Filter to power teams if toggle is checked
+            const powerTeamsOnly = document.getElementById('power-teams-only').checked;
+            let filteredRatings = ratings;
+            if (currentSport !== 'nfl' && powerTeamsOnly) {
+                filteredRatings = ratings.filter(t => t.rank <= 50);
             }
 
             // Get the right fields based on sport
@@ -729,44 +808,55 @@
                 yLabel = 'Adjusted Defensive Efficiency (lower is better)';
             }
 
-            // Calculate percentiles for coloring
-            const sortedByRating = [...ratings].sort((a, b) => b.rating - a.rating);
-            const top10Pct = Math.floor(ratings.length * 0.10);
-            const top25Pct = Math.floor(ratings.length * 0.25);
-            const bottom25Pct = Math.floor(ratings.length * 0.75);
-
-            // Create data points with colors
-            const dataPoints = ratings.map((team, idx) => {
-                const rank = sortedByRating.findIndex(t => t.team === team.team) + 1;
-                let color;
-                if (rank <= top10Pct) {
-                    color = '#4ade80'; // Elite - green
-                } else if (rank <= top25Pct) {
-                    color = '#667eea'; // Good - purple
-                } else if (rank > bottom25Pct) {
-                    color = '#f87171'; // Below average - red
-                } else {
-                    color = '#888'; // Average - gray
+            // Preload logos
+            const logoPromises = filteredRatings.map(async (team) => {
+                const url = getLogoUrl(team);
+                if (url) {
+                    return { team: team.team, img: await loadImage(url) };
                 }
+                return { team: team.team, img: null };
+            });
+            const logos = await Promise.all(logoPromises);
+            const logoMap = {};
+            logos.forEach(l => { logoMap[l.team] = l.img; });
 
+            // Create data points
+            const dataPoints = filteredRatings.map((team) => {
                 return {
                     x: team[xField],
                     y: team[yField],
                     team: team.team,
+                    teamId: team.teamId,
                     rating: team.rating,
-                    rank: rank,
-                    color: color
+                    rank: team.rank,
+                    logo: logoMap[team.team]
                 };
             }).filter(d => d.x != null && d.y != null);
+
+            // Custom plugin to draw logos
+            const logoPlugin = {
+                id: 'logoPlugin',
+                afterDatasetsDraw(chart) {
+                    const ctx = chart.ctx;
+                    const meta = chart.getDatasetMeta(0);
+                    meta.data.forEach((point, index) => {
+                        const d = dataPoints[index];
+                        if (d && d.logo) {
+                            const size = 24;
+                            ctx.drawImage(d.logo, point.x - size/2, point.y - size/2, size, size);
+                        }
+                    });
+                }
+            };
 
             efficiencyChart = new Chart(ctx, {
                 type: 'scatter',
                 data: {
                     datasets: [{
                         data: dataPoints,
-                        backgroundColor: dataPoints.map(d => d.color),
-                        pointRadius: 6,
-                        pointHoverRadius: 10
+                        backgroundColor: 'transparent',
+                        pointRadius: 12,
+                        pointHoverRadius: 16
                     }]
                 },
                 options: {
@@ -825,13 +915,19 @@
                             reverse: true // Lower defense is better, so reverse the axis
                         }
                     }
-                }
+                },
+                plugins: [logoPlugin]
             });
         }
 
         // Event listeners
         document.getElementById('season').addEventListener('change', loadRatings);
         document.getElementById('search').addEventListener('input', filterRatings);
+        document.getElementById('power-teams-only').addEventListener('change', () => {
+            if (allRatings.length > 0) {
+                renderEfficiencyChart(allRatings);
+            }
+        });
 
         // Tab click handlers
         document.querySelectorAll('.tab').forEach(tab => {
