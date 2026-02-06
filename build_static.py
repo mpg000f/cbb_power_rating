@@ -83,6 +83,9 @@ def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
         if col in result.columns:
             result[col] = result[col].round(3)
 
+    # Replace NaN with None for valid JSON (NaN is not valid JSON)
+    result = result.where(pd.notna(result), None)
+
     return result.to_dict(orient='records')
 
 
