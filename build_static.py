@@ -37,6 +37,7 @@ def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
             'rank': 'rank',
             'team': 'team',
             'power_rating': 'rating',
+            'record': 'record',
             'off_rating': 'adjO',
             'def_rating': 'adjD',
             'games': 'games',
@@ -46,6 +47,7 @@ def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
             'rank': 'rank',
             'team': 'team',
             'power_rating': 'rating',
+            'record': 'record',
             # Adjusted stats
             'adj_off_epa': 'adjOffEpa',
             'adj_def_epa': 'adjDefEpa',
@@ -63,6 +65,7 @@ def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
             'rank': 'rank',
             'team_display_name': 'team',
             'power_rating': 'rating',
+            'record': 'record',
             'adj_off_eff': 'adjO',
             'adj_def_eff': 'adjD',
             'tempo': 'tempo',

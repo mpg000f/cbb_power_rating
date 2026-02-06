@@ -893,6 +893,10 @@ def calculate_game_stats(df: pd.DataFrame) -> pd.DataFrame:
     # Estimate possessions
     df['possessions'] = df.apply(estimate_possessions, axis=1)
 
+    # Track wins/losses
+    if 'team_winner' in df.columns:
+        df['win'] = df['team_winner'].astype(int)
+
     # Calculate points (if not present)
     if 'team_score' not in df.columns:
         df['team_score'] = (df['fg2m'] * 2) + (df['fg3m'] * 3) + df['ftm']
@@ -1559,26 +1563,38 @@ def aggregate_team_season(df: pd.DataFrame) -> pd.DataFrame:
 
     grouped = df.groupby(['team_id', 'team_display_name', 'season'])
 
-    result = grouped.agg(
-        games_played=('game_id', 'count'),
-        off_efficiency=('off_efficiency', 'mean'),
-        def_efficiency=('def_efficiency', 'mean'),
-        tempo=('possessions', 'mean'),  # Average possessions per game
-        orb_rate=('orb_rate', 'mean'),
-        drb_rate=('drb_rate', 'mean'),
-        to_margin=('to_margin', 'mean'),
-        ft_rate=('ft_rate', 'mean'),
-        three_rate=('three_rate', 'mean'),
-        avg_point_diff=('point_diff', 'mean'),
+    agg_dict = {
+        'games_played': ('game_id', 'count'),
+        'off_efficiency': ('off_efficiency', 'mean'),
+        'def_efficiency': ('def_efficiency', 'mean'),
+        'tempo': ('possessions', 'mean'),  # Average possessions per game
+        'orb_rate': ('orb_rate', 'mean'),
+        'drb_rate': ('drb_rate', 'mean'),
+        'to_margin': ('to_margin', 'mean'),
+        'ft_rate': ('ft_rate', 'mean'),
+        'three_rate': ('three_rate', 'mean'),
+        'avg_point_diff': ('point_diff', 'mean'),
         # Variance metrics
-        off_eff_std=('off_efficiency', 'std'),
-        three_pct_std=('three_pct', 'std'),
-        point_diff_std=('point_diff', 'std'),
+        'off_eff_std': ('off_efficiency', 'std'),
+        'three_pct_std': ('three_pct', 'std'),
+        'point_diff_std': ('point_diff', 'std'),
         # Floor metrics (10th percentile - worst games)
-        off_eff_floor=('off_efficiency', lambda x: x.quantile(0.10)),
-        def_eff_floor=('def_efficiency', lambda x: x.quantile(0.90)),  # Higher is worse for defense
-        point_diff_floor=('point_diff', lambda x: x.quantile(0.10)),
-    ).reset_index()
+        'off_eff_floor': ('off_efficiency', lambda x: x.quantile(0.10)),
+        'def_eff_floor': ('def_efficiency', lambda x: x.quantile(0.90)),  # Higher is worse for defense
+        'point_diff_floor': ('point_diff', lambda x: x.quantile(0.10)),
+    }
+
+    # Add wins if available
+    if 'win' in df.columns:
+        agg_dict['wins'] = ('win', 'sum')
+
+    result = grouped.agg(**agg_dict).reset_index()
+
+    # Calculate losses and record string
+    if 'wins' in result.columns:
+        result['wins'] = result['wins'].astype(int)
+        result['losses'] = result['games_played'] - result['wins']
+        result['record'] = result['wins'].astype(str) + '-' + result['losses'].astype(str)
 
     return result
 

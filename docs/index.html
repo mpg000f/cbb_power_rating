@@ -475,13 +475,13 @@
                     { key: 'rank', label: 'Rank' },
                     { key: 'team', label: 'Team' },
                     { key: 'rating', label: 'Rating' },
+                    { key: 'record', label: 'Record' },
                     { key: 'adjOffEpa', label: 'Adj Off EPA' },
                     { key: 'adjDefEpa', label: 'Adj Def EPA' },
                     { key: 'adjOffSuccess', label: 'Adj Off SR%', hideOnMobile: true },
                     { key: 'adjDefSuccess', label: 'Adj Def SR%', hideOnMobile: true },
                     { key: 'rawOffEpa', label: 'Raw Off EPA', hideOnMobile: true },
-                    { key: 'rawDefEpa', label: 'Raw Def EPA', hideOnMobile: true },
-                    { key: 'games', label: 'Games', hideOnMobile: true }
+                    { key: 'rawDefEpa', label: 'Raw Def EPA', hideOnMobile: true }
                 ];
                 rowsHtml = ratings.map(r => {
                     const ratingClass = r.rating >= 0 ? 'rating' : 'rating negative';
@@ -490,13 +490,13 @@
                             <td class="rank">${r.rank}</td>
                             <td class="team">${r.team}</td>
                             <td class="${ratingClass}">${r.rating?.toFixed(1) || '-'}</td>
+                            <td class="number">${r.record || '-'}</td>
                             <td class="number">${r.adjOffEpa?.toFixed(3) || '-'}</td>
                             <td class="number">${r.adjDefEpa?.toFixed(3) || '-'}</td>
                             <td class="number hide-mobile">${r.adjOffSuccess ? (r.adjOffSuccess * 100).toFixed(1) + '%' : '-'}</td>
                             <td class="number hide-mobile">${r.adjDefSuccess ? (r.adjDefSuccess * 100).toFixed(1) + '%' : '-'}</td>
                             <td class="number hide-mobile">${r.rawOffEpa?.toFixed(3) || '-'}</td>
                             <td class="number hide-mobile">${r.rawDefEpa?.toFixed(3) || '-'}</td>
-                            <td class="number hide-mobile">${r.games || '-'}</td>
                         </tr>
                     `;
                 }).join('');
@@ -505,11 +505,11 @@
                     { key: 'rank', label: 'Rank' },
                     { key: 'team', label: 'Team' },
                     { key: 'rating', label: 'Rating' },
+                    { key: 'record', label: 'Record' },
                     { key: 'adjO', label: 'AdjO' },
                     { key: 'adjD', label: 'AdjD' },
                     { key: 'tempo', label: 'Tempo', hideOnMobile: true },
-                    { key: 'sos', label: 'SOS', hideOnMobile: true },
-                    { key: 'games', label: 'Games', hideOnMobile: true }
+                    { key: 'sos', label: 'SOS', hideOnMobile: true }
                 ];
                 rowsHtml = ratings.map(r => {
                     const ratingClass = r.rating >= 0 ? 'rating' : 'rating negative';
@@ -518,11 +518,11 @@
                             <td class="rank">${r.rank}</td>
                             <td class="team">${r.team}</td>
                             <td class="${ratingClass}">${r.rating?.toFixed(2) || '-'}</td>
+                            <td class="number">${r.record || '-'}</td>
                             <td class="number">${r.adjO?.toFixed(1) || '-'}</td>
                             <td class="number">${r.adjD?.toFixed(1) || '-'}</td>
                             <td class="number hide-mobile">${r.tempo?.toFixed(1) || '-'}</td>
                             <td class="number hide-mobile">${r.sos?.toFixed(2) || '-'}</td>
-                            <td class="number hide-mobile">${r.games || '-'}</td>
                         </tr>
                     `;
                 }).join('');
