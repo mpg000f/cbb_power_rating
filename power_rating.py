@@ -1136,6 +1136,10 @@ def merge_opponent_stats(df: pd.DataFrame) -> pd.DataFrame:
     # Point differential for variance calculation
     merged['point_diff'] = merged['team_score'] - merged['opp_score']
 
+    # Calculate win from point differential if team_winner not available
+    if 'win' not in merged.columns:
+        merged['win'] = (merged['point_diff'] > 0).astype(int)
+
     return merged
 
 
