@@ -385,6 +385,10 @@
                 <div class="stat-value" id="stat-avg-tempo">-</div>
                 <div class="stat-label">Avg Tempo</div>
             </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-last-updated">-</div>
+                <div class="stat-label">Last Updated</div>
+            </div>
         </div>
 
         <div class="spread-calculator">
@@ -487,7 +491,7 @@
                 }
 
                 allRatings = data.ratings;
-                updateStats(allRatings);
+                updateStats(allRatings, data.lastUpdated);
                 renderTable(allRatings);
                 renderEfficiencyChart(allRatings);
             } catch (e) {
@@ -514,13 +518,14 @@
             loadSeasons().then(loadRatings);
         }
 
-        function updateStats(ratings) {
+        function updateStats(ratings, lastUpdated) {
             document.getElementById('stat-teams').textContent = ratings.length;
             if (ratings.length > 0) {
                 document.getElementById('stat-top-rating').textContent = ratings[0].rating.toFixed(1);
                 const avgTempo = ratings.reduce((sum, r) => sum + (r.tempo || 0), 0) / ratings.length;
                 document.getElementById('stat-avg-tempo').textContent = avgTempo.toFixed(1);
             }
+            document.getElementById('stat-last-updated').textContent = lastUpdated || '-';
         }
 
         function renderTable(ratings) {

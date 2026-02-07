@@ -2061,6 +2061,22 @@ def run_power_ratings(
     # Filter to current season
     current_games = with_opponents[with_opponents['season'] == current_season]
 
+    # Calculate ALL-GAMES records before D1 filtering
+    # This ensures records include games vs non-D1 opponents
+    print("Calculating all-games records...")
+    if 'win' in current_games.columns:
+        all_games_records = current_games.groupby('team_id').agg(
+            total_games=('game_id', 'nunique'),
+            total_wins=('win', 'sum')
+        ).reset_index()
+    else:
+        all_games_records = current_games.groupby('team_id').agg(
+            total_games=('game_id', 'nunique'),
+            total_wins=('point_diff', lambda x: (x > 0).sum())
+        ).reset_index()
+    all_games_records['total_losses'] = all_games_records['total_games'] - all_games_records['total_wins']
+    all_games_records['record'] = all_games_records['total_wins'].astype(int).astype(str) + '-' + all_games_records['total_losses'].astype(int).astype(str)
+
     # Filter out non-D1 teams
     print("Filtering D1 teams...")
     current_games = filter_d1_teams(current_games, config)
@@ -2163,6 +2179,15 @@ def run_power_ratings(
     # Sort by power rating
     results = results.sort_values('power_rating', ascending=False).reset_index(drop=True)
     results['rank'] = range(1, len(results) + 1)
+
+    # Replace filtered records with all-games records
+    if 'record' in results.columns:
+        results = results.drop(columns=['record'])
+    results = results.merge(
+        all_games_records[['team_id', 'record']],
+        on='team_id',
+        how='left'
+    )
 
     return results
 

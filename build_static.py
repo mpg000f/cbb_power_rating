@@ -15,6 +15,8 @@ import json
 import pandas as pd
 from pathlib import Path
 import shutil
+from datetime import datetime
+import os
 
 # Paths
 PROJECT_ROOT = Path(__file__).parent
@@ -111,9 +113,14 @@ def build_static_site():
             ratings = csv_to_json(csv_file, sport="cbb")
             json_path = DATA_DIR / f"ratings_{season}.json"
 
+            # Get file modification time as last updated
+            mtime = os.path.getmtime(csv_file)
+            last_updated = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d')
+
             with open(json_path, 'w') as f:
                 json.dump({
                     'season': season,
+                    'lastUpdated': last_updated,
                     'count': len(ratings),
                     'ratings': ratings
                 }, f)
@@ -142,9 +149,14 @@ def build_static_site():
                 ratings = csv_to_json(csv_file, sport="cfb")
                 json_path = CFB_DATA_DIR / f"ratings_{season}.json"
 
+                # Get file modification time as last updated
+                mtime = os.path.getmtime(csv_file)
+                last_updated = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d')
+
                 with open(json_path, 'w') as f:
                     json.dump({
                         'season': season,
+                        'lastUpdated': last_updated,
                         'count': len(ratings),
                         'ratings': ratings
                     }, f)
@@ -176,9 +188,14 @@ def build_static_site():
                 ratings = csv_to_json(csv_file, sport="nfl")
                 json_path = NFL_DATA_DIR / f"ratings_{season}.json"
 
+                # Get file modification time as last updated
+                mtime = os.path.getmtime(csv_file)
+                last_updated = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d')
+
                 with open(json_path, 'w') as f:
                     json.dump({
                         'season': season,
+                        'lastUpdated': last_updated,
                         'count': len(ratings),
                         'ratings': ratings
                     }, f)
