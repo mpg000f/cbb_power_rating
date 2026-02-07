@@ -302,28 +302,6 @@
             width: 100%;
         }
 
-        .chart-legend {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            color: #888;
-        }
-
-        .legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
         .chart-controls {
             margin-bottom: 15px;
         }
@@ -446,24 +424,6 @@
             </div>
             <div class="chart-container">
                 <canvas id="efficiency-chart"></canvas>
-            </div>
-            <div class="chart-legend">
-                <div class="legend-item">
-                    <div class="legend-dot" style="background: #4ade80;"></div>
-                    <span>Elite (Top 10%)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-dot" style="background: #667eea;"></div>
-                    <span>Good (Top 25%)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-dot" style="background: #888;"></div>
-                    <span>Average</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-dot" style="background: #f87171;"></div>
-                    <span>Below Average</span>
-                </div>
             </div>
         </div>
 
@@ -1060,7 +1020,7 @@
                                 color: '#888'
                             },
                             grid: {
-                                color: '#333'
+                                color: 'rgba(255, 255, 255, 0.1)'
                             },
                             ticks: {
                                 color: '#888'
@@ -1073,7 +1033,7 @@
                                 color: '#888'
                             },
                             grid: {
-                                color: '#333'
+                                color: 'rgba(255, 255, 255, 0.1)'
                             },
                             ticks: {
                                 color: '#888'
