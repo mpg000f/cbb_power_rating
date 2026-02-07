@@ -934,6 +934,54 @@
                 };
             }).filter(d => d.x != null && d.y != null);
 
+            // Calculate medians for reference lines
+            const xValues = dataPoints.map(d => d.x).sort((a, b) => a - b);
+            const yValues = dataPoints.map(d => d.y).sort((a, b) => a - b);
+            const median = arr => {
+                const mid = Math.floor(arr.length / 2);
+                return arr.length % 2 ? arr[mid] : (arr[mid - 1] + arr[mid]) / 2;
+            };
+            const medianX = median(xValues);
+            const medianY = median(yValues);
+
+            // Plugin to draw median lines
+            const medianLinesPlugin = {
+                id: 'medianLines',
+                beforeDatasetsDraw(chart) {
+                    const ctx = chart.ctx;
+                    const xAxis = chart.scales.x;
+                    const yAxis = chart.scales.y;
+
+                    ctx.save();
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([5, 5]);
+
+                    // Vertical line at median offense
+                    const xPixel = xAxis.getPixelForValue(medianX);
+                    ctx.beginPath();
+                    ctx.moveTo(xPixel, yAxis.top);
+                    ctx.lineTo(xPixel, yAxis.bottom);
+                    ctx.stroke();
+
+                    // Horizontal line at median defense
+                    const yPixel = yAxis.getPixelForValue(medianY);
+                    ctx.beginPath();
+                    ctx.moveTo(xAxis.left, yPixel);
+                    ctx.lineTo(xAxis.right, yPixel);
+                    ctx.stroke();
+
+                    // Add labels
+                    ctx.setLineDash([]);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
+                    ctx.fillText(`Med Off: ${medianX.toFixed(currentSport === 'nfl' ? 3 : 1)}`, xPixel + 5, yAxis.top + 15);
+                    ctx.fillText(`Med Def: ${medianY.toFixed(currentSport === 'nfl' ? 3 : 1)}`, xAxis.left + 5, yPixel - 5);
+
+                    ctx.restore();
+                }
+            };
+
             // Custom plugin to draw logos
             const logoPlugin = {
                 id: 'logoPlugin',
@@ -1034,7 +1082,7 @@
                         }
                     }
                 },
-                plugins: [logoPlugin]
+                plugins: [medianLinesPlugin, logoPlugin]
             });
         }
 
