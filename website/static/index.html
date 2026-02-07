@@ -779,6 +779,67 @@
             'Massachusetts': 113, 'UMass': 113
         };
 
+        // Power conference teams for CFB (Power 4: SEC, Big Ten, Big 12, ACC)
+        const cfbPowerTeams = new Set([
+            // SEC
+            'Alabama', 'Arkansas', 'Auburn', 'Florida', 'Georgia', 'Kentucky', 'LSU',
+            'Mississippi State', 'Missouri', 'Oklahoma', 'Ole Miss', 'South Carolina',
+            'Tennessee', 'Texas', 'Texas A&M', 'Vanderbilt',
+            // Big Ten
+            'Illinois', 'Indiana', 'Iowa', 'Maryland', 'Michigan', 'Michigan State',
+            'Minnesota', 'Nebraska', 'Northwestern', 'Ohio State', 'Oregon', 'Penn State',
+            'Purdue', 'Rutgers', 'UCLA', 'USC', 'Washington', 'Wisconsin',
+            // Big 12
+            'Arizona', 'Arizona State', 'Baylor', 'BYU', 'Cincinnati', 'Colorado',
+            'Houston', 'Iowa State', 'Kansas', 'Kansas State', 'Oklahoma State', 'TCU',
+            'Texas Tech', 'UCF', 'Utah', 'West Virginia',
+            // ACC
+            'Boston College', 'California', 'Clemson', 'Duke', 'Florida State', 'Georgia Tech',
+            'Louisville', 'Miami', 'NC State', 'North Carolina', 'Pittsburgh', 'SMU',
+            'Stanford', 'Syracuse', 'Virginia', 'Virginia Tech', 'Wake Forest',
+            // Notre Dame (independent but power)
+            'Notre Dame'
+        ]);
+
+        // Power conference teams for CBB (Power 6: SEC, Big Ten, Big 12, ACC, Big East, Pac-12 remnants)
+        const cbbPowerTeams = new Set([
+            // SEC
+            'Alabama Crimson Tide', 'Arkansas Razorbacks', 'Auburn Tigers', 'Florida Gators',
+            'Georgia Bulldogs', 'Kentucky Wildcats', 'LSU Tigers', 'Mississippi State Bulldogs',
+            'Missouri Tigers', 'Oklahoma Sooners', 'Ole Miss Rebels', 'South Carolina Gamecocks',
+            'Tennessee Volunteers', 'Texas Longhorns', 'Texas A&M Aggies', 'Vanderbilt Commodores',
+            // Big Ten
+            'Illinois Fighting Illini', 'Indiana Hoosiers', 'Iowa Hawkeyes', 'Maryland Terrapins',
+            'Michigan Wolverines', 'Michigan State Spartans', 'Minnesota Golden Gophers',
+            'Nebraska Cornhuskers', 'Northwestern Wildcats', 'Ohio State Buckeyes', 'Oregon Ducks',
+            'Penn State Nittany Lions', 'Purdue Boilermakers', 'Rutgers Scarlet Knights',
+            'UCLA Bruins', 'USC Trojans', 'Washington Huskies', 'Wisconsin Badgers',
+            // Big 12
+            'Arizona Wildcats', 'Arizona State Sun Devils', 'Baylor Bears', 'BYU Cougars',
+            'Cincinnati Bearcats', 'Colorado Buffaloes', 'Houston Cougars', 'Iowa State Cyclones',
+            'Kansas Jayhawks', 'Kansas State Wildcats', 'Oklahoma State Cowboys', 'TCU Horned Frogs',
+            'Texas Tech Red Raiders', 'UCF Knights', 'Utah Utes', 'West Virginia Mountaineers',
+            // ACC
+            'Boston College Eagles', 'California Golden Bears', 'Clemson Tigers', 'Duke Blue Devils',
+            'Florida State Seminoles', 'Georgia Tech Yellow Jackets', 'Louisville Cardinals',
+            'Miami Hurricanes', 'NC State Wolfpack', 'North Carolina Tar Heels', 'Pittsburgh Panthers',
+            'SMU Mustangs', 'Stanford Cardinal', 'Syracuse Orange', 'Virginia Cavaliers',
+            'Virginia Tech Hokies', 'Wake Forest Demon Deacons', 'Notre Dame Fighting Irish',
+            // Big East
+            'Butler Bulldogs', 'Creighton Bluejays', 'DePaul Blue Demons', 'Georgetown Hoyas',
+            'Marquette Golden Eagles', 'Providence Friars', 'Seton Hall Pirates', 'St. John\'s Red Storm',
+            'UConn Huskies', 'Villanova Wildcats', 'Xavier Musketeers'
+        ]);
+
+        function isPowerTeam(team) {
+            if (currentSport === 'cfb') {
+                return cfbPowerTeams.has(team.team);
+            } else if (currentSport === 'cbb') {
+                return cbbPowerTeams.has(team.team);
+            }
+            return false;
+        }
+
         function getLogoUrl(team) {
             if (currentSport === 'nfl') {
                 return `https://a.espncdn.com/i/teamlogos/nfl/500/${team.team.toLowerCase()}.png`;
@@ -827,10 +888,11 @@
             }
 
             // Filter to power teams if toggle is checked
+            // Power teams = teams in power conferences OR ranked in top 50
             const powerTeamsOnly = document.getElementById('power-teams-only').checked;
             let filteredRatings = ratings;
             if (currentSport !== 'nfl' && powerTeamsOnly) {
-                filteredRatings = ratings.filter(t => t.rank <= 50);
+                filteredRatings = ratings.filter(t => isPowerTeam(t) || t.rank <= 50);
             }
 
             // Get the right fields based on sport
