@@ -2061,21 +2061,54 @@ def run_power_ratings(
     # Filter to current season
     current_games = with_opponents[with_opponents['season'] == current_season]
 
-    # Calculate ALL-GAMES records before D1 filtering
-    # This ensures records include games vs non-D1 opponents
-    print("Calculating all-games records...")
-    if 'win' in current_games.columns:
-        all_games_records = current_games.groupby('team_id').agg(
-            total_games=('game_id', 'nunique'),
-            total_wins=('win', 'sum')
-        ).reset_index()
-    else:
-        all_games_records = current_games.groupby('team_id').agg(
-            total_games=('game_id', 'nunique'),
-            total_wins=('point_diff', lambda x: (x > 0).sum())
-        ).reset_index()
-    all_games_records['total_losses'] = all_games_records['total_games'] - all_games_records['total_wins']
-    all_games_records['record'] = all_games_records['total_wins'].astype(int).astype(str) + '-' + all_games_records['total_losses'].astype(int).astype(str)
+    # Calculate ALL-GAMES records from schedule data (more up-to-date than PBP)
+    print("Calculating all-games records from schedule...")
+    try:
+        schedule = load_schedule([current_season])
+        completed = schedule[
+            schedule['home_score'].notna() & schedule['away_score'].notna() &
+            ((schedule['home_score'] > 0) | (schedule['away_score'] > 0))
+        ].copy()
+        records = {}
+        for _, game in completed.iterrows():
+            home_id = game.get('home_id')
+            away_id = game.get('away_id')
+            home_score = game['home_score']
+            away_score = game['away_score']
+            if pd.isna(home_id) or pd.isna(away_id) or home_score == away_score:
+                continue
+            home_id = int(home_id)
+            away_id = int(away_id)
+            for tid in [home_id, away_id]:
+                if tid not in records:
+                    records[tid] = {'wins': 0, 'losses': 0}
+            if home_score > away_score:
+                records[home_id]['wins'] += 1
+                records[away_id]['losses'] += 1
+            else:
+                records[away_id]['wins'] += 1
+                records[home_id]['losses'] += 1
+        all_games_records = pd.DataFrame([
+            {'team_id': tid, 'total_games': r['wins'] + r['losses'],
+             'total_wins': r['wins'], 'total_losses': r['losses'],
+             'record': f"{r['wins']}-{r['losses']}"}
+            for tid, r in records.items()
+        ])
+        print(f"  Got records for {len(all_games_records)} teams from schedule")
+    except Exception as e:
+        print(f"  Schedule records failed ({e}), falling back to PBP records...")
+        if 'win' in current_games.columns:
+            all_games_records = current_games.groupby('team_id').agg(
+                total_games=('game_id', 'nunique'),
+                total_wins=('win', 'sum')
+            ).reset_index()
+        else:
+            all_games_records = current_games.groupby('team_id').agg(
+                total_games=('game_id', 'nunique'),
+                total_wins=('point_diff', lambda x: (x > 0).sum())
+            ).reset_index()
+        all_games_records['total_losses'] = all_games_records['total_games'] - all_games_records['total_wins']
+        all_games_records['record'] = all_games_records['total_wins'].astype(int).astype(str) + '-' + all_games_records['total_losses'].astype(int).astype(str)
 
     # Filter out non-D1 teams
     print("Filtering D1 teams...")
