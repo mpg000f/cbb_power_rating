@@ -329,6 +329,117 @@
             display: inline-flex;
         }
 
+        /* Team History Modal */
+        .team-link {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .team-link:hover {
+            color: #667eea;
+            text-decoration: underline;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.visible {
+            display: flex;
+        }
+
+        .modal {
+            background: #111;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px 10px;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #e0e0e0;
+            background: none;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .modal-header img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            color: #e0e0e0;
+        }
+
+        .modal-header .team-meta {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .history-chart-container {
+            position: relative;
+            max-width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .history-table th, .history-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #222;
+        }
+
+        .history-table th {
+            position: static;
+            background: #1a1a1a;
+        }
+
+        .modal-loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
         @media (max-width: 768px) {
             .controls {
                 flex-direction: column;
@@ -342,6 +453,14 @@
 
             .hide-mobile {
                 display: none;
+            }
+
+            .modal {
+                padding: 20px 15px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -434,6 +553,14 @@
         <div id="ratings-container">
             <div class="loading">Loading ratings...</div>
         </div>
+
+        <!-- Team History Modal -->
+        <div class="modal-overlay" id="team-history-modal">
+            <div class="modal">
+                <button class="modal-close" id="modal-close">&times;</button>
+                <div id="modal-content"></div>
+            </div>
+        </div>
     </div>
 
     <footer>
@@ -444,6 +571,8 @@
         let allRatings = [];
         let currentSort = { column: 'rank', direction: 'asc' };
         let currentSport = 'cbb';
+        let historyChart = null;
+        const allSeasonsCache = { cbb: null, cfb: null, nfl: null };
 
         function getDataPath() {
             return currentSport === 'cbb' ? 'data' : `data/${currentSport}`;
@@ -502,6 +631,7 @@
 
         function switchSport(sport) {
             currentSport = sport;
+            closeModal();
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelector(`.tab[data-sport="${sport}"]`).classList.add('active');
 
@@ -556,7 +686,7 @@
                     return `
                         <tr>
                             <td class="rank">${r.rank}</td>
-                            <td class="team">${r.team}</td>
+                            <td class="team team-link" data-team="${r.team}" data-team-id="">${r.team}</td>
                             <td class="${ratingClass}">${r.rating?.toFixed(1) || '-'}</td>
                             <td class="number">${r.record || '-'}</td>
                             <td class="number">${r.adjOffEpa?.toFixed(3) || '-'}</td>
@@ -584,7 +714,7 @@
                     return `
                         <tr>
                             <td class="rank">${r.rank}</td>
-                            <td class="team">${r.team}</td>
+                            <td class="team team-link" data-team="${r.team}" data-team-id="${r.teamId || ''}">${r.team}</td>
                             <td class="${ratingClass}">${r.rating?.toFixed(2) || '-'}</td>
                             <td class="number">${r.record || '-'}</td>
                             <td class="number">${r.adjO?.toFixed(1) || '-'}</td>
@@ -614,6 +744,14 @@
             // Add sort listeners
             container.querySelectorAll('th').forEach(th => {
                 th.addEventListener('click', () => sortTable(th.dataset.column));
+            });
+
+            // Add team click listeners for history modal
+            container.querySelectorAll('.team-link').forEach(td => {
+                td.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showTeamHistory(td.dataset.team, td.dataset.teamId || null);
+                });
             });
         }
 
@@ -1057,6 +1195,297 @@
             });
         }
 
+        // =============================================
+        // TEAM HISTORY
+        // =============================================
+
+        async function loadAllSeasons() {
+            if (allSeasonsCache[currentSport]) {
+                return allSeasonsCache[currentSport];
+            }
+
+            const pathMap = { cbb: '/api/seasons/cbb', cfb: '/api/seasons/cfb', nfl: '/api/seasons/nfl' };
+            const seasonResponse = await fetch(pathMap[currentSport]);
+            const seasonData = await seasonResponse.json();
+            const seasons = seasonData.seasons;
+
+            const ratingPathMap = { cbb: '/api/ratings/cbb', cfb: '/api/ratings/cfb', nfl: '/api/ratings/nfl' };
+            const basePath = ratingPathMap[currentSport];
+
+            const results = await Promise.all(
+                seasons.map(async (season) => {
+                    try {
+                        const resp = await fetch(`${basePath}/${season}`);
+                        const data = await resp.json();
+                        return { season, ratings: data.ratings };
+                    } catch (e) {
+                        console.warn(`Failed to load ${currentSport} season ${season}`, e);
+                        return { season, ratings: [] };
+                    }
+                })
+            );
+
+            const cache = {};
+            results.forEach(r => { cache[r.season] = r.ratings; });
+            allSeasonsCache[currentSport] = cache;
+            return cache;
+        }
+
+        function findTeamInSeason(ratings, teamName, teamId) {
+            if (currentSport === 'cbb' && teamId) {
+                const numId = parseInt(teamId);
+                return ratings.find(r => r.teamId === numId);
+            }
+            // Exact match first
+            let match = ratings.find(r => r.team === teamName);
+            if (match) return match;
+
+            // CFB: try alternate names via cfbTeamIds
+            if (currentSport === 'cfb') {
+                const espnId = cfbTeamIds[teamName];
+                if (espnId) {
+                    const altNames = Object.entries(cfbTeamIds)
+                        .filter(([_, id]) => id === espnId)
+                        .map(([name, _]) => name);
+                    for (const alt of altNames) {
+                        match = ratings.find(r => r.team === alt);
+                        if (match) return match;
+                    }
+                }
+            }
+            return null;
+        }
+
+        function getTeamHistoryLogoUrl(teamName, teamId) {
+            if (currentSport === 'nfl') {
+                return `https://a.espncdn.com/i/teamlogos/nfl/500/${teamName.toLowerCase()}.png`;
+            } else if (currentSport === 'cbb' && teamId) {
+                return `https://a.espncdn.com/i/teamlogos/ncaa/500/${teamId}.png`;
+            } else if (currentSport === 'cfb') {
+                const espnId = cfbTeamIds[teamName];
+                if (espnId) {
+                    return `https://a.espncdn.com/i/teamlogos/ncaa/500/${espnId}.png`;
+                }
+            }
+            return null;
+        }
+
+        function formatSeason(year) {
+            if (currentSport === 'cbb') {
+                return `${year - 1}-${String(year).slice(2)}`;
+            } else {
+                return `${year}-${String(year + 1).slice(2)}`;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('team-history-modal').classList.remove('visible');
+            if (historyChart) {
+                historyChart.destroy();
+                historyChart = null;
+            }
+        }
+
+        function renderHistoryChart(labels, ratings, ranks) {
+            const ctx = document.getElementById('history-chart').getContext('2d');
+
+            if (historyChart) {
+                historyChart.destroy();
+            }
+
+            historyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Rating',
+                            data: ratings,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Rank',
+                            data: ranks,
+                            borderColor: '#4ade80',
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointHoverRadius: 5,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2.5,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: '#888' }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1a1a1a',
+                            titleColor: '#e0e0e0',
+                            bodyColor: '#e0e0e0',
+                            borderColor: '#333',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#888', maxRotation: 45 },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        },
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Rating',
+                                color: '#667eea'
+                            },
+                            ticks: { color: '#667eea' },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            reverse: true,
+                            title: {
+                                display: true,
+                                text: 'Rank',
+                                color: '#4ade80'
+                            },
+                            ticks: { color: '#4ade80' },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function showTeamHistory(teamName, teamId) {
+            const modal = document.getElementById('team-history-modal');
+            const content = document.getElementById('modal-content');
+
+            content.innerHTML = '<div class="modal-loading">Loading team history...</div>';
+            modal.classList.add('visible');
+
+            try {
+                const allSeasons = await loadAllSeasons();
+                const history = [];
+
+                const seasonYears = Object.keys(allSeasons).map(Number).sort((a, b) => a - b);
+                for (const season of seasonYears) {
+                    const ratings = allSeasons[season];
+                    const team = findTeamInSeason(ratings, teamName, teamId);
+                    if (team) {
+                        history.push({
+                            season,
+                            rank: team.rank,
+                            rating: team.rating,
+                            record: team.record || '-',
+                            adjO: team.adjO,
+                            adjD: team.adjD,
+                            adjOffEpa: team.adjOffEpa,
+                            adjDefEpa: team.adjDefEpa,
+                            totalTeams: ratings.length
+                        });
+                    }
+                }
+
+                if (history.length === 0) {
+                    content.innerHTML = `
+                        <div class="modal-header"><h2>${teamName}</h2></div>
+                        <div class="modal-loading">No historical data found for this team.</div>
+                    `;
+                    return;
+                }
+
+                // Logo
+                let logoHtml = '';
+                const logoUrl = getTeamHistoryLogoUrl(teamName, teamId);
+                if (logoUrl) {
+                    logoHtml = `<img src="${logoUrl}" alt="${teamName}" onerror="this.style.display='none'">`;
+                }
+
+                // Summary stats
+                const bestRating = Math.max(...history.map(h => h.rating));
+                const bestRank = Math.min(...history.map(h => h.rank));
+                const avgRating = (history.reduce((s, h) => s + h.rating, 0) / history.length);
+
+                // Chart data
+                const chartLabels = history.map(h => formatSeason(h.season));
+                const chartRatings = history.map(h => h.rating);
+                const chartRanks = history.map(h => h.rank);
+
+                // Table (sport-specific columns)
+                let tableHeaders, tableRows;
+
+                if (currentSport === 'nfl') {
+                    tableHeaders = '<th>Season</th><th>Rank</th><th>Rating</th><th>Record</th><th class="hide-mobile">Adj Off EPA</th><th class="hide-mobile">Adj Def EPA</th>';
+                    tableRows = history.slice().reverse().map(h => `
+                        <tr>
+                            <td>${formatSeason(h.season)}</td>
+                            <td class="rank">${h.rank}</td>
+                            <td class="${h.rating >= 0 ? 'rating' : 'rating negative'}">${h.rating.toFixed(1)}</td>
+                            <td class="number">${h.record}</td>
+                            <td class="number hide-mobile">${h.adjOffEpa?.toFixed(3) || '-'}</td>
+                            <td class="number hide-mobile">${h.adjDefEpa?.toFixed(3) || '-'}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tableHeaders = '<th>Season</th><th>Rank</th><th>Rating</th><th>Record</th><th class="hide-mobile">AdjO</th><th class="hide-mobile">AdjD</th>';
+                    tableRows = history.slice().reverse().map(h => `
+                        <tr>
+                            <td>${formatSeason(h.season)}</td>
+                            <td class="rank">${h.rank}</td>
+                            <td class="${h.rating >= 0 ? 'rating' : 'rating negative'}">${h.rating.toFixed(2)}</td>
+                            <td class="number">${h.record}</td>
+                            <td class="number hide-mobile">${h.adjO?.toFixed(1) || '-'}</td>
+                            <td class="number hide-mobile">${h.adjD?.toFixed(1) || '-'}</td>
+                        </tr>
+                    `).join('');
+                }
+
+                content.innerHTML = `
+                    <div class="modal-header">
+                        ${logoHtml}
+                        <div>
+                            <h2>${teamName}</h2>
+                            <div class="team-meta">
+                                ${history.length} seasons | Best rank: #${bestRank} | Best rating: ${bestRating.toFixed(1)} | Avg rating: ${avgRating.toFixed(1)}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="history-chart-container">
+                        <canvas id="history-chart"></canvas>
+                    </div>
+                    <table class="history-table">
+                        <thead><tr>${tableHeaders}</tr></thead>
+                        <tbody>${tableRows}</tbody>
+                    </table>
+                `;
+
+                renderHistoryChart(chartLabels, chartRatings, chartRanks);
+
+            } catch (e) {
+                console.error('Error loading team history:', e);
+                content.innerHTML = '<div class="modal-loading">Failed to load team history.</div>';
+            }
+        }
+
         // Event listeners
         document.getElementById('season').addEventListener('change', loadRatings);
         document.getElementById('search').addEventListener('input', filterRatings);
@@ -1064,6 +1493,17 @@
             if (allRatings.length > 0) {
                 renderEfficiencyChart(allRatings);
             }
+        });
+
+        // Modal close handlers
+        document.getElementById('modal-close').addEventListener('click', closeModal);
+        document.getElementById('team-history-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('team-history-modal')) {
+                closeModal();
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
         });
 
         // Tab click handlers
