@@ -84,6 +84,46 @@
             width: 200px;
         }
 
+        .autocomplete-wrapper {
+            position: relative;
+            width: 200px;
+        }
+
+        .autocomplete-wrapper input[type="text"] {
+            width: 100%;
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .autocomplete-dropdown.visible {
+            display: block;
+        }
+
+        .autocomplete-option {
+            padding: 8px 15px;
+            cursor: pointer;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+        }
+
+        .autocomplete-option:hover,
+        .autocomplete-option.highlighted {
+            background: #333;
+        }
+
         .stats-bar {
             display: flex;
             gap: 30px;
@@ -487,7 +527,10 @@
             </div>
             <div class="control-group">
                 <label for="search">Search:</label>
-                <input type="text" id="search" placeholder="Team name...">
+                <div class="autocomplete-wrapper">
+                    <input type="text" id="search" placeholder="Team name..." autocomplete="off">
+                    <div class="autocomplete-dropdown" id="search-dropdown"></div>
+                </div>
             </div>
         </div>
 
@@ -515,11 +558,17 @@
             <div class="spread-inputs">
                 <div class="control-group">
                     <label for="team-a">Team A:</label>
-                    <input type="text" id="team-a" placeholder="e.g. Duke">
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="team-a" placeholder="e.g. Duke" autocomplete="off">
+                        <div class="autocomplete-dropdown" id="team-a-dropdown"></div>
+                    </div>
                 </div>
                 <div class="control-group">
                     <label for="team-b">Team B:</label>
-                    <input type="text" id="team-b" placeholder="e.g. North Carolina">
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="team-b" placeholder="e.g. North Carolina" autocomplete="off">
+                        <div class="autocomplete-dropdown" id="team-b-dropdown"></div>
+                    </div>
                 </div>
                 <div class="control-group">
                     <label for="home-team">Home Team:</label>
@@ -705,24 +754,29 @@
                     { key: 'rating', label: 'Rating' },
                     { key: 'record', label: 'Record' },
                     { key: 'adjO', label: 'AdjO' },
-                    { key: 'adjD', label: 'AdjD' },
-                    { key: 'tempo', label: 'Tempo', hideOnMobile: true },
-                    { key: 'sos', label: 'SOS', hideOnMobile: true }
+                    { key: 'adjD', label: 'AdjD' }
                 ];
+                if (currentSport === 'cbb') {
+                    headers.push({ key: 'tempo', label: 'Tempo', hideOnMobile: true });
+                    headers.push({ key: 'sos', label: 'SOS', hideOnMobile: true });
+                }
                 rowsHtml = ratings.map(r => {
                     const ratingClass = r.rating >= 0 ? 'rating' : 'rating negative';
-                    return `
+                    let row = `
                         <tr>
                             <td class="rank">${r.rank}</td>
                             <td class="team team-link" data-team="${r.team}" data-team-id="${r.teamId || ''}">${r.team}</td>
                             <td class="${ratingClass}">${r.rating?.toFixed(2) || '-'}</td>
                             <td class="number">${r.record || '-'}</td>
                             <td class="number">${r.adjO?.toFixed(1) || '-'}</td>
-                            <td class="number">${r.adjD?.toFixed(1) || '-'}</td>
+                            <td class="number">${r.adjD?.toFixed(1) || '-'}</td>`;
+                    if (currentSport === 'cbb') {
+                        row += `
                             <td class="number hide-mobile">${r.tempo?.toFixed(1) || '-'}</td>
-                            <td class="number hide-mobile">${r.sos?.toFixed(2) || '-'}</td>
-                        </tr>
-                    `;
+                            <td class="number hide-mobile">${r.sos?.toFixed(2) || '-'}</td>`;
+                    }
+                    row += `</tr>`;
+                    return row;
                 }).join('');
             }
 
@@ -766,6 +820,18 @@
             const sorted = [...allRatings].sort((a, b) => {
                 let valA = a[column];
                 let valB = b[column];
+
+                if (column === 'record') {
+                    const parseRec = (r) => {
+                        if (!r || r === '-') return { pct: -1, wins: 0 };
+                        const parts = r.split('-').map(Number);
+                        const total = parts[0] + parts[1];
+                        return { pct: total > 0 ? parts[0] / total : 0, wins: parts[0] };
+                    };
+                    const rA = parseRec(valA), rB = parseRec(valB);
+                    if (rA.pct !== rB.pct) return currentSort.direction === 'asc' ? rA.pct - rB.pct : rB.pct - rA.pct;
+                    return currentSort.direction === 'asc' ? rA.wins - rB.wins : rB.wins - rA.wins;
+                }
 
                 if (typeof valA === 'string') {
                     valA = valA.toLowerCase();
@@ -1100,11 +1166,11 @@
                         const d = dataPoints[index];
                         if (d) {
                             if (d.logo) {
-                                const size = 40;
+                                const size = window.innerWidth <= 768 ? 18 : 40;
                                 ctx.drawImage(d.logo, point.x - size/2, point.y - size/2, size, size);
                             } else {
                                 // Fallback: draw colored dot based on rank
-                                const size = 16;
+                                const size = window.innerWidth <= 768 ? 8 : 16;
                                 ctx.beginPath();
                                 ctx.arc(point.x, point.y, size/2, 0, 2 * Math.PI);
                                 if (d.rank <= Math.ceil(dataPoints.length * 0.1)) {
@@ -1123,20 +1189,21 @@
                 }
             };
 
+            const isMobile = window.innerWidth <= 768;
             efficiencyChart = new Chart(ctx, {
                 type: 'scatter',
                 data: {
                     datasets: [{
                         data: dataPoints,
                         backgroundColor: 'transparent',
-                        pointRadius: 20,
-                        pointHoverRadius: 24
+                        pointRadius: isMobile ? 9 : 20,
+                        pointHoverRadius: isMobile ? 12 : 24
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
-                    aspectRatio: 1.3,
+                    aspectRatio: isMobile ? 1.0 : 1.3,
                     plugins: {
                         legend: {
                             display: false
@@ -1486,6 +1553,70 @@
             }
         }
 
+        // Autocomplete
+        function setupAutocomplete(inputId, dropdownId, onSelect) {
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(dropdownId);
+            let highlightIndex = -1;
+
+            input.addEventListener('input', () => {
+                const val = input.value.toLowerCase().trim();
+                if (!val || val.length < 1) {
+                    dropdown.classList.remove('visible');
+                    return;
+                }
+                const matches = allRatings.filter(r => r.team.toLowerCase().includes(val)).slice(0, 8);
+                if (matches.length === 0) {
+                    dropdown.classList.remove('visible');
+                    return;
+                }
+                highlightIndex = -1;
+                dropdown.innerHTML = matches.map((m, i) =>
+                    `<div class="autocomplete-option" data-index="${i}" data-team="${m.team}">${m.team}</div>`
+                ).join('');
+                dropdown.classList.add('visible');
+
+                dropdown.querySelectorAll('.autocomplete-option').forEach(opt => {
+                    opt.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        input.value = opt.dataset.team;
+                        dropdown.classList.remove('visible');
+                        if (onSelect) onSelect(opt.dataset.team);
+                    });
+                });
+            });
+
+            input.addEventListener('keydown', (e) => {
+                const options = dropdown.querySelectorAll('.autocomplete-option');
+                if (!dropdown.classList.contains('visible') || options.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    highlightIndex = Math.min(highlightIndex + 1, options.length - 1);
+                    options.forEach((o, i) => o.classList.toggle('highlighted', i === highlightIndex));
+                    options[highlightIndex].scrollIntoView({ block: 'nearest' });
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    highlightIndex = Math.max(highlightIndex - 1, 0);
+                    options.forEach((o, i) => o.classList.toggle('highlighted', i === highlightIndex));
+                    options[highlightIndex].scrollIntoView({ block: 'nearest' });
+                } else if (e.key === 'Enter') {
+                    if (highlightIndex >= 0 && highlightIndex < options.length) {
+                        e.preventDefault();
+                        input.value = options[highlightIndex].dataset.team;
+                        dropdown.classList.remove('visible');
+                        if (onSelect) onSelect(options[highlightIndex].dataset.team);
+                    }
+                } else if (e.key === 'Escape') {
+                    dropdown.classList.remove('visible');
+                }
+            });
+
+            input.addEventListener('blur', () => {
+                setTimeout(() => dropdown.classList.remove('visible'), 150);
+            });
+        }
+
         // Event listeners
         document.getElementById('season').addEventListener('change', loadRatings);
         document.getElementById('search').addEventListener('input', filterRatings);
@@ -1494,6 +1625,10 @@
                 renderEfficiencyChart(allRatings);
             }
         });
+
+        setupAutocomplete('search', 'search-dropdown', () => filterRatings());
+        setupAutocomplete('team-a', 'team-a-dropdown');
+        setupAutocomplete('team-b', 'team-b-dropdown');
 
         // Modal close handlers
         document.getElementById('modal-close').addEventListener('click', closeModal);
