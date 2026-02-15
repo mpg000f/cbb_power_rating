@@ -26,6 +26,12 @@ try:
 except ImportError:
     raise ImportError("Install sportsdataverse: pip install sportsdataverse")
 
+try:
+    from espn_supplement import fetch_espn_supplement
+    ESPN_AVAILABLE = True
+except ImportError:
+    ESPN_AVAILABLE = False
+
 
 # =============================================================================
 # CONFIGURATION
@@ -2046,6 +2052,21 @@ def run_power_ratings(
     print("Loading game data from sportsdataverse...")
     boxscores = load_team_boxscores(seasons_to_load)
 
+    # Supplement with ESPN data for recent games (current season only)
+    espn_schedule_supplement = None
+    if ESPN_AVAILABLE and current_season == 2026:
+        try:
+            espn_box, espn_sched = fetch_espn_supplement(boxscores, current_season)
+            if not espn_box.empty:
+                boxscores = pd.concat([boxscores, espn_box], ignore_index=True)
+                boxscores = boxscores.drop_duplicates(
+                    subset=['game_id', 'team_id'], keep='first'
+                )
+            if not espn_sched.empty:
+                espn_schedule_supplement = espn_sched
+        except Exception as e:
+            print(f"  ESPN supplement failed ({e}), continuing with sportsdataverse only")
+
     # Calculate game-level stats
     print("Calculating game statistics...")
     game_stats = calculate_game_stats(boxscores)
@@ -2065,6 +2086,10 @@ def run_power_ratings(
     print("Calculating all-games records from schedule...")
     try:
         schedule = load_schedule([current_season])
+        if espn_schedule_supplement is not None and not espn_schedule_supplement.empty:
+            schedule = pd.concat([schedule, espn_schedule_supplement], ignore_index=True)
+            if 'game_id' in schedule.columns:
+                schedule = schedule.drop_duplicates(subset=['game_id'], keep='first')
         completed = schedule[
             schedule['home_score'].notna() & schedule['away_score'].notna() &
             ((schedule['home_score'] > 0) | (schedule['away_score'] > 0))
