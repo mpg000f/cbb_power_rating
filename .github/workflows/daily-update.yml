@@ -2,8 +2,10 @@ name: Daily Ratings Update
 
 on:
   schedule:
-    # Run at 6:00 AM EST (11:00 UTC) every day
-    - cron: '0 11 * * *'
+    # Run 3x daily: noon, 6 PM, midnight EST
+    - cron: '0 17 * * *'
+    - cron: '0 23 * * *'
+    - cron: '0 5 * * *'
   workflow_dispatch:  # Allow manual trigger from GitHub UI
 
 jobs:
@@ -36,24 +38,59 @@ jobs:
           python -c "import sportsdataverse.mbb as mbb; print('sportsdataverse.mbb OK')"
           python -c "import pandas; import numpy; print('pandas/numpy OK')"
 
+      - name: Check data freshness
+        id: freshness
+        continue-on-error: true
+        run: |
+          python -c "
+          from sportsdataverse.mbb import load_mbb_schedule, load_mbb_team_boxscore
+          from datetime import datetime, timedelta
+          import pandas as pd
+
+          yesterday = (datetime.utcnow() - timedelta(days=1)).strftime('%Y-%m-%d')
+          print(f'Checking for games from {yesterday}')
+
+          sched = load_mbb_schedule([2026])
+          sched = sched.to_pandas() if hasattr(sched, 'to_pandas') else pd.DataFrame(sched)
+          completed = sched[(sched['home_score'] > 0) | (sched['away_score'] > 0)]
+          sched_dates = pd.to_datetime(completed['date']).dt.strftime('%Y-%m-%d')
+          yesterday_sched = (sched_dates == yesterday).sum()
+          print(f'Schedule: {yesterday_sched} completed games from yesterday')
+
+          box = load_mbb_team_boxscore([2026])
+          box = box.to_pandas() if hasattr(box, 'to_pandas') else pd.DataFrame(box)
+          box_dates = pd.to_datetime(box['game_date']).dt.strftime('%Y-%m-%d')
+          yesterday_box = box[box_dates == yesterday]['game_id'].nunique()
+          print(f'Boxscores: {yesterday_box} games from yesterday')
+
+          if yesterday_sched > 0 and yesterday_box == 0:
+              print('STALE: yesterday has completed games in schedule but none in boxscores')
+              exit(1)
+          else:
+              print('FRESH: data looks up to date')
+          "
+
       - name: Update CBB ratings
+        if: steps.freshness.outcome == 'success'
         working-directory: cbb_power_rating
         run: |
           python update_ratings.py --season 2026
 
       - name: Build static site
+        if: steps.freshness.outcome == 'success'
         working-directory: cbb_power_rating
         run: |
           python build_static.py
 
       - name: Check for changes
+        if: steps.freshness.outcome == 'success'
         id: changes
         working-directory: cbb_power_rating
         run: |
           git diff --quiet historical_ratings/ docs/ || echo "changed=true" >> $GITHUB_OUTPUT
 
       - name: Commit and push updated ratings
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.freshness.outcome == 'success' && steps.changes.outputs.changed == 'true'
         working-directory: cbb_power_rating
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
