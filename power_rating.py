@@ -2067,6 +2067,13 @@ def run_power_ratings(
         except Exception as e:
             print(f"  ESPN supplement failed ({e}), continuing with sportsdataverse only")
 
+    # Extract team_id -> conference mapping from boxscores
+    conference_map = {}
+    if 'team_conference' in boxscores.columns:
+        for _, row in boxscores[['team_id', 'team_conference']].drop_duplicates().iterrows():
+            if pd.notna(row['team_conference']):
+                conference_map[row['team_id']] = row['team_conference']
+
     # Calculate game-level stats
     print("Calculating game statistics...")
     game_stats = calculate_game_stats(boxscores)
@@ -2246,6 +2253,10 @@ def run_power_ratings(
         on='team_id',
         how='left'
     )
+
+    # Add conference column
+    if conference_map:
+        results['conference'] = results['team_id'].map(conference_map)
 
     return results
 

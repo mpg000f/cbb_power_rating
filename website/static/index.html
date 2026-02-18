@@ -480,6 +480,86 @@
             color: #666;
         }
 
+        .conference-select-wrapper {
+            position: relative;
+        }
+
+        .conference-select-btn {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #e0e0e0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            min-width: 180px;
+            text-align: left;
+            transition: border-color 0.2s;
+        }
+
+        .conference-select-btn:hover {
+            border-color: #667eea;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .conference-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 200;
+            display: none;
+            min-width: 220px;
+        }
+
+        .conference-dropdown.visible {
+            display: block;
+        }
+
+        .conference-actions {
+            display: flex;
+            gap: 15px;
+            padding: 8px 12px;
+            border-bottom: 1px solid #333;
+        }
+
+        .conference-actions span {
+            color: #667eea;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .conference-actions span:hover {
+            text-decoration: underline;
+        }
+
+        .conference-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+        }
+
+        .conference-option:hover {
+            background: #333;
+        }
+
+        .conference-option input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
         @media (max-width: 768px) {
             .controls {
                 flex-direction: column;
@@ -530,6 +610,19 @@
                 <div class="autocomplete-wrapper">
                     <input type="text" id="search" placeholder="Team name..." autocomplete="off">
                     <div class="autocomplete-dropdown" id="search-dropdown"></div>
+                </div>
+            </div>
+            <div class="control-group conference-filter" id="conference-filter-group" style="display:none;">
+                <label>Conference:</label>
+                <div class="conference-select-wrapper">
+                    <button type="button" class="conference-select-btn" id="conference-btn">All Conferences ▾</button>
+                    <div class="conference-dropdown" id="conference-dropdown">
+                        <div class="conference-actions">
+                            <span onclick="selectAllConferences()">All</span>
+                            <span onclick="clearConferences()">None</span>
+                        </div>
+                        <div id="conference-options"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -622,6 +715,8 @@
         let currentSport = 'cbb';
         let historyChart = null;
         const allSeasonsCache = { cbb: null, cfb: null, nfl: null };
+        let selectedConferences = new Set();
+        let allConferences = [];
 
         function getDataPath() {
             return currentSport === 'cbb' ? 'data' : `data/${currentSport}`;
@@ -672,6 +767,7 @@
                 updateStats(allRatings, data.lastUpdated);
                 renderTable(allRatings);
                 renderEfficiencyChart(allRatings);
+                populateConferenceFilter(allRatings);
             } catch (e) {
                 container.innerHTML = '<div class="loading">Failed to load ratings</div>';
                 console.error(e);
@@ -681,6 +777,12 @@
         function switchSport(sport) {
             currentSport = sport;
             closeModal();
+            // Reset conference filter
+            selectedConferences = new Set();
+            allConferences = [];
+            document.getElementById('conference-filter-group').style.display = 'none';
+            document.getElementById('conference-dropdown').classList.remove('visible');
+
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelector(`.tab[data-sport="${sport}"]`).classList.add('active');
 
@@ -848,10 +950,89 @@
 
         function filterRatings() {
             const search = document.getElementById('search').value.toLowerCase();
-            const filtered = allRatings.filter(r =>
+            let filtered = allRatings.filter(r =>
                 r.team.toLowerCase().includes(search)
             );
+            if (selectedConferences.size > 0 && selectedConferences.size < allConferences.length) {
+                filtered = filtered.filter(r => selectedConferences.has(r.conference || 'Independent'));
+            }
             renderTable(filtered);
+        }
+
+        function populateConferenceFilter(ratings) {
+            const filterGroup = document.getElementById('conference-filter-group');
+            const optionsContainer = document.getElementById('conference-options');
+
+            // Extract unique conferences
+            const confSet = new Set();
+            ratings.forEach(r => {
+                if (r.conference) {
+                    confSet.add(r.conference);
+                } else if (currentSport !== 'nfl') {
+                    confSet.add('Independent');
+                }
+            });
+
+            allConferences = [...confSet].sort();
+
+            // Hide filter if no conference data or NFL
+            if (allConferences.length === 0 || currentSport === 'nfl') {
+                filterGroup.style.display = 'none';
+                return;
+            }
+
+            // All selected by default (empty set = all shown)
+            selectedConferences = new Set(allConferences);
+
+            // Build checkbox options
+            optionsContainer.innerHTML = allConferences.map(conf => `
+                <label class="conference-option">
+                    <input type="checkbox" checked onchange="toggleConference('${conf.replace(/'/g, "\\'")}')">
+                    ${conf}
+                </label>
+            `).join('');
+
+            updateConferenceButton();
+            filterGroup.style.display = 'flex';
+        }
+
+        function toggleConference(conf) {
+            if (selectedConferences.has(conf)) {
+                selectedConferences.delete(conf);
+            } else {
+                selectedConferences.add(conf);
+            }
+            updateConferenceButton();
+            filterRatings();
+        }
+
+        function selectAllConferences() {
+            selectedConferences = new Set(allConferences);
+            const checkboxes = document.querySelectorAll('#conference-options input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = true);
+            updateConferenceButton();
+            filterRatings();
+        }
+
+        function clearConferences() {
+            selectedConferences.clear();
+            const checkboxes = document.querySelectorAll('#conference-options input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+            updateConferenceButton();
+            filterRatings();
+        }
+
+        function updateConferenceButton() {
+            const btn = document.getElementById('conference-btn');
+            if (selectedConferences.size === 0) {
+                btn.textContent = 'No Conferences ▾';
+            } else if (selectedConferences.size === allConferences.length) {
+                btn.textContent = 'All Conferences ▾';
+            } else if (selectedConferences.size === 1) {
+                btn.textContent = [...selectedConferences][0] + ' ▾';
+            } else {
+                btn.textContent = selectedConferences.size + ' Conferences ▾';
+            }
         }
 
         function calculateSpread() {
@@ -1629,6 +1810,20 @@
         setupAutocomplete('search', 'search-dropdown', () => filterRatings());
         setupAutocomplete('team-a', 'team-a-dropdown');
         setupAutocomplete('team-b', 'team-b-dropdown');
+
+        // Conference dropdown toggle
+        document.getElementById('conference-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.getElementById('conference-dropdown').classList.toggle('visible');
+        });
+
+        // Close conference dropdown on outside click
+        document.addEventListener('click', (e) => {
+            const wrapper = document.querySelector('.conference-select-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                document.getElementById('conference-dropdown').classList.remove('visible');
+            }
+        });
 
         // Modal close handlers
         document.getElementById('modal-close').addEventListener('click', closeModal);

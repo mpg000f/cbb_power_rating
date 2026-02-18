@@ -38,6 +38,7 @@ def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
         columns = {
             'rank': 'rank',
             'team': 'team',
+            'conference': 'conference',
             'power_rating': 'rating',
             'record': 'record',
             'off_rating': 'adjO',
@@ -67,6 +68,7 @@ def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
             'rank': 'rank',
             'team_id': 'teamId',
             'team_display_name': 'team',
+            'conference': 'conference',
             'power_rating': 'rating',
             'record': 'record',
             'adj_off_eff': 'adjO',
