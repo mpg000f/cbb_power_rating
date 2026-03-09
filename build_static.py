@@ -23,10 +23,12 @@ PROJECT_ROOT = Path(__file__).parent
 RATINGS_DIR = PROJECT_ROOT / "historical_ratings"
 CFB_RATINGS_DIR = PROJECT_ROOT.parent / "cfb_power_rating" / "historical_ratings"
 NFL_RATINGS_DIR = PROJECT_ROOT.parent / "nfl_power_rating" / "historical_ratings"
+NBA_RATINGS_DIR = PROJECT_ROOT.parent / "nba_power_rating" / "historical_ratings"
 DOCS_DIR = PROJECT_ROOT / "docs"
 DATA_DIR = DOCS_DIR / "data"
 CFB_DATA_DIR = DATA_DIR / "cfb"
 NFL_DATA_DIR = DATA_DIR / "nfl"
+NBA_DATA_DIR = DATA_DIR / "nba"
 
 
 def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
@@ -43,6 +45,20 @@ def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
             'record': 'record',
             'off_rating': 'adjO',
             'def_rating': 'adjD',
+            'games': 'games',
+        }
+    elif sport == "nba":
+        columns = {
+            'rank': 'rank',
+            'team': 'team',
+            'team_name': 'teamName',
+            'conference': 'conference',
+            'division': 'division',
+            'power_rating': 'rating',
+            'record': 'record',
+            'adj_off_eff': 'adjO',
+            'adj_def_eff': 'adjD',
+            'pace': 'pace',
             'games': 'games',
         }
     elif sport == "nfl":
@@ -82,7 +98,7 @@ def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
     result = df[available].rename(columns=columns)
 
     # Round numeric columns
-    for col in ['rating', 'adjO', 'adjD', 'tempo', 'sos',
+    for col in ['rating', 'adjO', 'adjD', 'tempo', 'sos', 'pace',
                 'adjOffEpa', 'adjDefEpa', 'adjOffSuccess', 'adjDefSuccess',
                 'rawOffEpa', 'rawDefEpa', 'rawOffSuccess', 'rawDefSuccess']:
         if col in result.columns:
@@ -215,6 +231,42 @@ def build_static_site():
     else:
         print(f"\n  NFL ratings not found at {NFL_RATINGS_DIR}")
 
+    # ===== NBA Ratings =====
+    NBA_DATA_DIR.mkdir(exist_ok=True)
+    if NBA_RATINGS_DIR.exists():
+        print("\n  NBA:")
+        nba_seasons = []
+        for csv_file in sorted(NBA_RATINGS_DIR.glob("ratings_*.csv")):
+            try:
+                season = int(csv_file.stem.split("_")[1])
+                nba_seasons.append(season)
+
+                ratings = csv_to_json(csv_file, sport="nba")
+                json_path = NBA_DATA_DIR / f"ratings_{season}.json"
+
+                mtime = os.path.getmtime(csv_file)
+                last_updated = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d')
+
+                with open(json_path, 'w') as f:
+                    json.dump({
+                        'season': season,
+                        'lastUpdated': last_updated,
+                        'count': len(ratings),
+                        'ratings': ratings
+                    }, f)
+
+                print(f"    Generated nba/{json_path.name} ({len(ratings)} teams)")
+
+            except Exception as e:
+                print(f"    Error processing {csv_file.name}: {e}")
+
+        nba_seasons_path = NBA_DATA_DIR / "seasons.json"
+        with open(nba_seasons_path, 'w') as f:
+            json.dump({'seasons': sorted(nba_seasons, reverse=True)}, f)
+        print(f"    Generated nba/seasons.json ({len(nba_seasons)} seasons)")
+    else:
+        print(f"\n  NBA ratings not found at {NBA_RATINGS_DIR}")
+
     # Copy static HTML
     src_html = PROJECT_ROOT / "website" / "static" / "index.html"
     if src_html.exists():
@@ -248,6 +300,15 @@ def build_static_site():
         html_content = html_content.replace(
             "'/api/ratings/nfl'",
             "'data/nfl'"
+        )
+        # NBA paths
+        html_content = html_content.replace(
+            "'/api/seasons/nba'",
+            "'data/nba/seasons.json'"
+        )
+        html_content = html_content.replace(
+            "'/api/ratings/nba'",
+            "'data/nba'"
         )
         # Fix the ratings fetch pattern
         html_content = html_content.replace(

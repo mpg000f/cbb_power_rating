@@ -596,6 +596,7 @@
             <div class="tab active" data-sport="cbb">College Basketball</div>
             <div class="tab" data-sport="cfb">College Football</div>
             <div class="tab" data-sport="nfl">NFL</div>
+            <div class="tab" data-sport="nba">NBA</div>
         </div>
 
         <div class="controls">
@@ -714,7 +715,7 @@
         let currentSort = { column: 'rank', direction: 'asc' };
         let currentSport = 'cbb';
         let historyChart = null;
-        const allSeasonsCache = { cbb: null, cfb: null, nfl: null };
+        const allSeasonsCache = { cbb: null, cfb: null, nfl: null, nba: null };
         let selectedConferences = new Set();
         let allConferences = [];
 
@@ -722,21 +723,23 @@
             return currentSport === 'cbb' ? 'data' : `data/${currentSport}`;
         }
 
+        function isStartYearSport() {
+            return ['cfb', 'nfl', 'nba'].includes(currentSport);
+        }
+
         async function loadSeasons() {
             try {
-                const pathMap = { cbb: 'data/seasons.json', cfb: 'data/cfb/seasons.json', nfl: 'data/nfl/seasons.json' };
+                const pathMap = { cbb: 'data/seasons.json', cfb: 'data/cfb/seasons.json', nfl: 'data/nfl/seasons.json', nba: 'data/nba/seasons.json' };
                 const basePath = pathMap[currentSport];
                 const response = await fetch(basePath);
                 const data = await response.json();
                 const select = document.getElementById('season');
-                // NFL and CFB use start-year naming (2024 = 2024-25 season)
-                // CBB uses end-year naming (2025 = 2024-25 season)
+                // CBB uses end-year (2025 = 2024-25). CFB/NFL/NBA use start-year (2024 = 2024-25).
                 if (currentSport === 'cbb') {
                     select.innerHTML = data.seasons.map(s =>
                         `<option value="${s}">${s-1}-${String(s).slice(2)}</option>`
                     ).join('');
                 } else {
-                    // NFL and CFB both use start-year
                     select.innerHTML = data.seasons.map(s =>
                         `<option value="${s}">${s}-${String(s+1).slice(2)}</option>`
                     ).join('');
@@ -753,7 +756,7 @@
             container.innerHTML = '<div class="loading">Loading ratings...</div>';
 
             try {
-                const pathMap = { cbb: 'data', cfb: 'data/cfb', nfl: 'data/nfl' };
+                const pathMap = { cbb: 'data', cfb: 'data/cfb', nfl: 'data/nfl', nba: 'data/nba' };
                 const basePath = pathMap[currentSport];
                 const response = await fetch(`${basePath}/ratings_${season}.json`);
                 const data = await response.json();
@@ -794,6 +797,8 @@
                 subtitle.textContent = 'Opponent-adjusted efficiency ratings for college football';
             } else if (sport === 'nfl') {
                 subtitle.textContent = 'Opponent-adjusted EPA and success rate ratings';
+            } else if (sport === 'nba') {
+                subtitle.textContent = 'Opponent-adjusted offensive and defensive efficiency ratings';
             }
 
             loadSeasons().then(loadRatings);
@@ -803,8 +808,15 @@
             document.getElementById('stat-teams').textContent = ratings.length;
             if (ratings.length > 0) {
                 document.getElementById('stat-top-rating').textContent = ratings[0].rating.toFixed(1);
-                const avgTempo = ratings.reduce((sum, r) => sum + (r.tempo || 0), 0) / ratings.length;
-                document.getElementById('stat-avg-tempo').textContent = avgTempo.toFixed(1);
+                if (currentSport === 'nba') {
+                    const avgPace = ratings.reduce((sum, r) => sum + (r.pace || 0), 0) / ratings.length;
+                    document.getElementById('stat-avg-tempo').textContent = avgPace.toFixed(1);
+                    document.querySelector('#stat-avg-tempo').closest('.stat').querySelector('.stat-label').textContent = 'Avg Pace';
+                } else {
+                    const avgTempo = ratings.reduce((sum, r) => sum + (r.tempo || 0), 0) / ratings.length;
+                    document.getElementById('stat-avg-tempo').textContent = avgTempo > 0 ? avgTempo.toFixed(1) : '-';
+                    document.querySelector('#stat-avg-tempo').closest('.stat').querySelector('.stat-label').textContent = 'Avg Tempo';
+                }
             }
             document.getElementById('stat-last-updated').textContent = lastUpdated || '-';
         }
@@ -819,7 +831,32 @@
 
             let headers, rowsHtml;
 
-            if (currentSport === 'nfl') {
+            if (currentSport === 'nba') {
+                headers = [
+                    { key: 'rank', label: 'Rank' },
+                    { key: 'teamName', label: 'Team' },
+                    { key: 'rating', label: 'Rating' },
+                    { key: 'record', label: 'Record' },
+                    { key: 'adjO', label: 'AdjO' },
+                    { key: 'adjD', label: 'AdjD' },
+                    { key: 'pace', label: 'Pace', hideOnMobile: true },
+                ];
+                rowsHtml = ratings.map(r => {
+                    const ratingClass = r.rating >= 0 ? 'rating' : 'rating negative';
+                    const displayName = r.teamName || r.team;
+                    return `
+                        <tr>
+                            <td class="rank">${r.rank}</td>
+                            <td class="team team-link" data-team="${r.team}" data-team-id="">${displayName}</td>
+                            <td class="${ratingClass}">${r.rating?.toFixed(2) || '-'}</td>
+                            <td class="number">${r.record || '-'}</td>
+                            <td class="number">${r.adjO?.toFixed(1) || '-'}</td>
+                            <td class="number">${r.adjD?.toFixed(1) || '-'}</td>
+                            <td class="number hide-mobile">${r.pace?.toFixed(1) || '-'}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } else if (currentSport === 'nfl') {
                 headers = [
                     { key: 'rank', label: 'Rank' },
                     { key: 'team', label: 'Team' },
@@ -1066,13 +1103,19 @@
                 return;
             }
 
-            const HOME_COURT_ADVANTAGE = 3.5;
-            const tempoA = teamA.tempo || 70.0;
-            const tempoB = teamB.tempo || 70.0;
-            const nationalAvgTempo = allRatings.reduce((sum, r) => sum + (r.tempo || 70), 0) / allRatings.length;
-            const expectedTempo = (tempoA * tempoB) / nationalAvgTempo;
+            const HOME_COURT_ADVANTAGE = currentSport === 'nfl' ? 2.5 : currentSport === 'nba' ? 3.0 : 3.5;
 
-            let spread = (teamA.rating - teamB.rating) * (expectedTempo / 100);
+            let spread;
+            if (currentSport === 'nba') {
+                // NBA: power rating is already per-game point differential
+                spread = teamA.rating - teamB.rating;
+            } else {
+                const tempoA = teamA.tempo || 70.0;
+                const tempoB = teamB.tempo || 70.0;
+                const nationalAvgTempo = allRatings.reduce((sum, r) => sum + (r.tempo || 70), 0) / allRatings.length;
+                const expectedTempo = (tempoA * tempoB) / nationalAvgTempo;
+                spread = (teamA.rating - teamB.rating) * (expectedTempo / 100);
+            }
             if (home === 'a') spread += HOME_COURT_ADVANTAGE;
             else if (home === 'b') spread -= HOME_COURT_ADVANTAGE;
 
@@ -1081,9 +1124,16 @@
             const venueLabel = !home ? 'Neutral' : home === 'a' ? teamA.team + ' home' : teamB.team + ' home';
 
             valueDiv.textContent = spread === 0 ? "Pick'em" : `${favorite} -${spreadStr}`;
+            const teamAName = teamA.teamName || teamA.team;
+            const teamBName = teamB.teamName || teamB.team;
+            const paceInfo = currentSport === 'nba'
+                ? `Avg pace: ${((teamA.pace || 100) + (teamB.pace || 100)) / 2 | 0}`
+                : currentSport === 'cbb'
+                ? `Expected tempo: ${expectedTempo.toFixed(1)}`
+                : '';
             detailsDiv.innerHTML = `
-                ${teamA.team}: ${teamA.rating.toFixed(2)} | ${teamB.team}: ${teamB.rating.toFixed(2)}<br>
-                Expected tempo: ${expectedTempo.toFixed(1)} | Venue: ${venueLabel}
+                ${teamAName}: ${teamA.rating.toFixed(2)} | ${teamBName}: ${teamB.rating.toFixed(2)}<br>
+                ${paceInfo ? paceInfo + ' | ' : ''}Venue: ${venueLabel}
             `;
             resultDiv.classList.add('visible');
         }
@@ -1187,12 +1237,15 @@
             } else if (currentSport === 'cbb') {
                 return cbbPowerTeams.has(team.team);
             }
-            return false;
+            // NBA and NFL: all teams are "power teams"
+            return true;
         }
 
         function getLogoUrl(team) {
             if (currentSport === 'nfl') {
                 return `https://a.espncdn.com/i/teamlogos/nfl/500/${team.team.toLowerCase()}.png`;
+            } else if (currentSport === 'nba') {
+                return `https://a.espncdn.com/i/teamlogos/nba/500/${team.team.toLowerCase()}.png`;
             } else if (currentSport === 'cbb' && team.teamId) {
                 return `https://a.espncdn.com/i/teamlogos/ncaa/500/${team.teamId}.png`;
             } else if (currentSport === 'cfb') {
@@ -1229,9 +1282,9 @@
                 efficiencyChart.destroy();
             }
 
-            // Show/hide power teams toggle (not needed for NFL - only 32 teams)
+            // Show/hide power teams toggle (not needed for NFL/NBA - small leagues)
             const gridContainer = document.querySelector('.efficiency-grid');
-            if (currentSport === 'nfl') {
+            if (currentSport === 'nfl' || currentSport === 'nba') {
                 gridContainer.classList.remove('show-power-toggle');
             } else {
                 gridContainer.classList.add('show-power-toggle');
@@ -1452,12 +1505,12 @@
                 return allSeasonsCache[currentSport];
             }
 
-            const pathMap = { cbb: 'data/seasons.json', cfb: 'data/cfb/seasons.json', nfl: 'data/nfl/seasons.json' };
+            const pathMap = { cbb: 'data/seasons.json', cfb: 'data/cfb/seasons.json', nfl: 'data/nfl/seasons.json', nba: 'data/nba/seasons.json' };
             const seasonResponse = await fetch(pathMap[currentSport]);
             const seasonData = await seasonResponse.json();
             const seasons = seasonData.seasons;
 
-            const ratingPathMap = { cbb: 'data', cfb: 'data/cfb', nfl: 'data/nfl' };
+            const ratingPathMap = { cbb: 'data', cfb: 'data/cfb', nfl: 'data/nfl', nba: 'data/nba' };
             const basePath = ratingPathMap[currentSport];
 
             const results = await Promise.all(
@@ -1480,6 +1533,10 @@
         }
 
         function findTeamInSeason(ratings, teamName, teamId) {
+            if (currentSport === 'nba') {
+                // teamName holds the abbreviation for NBA
+                return ratings.find(r => r.team === teamName);
+            }
             if (currentSport === 'cbb' && teamId) {
                 const numId = parseInt(teamId);
                 return ratings.find(r => r.teamId === numId);
@@ -1507,6 +1564,8 @@
         function getTeamHistoryLogoUrl(teamName, teamId) {
             if (currentSport === 'nfl') {
                 return `https://a.espncdn.com/i/teamlogos/nfl/500/${teamName.toLowerCase()}.png`;
+            } else if (currentSport === 'nba') {
+                return `https://a.espncdn.com/i/teamlogos/nba/500/${teamName.toLowerCase()}.png`;
             } else if (currentSport === 'cbb' && teamId) {
                 return `https://a.espncdn.com/i/teamlogos/ncaa/500/${teamId}.png`;
             } else if (currentSport === 'cfb') {
@@ -1524,6 +1583,13 @@
             } else {
                 return `${year}-${String(year + 1).slice(2)}`;
             }
+        }
+
+        function getTeamKey(r) {
+            // Returns the identifier to use for matching teams across seasons
+            if (currentSport === 'nba') return r.team;  // abbreviation
+            if (currentSport === 'cbb') return r.teamId;
+            return r.team;
         }
 
         function closeModal() {
