@@ -480,6 +480,14 @@
             color: #666;
         }
 
+        .delta-neg {
+            color: #f87171;
+        }
+
+        .delta-pos {
+            color: #4ade80;
+        }
+
         .conference-select-wrapper {
             position: relative;
         }
@@ -801,6 +809,11 @@
                 subtitle.textContent = 'Opponent-adjusted offensive and defensive efficiency ratings';
             }
 
+            // NBA: default sort by current (injury-adjusted) rating
+            currentSort = currentSport === 'nba'
+                ? { column: 'currentRating', direction: 'desc' }
+                : { column: 'rank', direction: 'asc' };
+
             loadSeasons().then(loadRatings);
         }
 
@@ -832,26 +845,37 @@
             let headers, rowsHtml;
 
             if (currentSport === 'nba') {
+                const hasInjuryData = ratings.some(r => r.injuryDelta !== undefined && r.injuryDelta !== 0);
                 headers = [
                     { key: 'rank', label: 'Rank' },
                     { key: 'teamName', label: 'Team' },
-                    { key: 'rating', label: 'Rating' },
+                    { key: 'currentRating', label: 'Current' },
+                    { key: 'rating', label: 'Season' },
+                    { key: 'injuryDelta', label: 'Δ', hideOnMobile: true },
                     { key: 'record', label: 'Record' },
-                    { key: 'adjO', label: 'AdjO' },
-                    { key: 'adjD', label: 'AdjD' },
+                    { key: 'adjO', label: 'AdjO', hideOnMobile: true },
+                    { key: 'adjD', label: 'AdjD', hideOnMobile: true },
                     { key: 'pace', label: 'Pace', hideOnMobile: true },
                 ];
                 rowsHtml = ratings.map(r => {
-                    const ratingClass = r.rating >= 0 ? 'rating' : 'rating negative';
+                    const currentRtg = r.currentRating ?? r.rating;
+                    const ratingClass = currentRtg >= 0 ? 'rating' : 'rating negative';
+                    const seasonClass = r.rating >= 0 ? 'number' : 'number';
                     const displayName = r.teamName || r.team;
+                    const delta = r.injuryDelta ?? 0;
+                    const deltaStr = delta === 0 ? '—' : (delta > 0 ? '+' : '') + delta.toFixed(2);
+                    const deltaClass = delta < -0.5 ? 'number delta-neg' : delta > 0.5 ? 'number delta-pos' : 'number';
+                    const injuredTitle = r.injuredPlayers ? ` title="${r.injuredPlayers}"` : '';
                     return `
                         <tr>
                             <td class="rank">${r.rank}</td>
                             <td class="team team-link" data-team="${r.team}" data-team-id="">${displayName}</td>
-                            <td class="${ratingClass}">${r.rating?.toFixed(2) || '-'}</td>
+                            <td class="${ratingClass}">${currentRtg?.toFixed(2) || '-'}</td>
+                            <td class="number">${r.rating?.toFixed(2) || '-'}</td>
+                            <td class="${deltaClass} hide-mobile"${injuredTitle}>${deltaStr}</td>
                             <td class="number">${r.record || '-'}</td>
-                            <td class="number">${r.adjO?.toFixed(1) || '-'}</td>
-                            <td class="number">${r.adjD?.toFixed(1) || '-'}</td>
+                            <td class="number hide-mobile">${r.adjO?.toFixed(1) || '-'}</td>
+                            <td class="number hide-mobile">${r.adjD?.toFixed(1) || '-'}</td>
                             <td class="number hide-mobile">${r.pace?.toFixed(1) || '-'}</td>
                         </tr>
                     `;
@@ -1107,8 +1131,10 @@
 
             let spread;
             if (currentSport === 'nba') {
-                // NBA: power rating is already per-game point differential
-                spread = teamA.rating - teamB.rating;
+                // NBA: use current (injury-adjusted) rating
+                const ratingA = teamA.currentRating ?? teamA.rating;
+                const ratingB = teamB.currentRating ?? teamB.rating;
+                spread = ratingA - ratingB;
             } else {
                 const tempoA = teamA.tempo || 70.0;
                 const tempoB = teamB.tempo || 70.0;
@@ -1126,13 +1152,15 @@
             valueDiv.textContent = spread === 0 ? "Pick'em" : `${favorite} -${spreadStr}`;
             const teamAName = teamA.teamName || teamA.team;
             const teamBName = teamB.teamName || teamB.team;
+            const displayRatingA = currentSport === 'nba' ? (teamA.currentRating ?? teamA.rating) : teamA.rating;
+            const displayRatingB = currentSport === 'nba' ? (teamB.currentRating ?? teamB.rating) : teamB.rating;
             const paceInfo = currentSport === 'nba'
                 ? `Avg pace: ${((teamA.pace || 100) + (teamB.pace || 100)) / 2 | 0}`
                 : currentSport === 'cbb'
                 ? `Expected tempo: ${expectedTempo.toFixed(1)}`
                 : '';
             detailsDiv.innerHTML = `
-                ${teamAName}: ${teamA.rating.toFixed(2)} | ${teamBName}: ${teamB.rating.toFixed(2)}<br>
+                ${teamAName}: ${displayRatingA.toFixed(2)} | ${teamBName}: ${displayRatingB.toFixed(2)}<br>
                 ${paceInfo ? paceInfo + ' | ' : ''}Venue: ${venueLabel}
             `;
             resultDiv.classList.add('visible');
