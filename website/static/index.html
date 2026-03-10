@@ -526,7 +526,10 @@
             font-size: 0.82rem;
             color: #888;
             margin-bottom: 12px;
-            line-height: 1.5;
+        }
+
+        .nba-rating-blurb div {
+            margin-bottom: 4px;
         }
 
         .nba-rating-blurb strong {
@@ -914,7 +917,11 @@
                 const blurb = document.createElement('div');
                 blurb.id = 'nba-rating-blurb';
                 blurb.className = 'nba-rating-blurb';
-                blurb.innerHTML = '<strong>Season</strong> rating = full-season opponent-adjusted net efficiency (pts per 100 poss vs. avg team). <strong>Current</strong> = season rating adjusted for today\'s active injuries. <strong>Inj Δ</strong> = estimated point impact of missing players — negative means the team is weakened right now.';
+                blurb.innerHTML = `
+                    <div><strong>Season</strong> — full-season opponent-adjusted net efficiency (pts per 100 possessions vs. an average team)</div>
+                    <div><strong>Current</strong> — season rating adjusted for today's active injuries</div>
+                    <div><strong>Inj Δ</strong> — estimated point impact of missing players (negative = team is weakened right now)</div>
+                `;
                 container.parentNode.insertBefore(blurb, container);
 
                 const hasInjuryData = ratings.some(r => r.injuryDelta !== undefined && r.injuryDelta !== 0);
@@ -1522,6 +1529,14 @@
                         if (d) {
                             if (d.logo) {
                                 const size = window.innerWidth <= 768 ? 18 : 40;
+                                // Draw injury impact ring in Current mode
+                                if (currentSport === 'nba' && nbaChartMode === 'current' && d.injuryDelta && Math.abs(d.injuryDelta) >= 1.0) {
+                                    ctx.beginPath();
+                                    ctx.arc(point.x, point.y, size / 2 + 3, 0, 2 * Math.PI);
+                                    ctx.strokeStyle = d.injuryDelta < 0 ? 'rgba(248, 113, 113, 0.85)' : 'rgba(74, 222, 128, 0.85)';
+                                    ctx.lineWidth = 2.5;
+                                    ctx.stroke();
+                                }
                                 ctx.imageSmoothingEnabled = true;
                                 ctx.imageSmoothingQuality = 'high';
                                 ctx.drawImage(d.logo, point.x - size/2, point.y - size/2, size, size);
