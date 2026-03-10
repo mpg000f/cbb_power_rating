@@ -369,6 +369,40 @@
             display: inline-flex;
         }
 
+        .chart-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .chart-mode-btns {
+            display: none;
+            gap: 0;
+        }
+
+        .show-nba-chart-toggle .chart-mode-btns {
+            display: flex;
+        }
+
+        .chart-mode-btn {
+            background: #1a1a1a;
+            color: #888;
+            border: 1px solid #333;
+            padding: 4px 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .chart-mode-btn:first-child { border-radius: 6px 0 0 6px; }
+        .chart-mode-btn:last-child  { border-radius: 0 6px 6px 0; border-left: none; }
+
+        .chart-mode-btn.active {
+            background: #667eea;
+            color: #fff;
+            border-color: #667eea;
+        }
+
         /* Team History Modal */
         .team-link {
             cursor: pointer;
@@ -706,6 +740,10 @@
                     <input type="checkbox" id="power-teams-only" checked>
                     <span>Power Teams Only (Top 50)</span>
                 </label>
+                <div class="chart-mode-btns">
+                    <button class="chart-mode-btn" id="btn-chart-season" onclick="setNbaChartMode('season')">Season</button>
+                    <button class="chart-mode-btn active" id="btn-chart-current" onclick="setNbaChartMode('current')">Current</button>
+                </div>
             </div>
             <div class="chart-container">
                 <canvas id="efficiency-chart"></canvas>
@@ -736,6 +774,14 @@
         let historyChart = null;
         const allSeasonsCache = { cbb: null, cfb: null, nfl: null, nba: null };
         let selectedConferences = new Set();
+        let nbaChartMode = 'current'; // 'season' or 'current'
+
+        function setNbaChartMode(mode) {
+            nbaChartMode = mode;
+            document.getElementById('btn-chart-season').classList.toggle('active', mode === 'season');
+            document.getElementById('btn-chart-current').classList.toggle('active', mode === 'current');
+            renderEfficiencyChart(allRatings);
+        }
         let allConferences = [];
 
         function getDataPath() {
@@ -824,6 +870,11 @@
             currentSort = currentSport === 'nba'
                 ? { column: 'currentRating', direction: 'desc' }
                 : { column: 'rank', direction: 'asc' };
+
+            // Reset NBA chart mode to current when switching sports
+            nbaChartMode = 'current';
+            document.getElementById('btn-chart-season').classList.remove('active');
+            document.getElementById('btn-chart-current').classList.add('active');
 
             loadSeasons().then(loadRatings);
         }
@@ -1346,6 +1397,13 @@
                 gridContainer.classList.add('show-power-toggle');
             }
 
+            // Show/hide NBA season/current toggle
+            if (currentSport === 'nba') {
+                gridContainer.classList.add('show-nba-chart-toggle');
+            } else {
+                gridContainer.classList.remove('show-nba-chart-toggle');
+            }
+
             // Filter to power teams if toggle is checked
             const powerTeamsOnly = document.getElementById('power-teams-only').checked;
             let filteredRatings = ratings;
@@ -1387,12 +1445,19 @@
 
             // Create data points
             const dataPoints = filteredRatings.map((team) => {
+                const displayRating = (currentSport === 'nba' && nbaChartMode === 'current')
+                    ? (team.currentRating ?? team.rating)
+                    : team.rating;
                 return {
                     x: team[xField],
                     y: team[yField],
-                    team: team.team,
+                    team: currentSport === 'nba' ? (team.teamName || team.team) : team.team,
+                    teamAbbr: team.team,
                     teamId: team.teamId,
-                    rating: team.rating,
+                    rating: displayRating,
+                    seasonRating: team.rating,
+                    currentRating: team.currentRating,
+                    injuryDelta: team.injuryDelta,
                     rank: team.rank,
                     logo: logoMap[team.team]
                 };
@@ -1504,13 +1569,23 @@
                             callbacks: {
                                 label: function(context) {
                                     const d = context.raw;
-                                    return [
+                                    const lines = [
                                         `${d.team}`,
                                         `Rank: #${d.rank}`,
-                                        `Rating: ${d.rating.toFixed(1)}`,
-                                        `Off: ${d.x.toFixed(currentSport === 'nfl' ? 3 : 1)}`,
-                                        `Def: ${d.y.toFixed(currentSport === 'nfl' ? 3 : 1)}`
                                     ];
+                                    if (currentSport === 'nba' && d.currentRating !== undefined) {
+                                        lines.push(`Current: ${(d.currentRating ?? d.seasonRating)?.toFixed(2)}`);
+                                        lines.push(`Season:  ${d.seasonRating?.toFixed(2)}`);
+                                        if (d.injuryDelta && Math.abs(d.injuryDelta) > 0.05) {
+                                            const sign = d.injuryDelta > 0 ? '+' : '';
+                                            lines.push(`Inj Δ:   ${sign}${d.injuryDelta.toFixed(2)}`);
+                                        }
+                                    } else {
+                                        lines.push(`Rating: ${d.rating?.toFixed(1)}`);
+                                    }
+                                    lines.push(`Off: ${d.x.toFixed(currentSport === 'nfl' ? 3 : 1)}`);
+                                    lines.push(`Def: ${d.y.toFixed(currentSport === 'nfl' ? 3 : 1)}`);
+                                    return lines;
                                 }
                             },
                             backgroundColor: '#1a1a1a',
