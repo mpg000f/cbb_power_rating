@@ -1434,8 +1434,9 @@
             } else {
                 xField = 'adjO';
                 yField = 'adjD';
-                xLabel = 'Adjusted Offensive Efficiency';
-                yLabel = 'Adjusted Defensive Efficiency (lower is better)';
+                const nbaCurrentMode = currentSport === 'nba' && nbaChartMode === 'current';
+                xLabel = nbaCurrentMode ? 'Adj Off Efficiency (injury-adjusted)' : 'Adjusted Offensive Efficiency';
+                yLabel = nbaCurrentMode ? 'Adj Def Efficiency (injury-adjusted, lower is better)' : 'Adjusted Defensive Efficiency (lower is better)';
             }
 
             // Preload logos
@@ -1452,12 +1453,14 @@
 
             // Create data points
             const dataPoints = filteredRatings.map((team) => {
-                const displayRating = (currentSport === 'nba' && nbaChartMode === 'current')
-                    ? (team.currentRating ?? team.rating)
-                    : team.rating;
+                const nbaCurrentMode = currentSport === 'nba' && nbaChartMode === 'current';
+                const delta = (nbaCurrentMode && team.injuryDelta) ? team.injuryDelta : 0;
+                const displayRating = nbaCurrentMode ? (team.currentRating ?? team.rating) : team.rating;
                 return {
-                    x: team[xField],
-                    y: team[yField],
+                    // In current mode, split injury delta evenly across off/def
+                    // current_adjO - current_adjD = (adjO + d/2) - (adjD - d/2) = power_rating + d = current_rating
+                    x: team[xField] + delta / 2,
+                    y: team[yField] - delta / 2,
                     team: currentSport === 'nba' ? (team.teamName || team.team) : team.team,
                     teamAbbr: team.team,
                     teamId: team.teamId,
