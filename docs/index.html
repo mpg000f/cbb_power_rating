@@ -488,6 +488,17 @@
             color: #4ade80;
         }
 
+        .nba-rating-blurb {
+            font-size: 0.82rem;
+            color: #888;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .nba-rating-blurb strong {
+            color: #b0b0b0;
+        }
+
         .conference-select-wrapper {
             position: relative;
         }
@@ -844,14 +855,24 @@
 
             let headers, rowsHtml;
 
+            // Remove any existing NBA blurb before re-rendering
+            const existingBlurb = document.getElementById('nba-rating-blurb');
+            if (existingBlurb) existingBlurb.remove();
+
             if (currentSport === 'nba') {
+                const blurb = document.createElement('div');
+                blurb.id = 'nba-rating-blurb';
+                blurb.className = 'nba-rating-blurb';
+                blurb.innerHTML = '<strong>Season</strong> rating = full-season opponent-adjusted net efficiency (pts per 100 poss vs. avg team). <strong>Current</strong> = season rating adjusted for today\'s active injuries. <strong>Inj Δ</strong> = estimated point impact of missing players — negative means the team is weakened right now.';
+                container.parentNode.insertBefore(blurb, container);
+
                 const hasInjuryData = ratings.some(r => r.injuryDelta !== undefined && r.injuryDelta !== 0);
                 headers = [
                     { key: 'rank', label: 'Rank' },
                     { key: 'teamName', label: 'Team' },
                     { key: 'currentRating', label: 'Current' },
                     { key: 'rating', label: 'Season' },
-                    { key: 'injuryDelta', label: 'Δ', hideOnMobile: true },
+                    { key: 'injuryDelta', label: 'Inj Δ', hideOnMobile: true },
                     { key: 'record', label: 'Record' },
                     { key: 'adjO', label: 'AdjO', hideOnMobile: true },
                     { key: 'adjD', label: 'AdjD', hideOnMobile: true },
@@ -1269,11 +1290,18 @@
             return true;
         }
 
+        // nba_api abbreviations that differ from ESPN CDN identifiers
+        const NBA_ESPN_CDN = {
+            'NOP': 'no', 'UTA': 'utah', 'GSW': 'gs',
+            'SAS': 'sa', 'NYK': 'ny', 'WAS': 'wsh',
+        };
+
         function getLogoUrl(team) {
             if (currentSport === 'nfl') {
                 return `https://a.espncdn.com/i/teamlogos/nfl/500/${team.team.toLowerCase()}.png`;
             } else if (currentSport === 'nba') {
-                return `https://a.espncdn.com/i/teamlogos/nba/500/${team.team.toLowerCase()}.png`;
+                const abbr = NBA_ESPN_CDN[team.team] || team.team.toLowerCase();
+                return `https://a.espncdn.com/i/teamlogos/nba/500/${abbr}.png`;
             } else if (currentSport === 'cbb' && team.teamId) {
                 return `https://a.espncdn.com/i/teamlogos/ncaa/500/${team.teamId}.png`;
             } else if (currentSport === 'cfb') {
@@ -1429,6 +1457,8 @@
                         if (d) {
                             if (d.logo) {
                                 const size = window.innerWidth <= 768 ? 18 : 40;
+                                ctx.imageSmoothingEnabled = true;
+                                ctx.imageSmoothingQuality = 'high';
                                 ctx.drawImage(d.logo, point.x - size/2, point.y - size/2, size, size);
                             } else {
                                 // Fallback: draw colored dot based on rank
