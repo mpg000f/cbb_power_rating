@@ -6,6 +6,8 @@ on:
     - cron: '0 17 * * *'
     - cron: '0 23 * * *'
     - cron: '0 5 * * *'
+    # Extra morning run at 8 AM EST for NBA (catches overnight games + injuries)
+    - cron: '0 13 * * *'
   workflow_dispatch:  # Allow manual trigger from GitHub UI
 
 jobs:
@@ -19,6 +21,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: cbb_power_rating
 
+      - name: Checkout NBA repository
+        uses: actions/checkout@v4
+        with:
+          repository: mpg000f/nba_power_rating
+          token: ${{ secrets.RATINGS_PAT }}
+          path: nba_power_rating
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -30,15 +39,18 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r cbb_power_rating/requirements.txt
-          pip install requests
+          pip install -r nba_power_rating/requirements.txt
           pip list | grep -i sports
 
       - name: Verify imports
         run: |
           python -c "import sportsdataverse.mbb as mbb; print('sportsdataverse.mbb OK')"
+          python -c "import nba_api; print('nba_api OK')"
           python -c "import pandas; import numpy; print('pandas/numpy OK')"
 
-      - name: Check data freshness
+      # ===== CBB Update =====
+
+      - name: Check CBB data freshness
         id: freshness
         continue-on-error: true
         run: |
@@ -76,25 +88,45 @@ jobs:
         run: |
           python update_ratings.py --season 2026
 
+      # ===== NBA Update =====
+      # Always runs regardless of CBB freshness — injuries change daily
+
+      - name: Update NBA ratings
+        id: nba_update
+        continue-on-error: true
+        working-directory: nba_power_rating
+        run: |
+          python update_ratings.py --season 2025
+
+      - name: Commit and push NBA ratings
+        if: steps.nba_update.outcome == 'success'
+        working-directory: nba_power_rating
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add historical_ratings/
+          git diff --quiet --cached historical_ratings/ || git commit -m "Update NBA ratings $(date +'%Y-%m-%d')"
+          git push
+
+      # ===== Build & Deploy =====
+
       - name: Build static site
-        if: steps.freshness.outcome == 'success'
         working-directory: cbb_power_rating
         run: |
           python build_static.py
 
       - name: Check for changes
-        if: steps.freshness.outcome == 'success'
         id: changes
         working-directory: cbb_power_rating
         run: |
           git diff --quiet historical_ratings/ docs/ || echo "changed=true" >> $GITHUB_OUTPUT
 
       - name: Commit and push updated ratings
-        if: steps.freshness.outcome == 'success' && steps.changes.outputs.changed == 'true'
+        if: steps.changes.outputs.changed == 'true'
         working-directory: cbb_power_rating
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add historical_ratings/ docs/data/ratings_*.json docs/data/seasons.json docs/index.html
+          git add historical_ratings/ docs/data/ratings_*.json docs/data/seasons.json docs/data/nba/ docs/index.html
           git commit -m "Update ratings $(date +'%Y-%m-%d')"
           git push
