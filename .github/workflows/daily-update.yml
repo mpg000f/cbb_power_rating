@@ -22,6 +22,8 @@ jobs:
           path: cbb_power_rating
 
       - name: Checkout NBA repository
+        id: nba_checkout
+        continue-on-error: true
         uses: actions/checkout@v4
         with:
           repository: mpg000f/nba_power_rating
@@ -94,12 +96,14 @@ jobs:
       - name: Update NBA ratings
         id: nba_update
         continue-on-error: true
+        if: steps.nba_checkout.outcome == 'success'
         working-directory: nba_power_rating
         run: |
           python update_ratings.py --season 2025
 
       - name: Commit and push NBA ratings
         if: steps.nba_update.outcome == 'success'
+        continue-on-error: true
         working-directory: nba_power_rating
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
