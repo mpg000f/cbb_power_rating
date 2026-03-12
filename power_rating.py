@@ -2096,7 +2096,11 @@ def run_power_ratings(
         if espn_schedule_supplement is not None and not espn_schedule_supplement.empty:
             schedule = pd.concat([schedule, espn_schedule_supplement], ignore_index=True)
             if 'game_id' in schedule.columns:
-                schedule = schedule.drop_duplicates(subset=['game_id'], keep='first')
+                # Sort so rows with actual scores come first (ESPN supplement wins over
+                # sportsdataverse entries that have 0-0 placeholder scores)
+                schedule = schedule.sort_values(
+                    by=['home_score', 'away_score'], ascending=False, na_position='last'
+                ).drop_duplicates(subset=['game_id'], keep='first')
         completed = schedule[
             schedule['home_score'].notna() & schedule['away_score'].notna() &
             ((schedule['home_score'] > 0) | (schedule['away_score'] > 0))
