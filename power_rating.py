@@ -2245,6 +2245,10 @@ def run_power_ratings(
         preseason_data=preseason_data
     )
 
+    # Exclude non-D1 or problem teams
+    EXCLUDED_TEAM_IDS = {3229}  # Virginia-Lynchburg Dragons
+    results = results[~results['team_id'].isin(EXCLUDED_TEAM_IDS)]
+
     # Sort by power rating
     results = results.sort_values('power_rating', ascending=False).reset_index(drop=True)
     results['rank'] = range(1, len(results) + 1)
