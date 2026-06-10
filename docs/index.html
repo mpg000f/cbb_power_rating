@@ -1206,19 +1206,28 @@
                 return;
             }
 
-            const HOME_COURT_ADVANTAGE = currentSport === 'nfl' ? 2.5 : currentSport === 'nba' ? 3.0 : 3.5;
+            const HOME_COURT_ADVANTAGE = currentSport === 'nfl' ? 2.5
+                : currentSport === 'nba' ? 3.0
+                : currentSport === 'cfb' ? 3.0
+                : 3.5;
 
             let spread;
+            let expectedTempo = null;
             if (currentSport === 'nba') {
                 // NBA: use current (injury-adjusted) rating
                 const ratingA = teamA.currentRating ?? teamA.rating;
                 const ratingB = teamB.currentRating ?? teamB.rating;
                 spread = ratingA - ratingB;
+            } else if (currentSport === 'cfb' || currentSport === 'nfl') {
+                // Football ratings are already expected point margins on a
+                // neutral field — no tempo/possession scaling.
+                spread = teamA.rating - teamB.rating;
             } else {
+                // CBB: scale the margin by expected game tempo (possessions).
                 const tempoA = teamA.tempo || 70.0;
                 const tempoB = teamB.tempo || 70.0;
                 const nationalAvgTempo = allRatings.reduce((sum, r) => sum + (r.tempo || 70), 0) / allRatings.length;
-                const expectedTempo = (tempoA * tempoB) / nationalAvgTempo;
+                expectedTempo = (tempoA * tempoB) / nationalAvgTempo;
                 spread = (teamA.rating - teamB.rating) * (expectedTempo / 100);
             }
             if (home === 'a') spread += HOME_COURT_ADVANTAGE;
