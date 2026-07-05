@@ -135,6 +135,9 @@ def build_static_site():
     print("\n  College Basketball:")
     seasons = []
     for csv_file in sorted(RATINGS_DIR.glob("ratings_*.csv")):
+        # Skip auxiliary files like ratings_2026_preseason.csv (preseason baselines)
+        if len(csv_file.stem.split("_")) != 2:
+            continue
         try:
             season = int(csv_file.stem.split("_")[1])
             seasons.append(season)
@@ -171,6 +174,8 @@ def build_static_site():
         print("\n  College Football:")
         cfb_seasons = []
         for csv_file in sorted(CFB_RATINGS_DIR.glob("ratings_*.csv")):
+            if len(csv_file.stem.split("_")) != 2:
+                continue
             try:
                 season = int(csv_file.stem.split("_")[1])
                 cfb_seasons.append(season)
@@ -210,6 +215,8 @@ def build_static_site():
         print("\n  NFL:")
         nfl_seasons = []
         for csv_file in sorted(NFL_RATINGS_DIR.glob("ratings_*.csv")):
+            if len(csv_file.stem.split("_")) != 2:
+                continue
             try:
                 season = int(csv_file.stem.split("_")[1])
                 nfl_seasons.append(season)
@@ -249,6 +256,8 @@ def build_static_site():
         print("\n  NBA:")
         nba_seasons = []
         for csv_file in sorted(NBA_RATINGS_DIR.glob("ratings_*.csv")):
+            if len(csv_file.stem.split("_")) != 2:
+                continue
             try:
                 season = int(csv_file.stem.split("_")[1])
                 nba_seasons.append(season)
