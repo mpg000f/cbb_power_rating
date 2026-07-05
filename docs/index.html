@@ -774,6 +774,12 @@
         let allRatings = [];
         let currentSort = { column: 'rank', direction: 'asc' };
         let currentSport = 'cbb';
+        const VALID_SPORTS = ['cbb', 'cfb', 'nfl', 'nba'];
+        // Map the URL hash (#cfb, #nfl, #nba) to a sport; default to cbb.
+        function sportFromUrl() {
+            const h = location.hash.replace('#', '');
+            return VALID_SPORTS.includes(h) ? h : 'cbb';
+        }
         let historyChart = null;
         const allSeasonsCache = { cbb: null, cfb: null, nfl: null, nba: null };
         let selectedConferences = new Set();
@@ -845,8 +851,17 @@
             }
         }
 
-        function switchSport(sport) {
+        function switchSport(sport, updateUrl = true) {
             currentSport = sport;
+            // Give each sport a distinct, shareable URL via the hash
+            // (cbb is the default, so it gets the clean base URL).
+            if (updateUrl) {
+                const desiredHash = sport === 'cbb' ? '' : '#' + sport;
+                if (location.hash !== desiredHash) {
+                    history.pushState({ sport }, '',
+                        desiredHash || location.pathname + location.search);
+                }
+            }
             closeModal();
             // Reset conference filter
             selectedConferences = new Set();
@@ -1206,19 +1221,28 @@
                 return;
             }
 
-            const HOME_COURT_ADVANTAGE = currentSport === 'nfl' ? 2.5 : currentSport === 'nba' ? 3.0 : 3.5;
+            const HOME_COURT_ADVANTAGE = currentSport === 'nfl' ? 2.5
+                : currentSport === 'nba' ? 3.0
+                : currentSport === 'cfb' ? 3.0
+                : 3.5;
 
             let spread;
+            let expectedTempo = null;
             if (currentSport === 'nba') {
                 // NBA: use current (injury-adjusted) rating
                 const ratingA = teamA.currentRating ?? teamA.rating;
                 const ratingB = teamB.currentRating ?? teamB.rating;
                 spread = ratingA - ratingB;
+            } else if (currentSport === 'cfb' || currentSport === 'nfl') {
+                // Football ratings are already expected point margins on a
+                // neutral field — no tempo/possession scaling.
+                spread = teamA.rating - teamB.rating;
             } else {
+                // CBB: scale the margin by expected game tempo (possessions).
                 const tempoA = teamA.tempo || 70.0;
                 const tempoB = teamB.tempo || 70.0;
                 const nationalAvgTempo = allRatings.reduce((sum, r) => sum + (r.tempo || 70), 0) / allRatings.length;
-                const expectedTempo = (tempoA * tempoB) / nationalAvgTempo;
+                expectedTempo = (tempoA * tempoB) / nationalAvgTempo;
                 spread = (teamA.rating - teamB.rating) * (expectedTempo / 100);
             }
             if (home === 'a') spread += HOME_COURT_ADVANTAGE;
@@ -2061,8 +2085,21 @@
             });
         });
 
-        // Initial load
-        loadSeasons().then(loadRatings);
+        // Sync sport with browser back/forward and manual URL/hash edits.
+        function syncSportFromUrl() {
+            const sport = sportFromUrl();
+            if (sport !== currentSport) switchSport(sport, false);
+        }
+        window.addEventListener('popstate', syncSportFromUrl);
+        window.addEventListener('hashchange', syncSportFromUrl);
+
+        // Initial load — honor the sport in the URL if present
+        const initialSport = sportFromUrl();
+        if (initialSport !== 'cbb') {
+            switchSport(initialSport, false);
+        } else {
+            loadSeasons().then(loadRatings);
+        }
     </script>
 </body>
 </html>
