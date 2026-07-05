@@ -70,6 +70,9 @@ def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
             'team': 'team',
             'power_rating': 'rating',
             'record': 'record',
+            # Point components (sum to rating)
+            'off_pts': 'offPts',
+            'def_pts': 'defPts',
             # Adjusted stats
             'adj_off_epa': 'adjOffEpa',
             'adj_def_epa': 'adjDefEpa',
@@ -102,6 +105,7 @@ def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
 
     # Round numeric columns
     for col in ['rating', 'adjO', 'adjD', 'tempo', 'sos', 'pace',
+                'offPts', 'defPts',
                 'adjOffEpa', 'adjDefEpa', 'adjOffSuccess', 'adjDefSuccess',
                 'rawOffEpa', 'rawDefEpa', 'rawOffSuccess', 'rawDefSuccess']:
         if col in result.columns:

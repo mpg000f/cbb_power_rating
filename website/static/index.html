@@ -980,10 +980,8 @@
                     { key: 'team', label: 'Team' },
                     { key: 'rating', label: 'Rating' },
                     { key: 'record', label: 'Record' },
-                    { key: 'adjOffEpa', label: 'Adj Off EPA' },
-                    { key: 'adjDefEpa', label: 'Adj Def EPA' },
-                    { key: 'adjOffSuccess', label: 'Adj Off SR%', hideOnMobile: true },
-                    { key: 'adjDefSuccess', label: 'Adj Def SR%', hideOnMobile: true },
+                    { key: 'offPts', label: 'Off Rating' },
+                    { key: 'defPts', label: 'Def Rating' },
                     { key: 'rawOffEpa', label: 'Raw Off EPA', hideOnMobile: true },
                     { key: 'rawDefEpa', label: 'Raw Def EPA', hideOnMobile: true }
                 ];
@@ -995,12 +993,10 @@
                             <td class="team team-link" data-team="${r.team}" data-team-id="">${r.team}</td>
                             <td class="${ratingClass}">${r.rating?.toFixed(1) || '-'}</td>
                             <td class="number">${r.record || '-'}</td>
-                            <td class="number">${r.adjOffEpa?.toFixed(3) || '-'}</td>
-                            <td class="number">${r.adjDefEpa?.toFixed(3) || '-'}</td>
-                            <td class="number hide-mobile">${r.adjOffSuccess ? (r.adjOffSuccess * 100).toFixed(1) + '%' : '-'}</td>
-                            <td class="number hide-mobile">${r.adjDefSuccess ? (r.adjDefSuccess * 100).toFixed(1) + '%' : '-'}</td>
-                            <td class="number hide-mobile">${r.rawOffEpa?.toFixed(3) || '-'}</td>
-                            <td class="number hide-mobile">${r.rawDefEpa?.toFixed(3) || '-'}</td>
+                            <td class="number">${r.offPts != null ? r.offPts.toFixed(1) : '-'}</td>
+                            <td class="number">${r.defPts != null ? r.defPts.toFixed(1) : '-'}</td>
+                            <td class="number hide-mobile">${r.rawOffEpa != null ? r.rawOffEpa.toFixed(3) : '-'}</td>
+                            <td class="number hide-mobile">${r.rawDefEpa != null ? r.rawDefEpa.toFixed(3) : '-'}</td>
                         </tr>
                     `;
                 }).join('');
