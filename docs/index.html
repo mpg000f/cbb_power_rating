@@ -1447,10 +1447,10 @@
             // Get the right fields based on sport
             let xField, yField, xLabel, yLabel;
             if (currentSport === 'nfl') {
-                xField = 'adjOffEpa';
-                yField = 'adjDefEpa';
-                xLabel = 'Adjusted Offensive EPA';
-                yLabel = 'Adjusted Defensive EPA (lower is better)';
+                xField = 'offPts';
+                yField = 'defPts';
+                xLabel = 'Offensive Rating (points vs average)';
+                yLabel = 'Defensive Rating (points vs average)';
             } else {
                 xField = 'adjO';
                 yField = 'adjD';
@@ -1534,8 +1534,8 @@
                     ctx.setLineDash([]);
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
                     ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
-                    ctx.fillText(`Med Off: ${medianX.toFixed(currentSport === 'nfl' ? 3 : 1)}`, xPixel + 5, yAxis.top + 15);
-                    ctx.fillText(`Med Def: ${medianY.toFixed(currentSport === 'nfl' ? 3 : 1)}`, xAxis.left + 5, yPixel - 5);
+                    ctx.fillText(`Med Off: ${medianX.toFixed(1)}`, xPixel + 5, yAxis.top + 15);
+                    ctx.fillText(`Med Def: ${medianY.toFixed(1)}`, xAxis.left + 5, yPixel - 5);
 
                     ctx.restore();
                 }
@@ -1621,8 +1621,8 @@
                                     } else {
                                         lines.push(`Rating: ${d.rating?.toFixed(1)}`);
                                     }
-                                    lines.push(`Off: ${d.x.toFixed(currentSport === 'nfl' ? 3 : 1)}`);
-                                    lines.push(`Def: ${d.y.toFixed(currentSport === 'nfl' ? 3 : 1)}`);
+                                    lines.push(`Off: ${d.x.toFixed(1)}`);
+                                    lines.push(`Def: ${d.y.toFixed(1)}`);
                                     return lines;
                                 }
                             },
@@ -1659,7 +1659,8 @@
                             ticks: {
                                 color: '#888'
                             },
-                            reverse: true // Lower defense is better, so reverse the axis
+                            // NFL def points are higher-is-better; efficiency sports are lower-is-better
+                            reverse: currentSport !== 'nfl'
                         }
                     }
                 },
@@ -1883,8 +1884,8 @@
                             record: team.record || '-',
                             adjO: team.adjO,
                             adjD: team.adjD,
-                            adjOffEpa: team.adjOffEpa,
-                            adjDefEpa: team.adjDefEpa,
+                            offPts: team.offPts,
+                            defPts: team.defPts,
                             totalTeams: ratings.length
                         });
                     }
@@ -1919,15 +1920,15 @@
                 let tableHeaders, tableRows;
 
                 if (currentSport === 'nfl') {
-                    tableHeaders = '<th>Season</th><th>Rank</th><th>Rating</th><th>Record</th><th class="hide-mobile">Adj Off EPA</th><th class="hide-mobile">Adj Def EPA</th>';
+                    tableHeaders = '<th>Season</th><th>Rank</th><th>Rating</th><th>Record</th><th class="hide-mobile">Off Rating</th><th class="hide-mobile">Def Rating</th>';
                     tableRows = history.slice().reverse().map(h => `
                         <tr>
                             <td>${formatSeason(h.season)}</td>
                             <td class="rank">${h.rank}</td>
                             <td class="${h.rating >= 0 ? 'rating' : 'rating negative'}">${h.rating.toFixed(1)}</td>
                             <td class="number">${h.record}</td>
-                            <td class="number hide-mobile">${h.adjOffEpa?.toFixed(3) || '-'}</td>
-                            <td class="number hide-mobile">${h.adjDefEpa?.toFixed(3) || '-'}</td>
+                            <td class="number hide-mobile">${h.offPts != null ? h.offPts.toFixed(1) : '-'}</td>
+                            <td class="number hide-mobile">${h.defPts != null ? h.defPts.toFixed(1) : '-'}</td>
                         </tr>
                     `).join('');
                 } else {
