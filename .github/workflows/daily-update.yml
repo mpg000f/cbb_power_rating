@@ -30,6 +30,15 @@ jobs:
           token: ${{ secrets.RATINGS_PAT }}
           path: nba_power_rating
 
+      - name: Checkout NFL repository
+        id: nfl_checkout
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: mpg000f/nfl_power_rating
+          token: ${{ secrets.RATINGS_PAT }}
+          path: nfl_power_rating
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -42,6 +51,7 @@ jobs:
           pip install --upgrade pip
           pip install -r cbb_power_rating/requirements.txt
           pip install -r nba_power_rating/requirements.txt
+          if [ -f nfl_power_rating/requirements.txt ]; then pip install -r nfl_power_rating/requirements.txt; fi
           pip list | grep -i sports
 
       - name: Verify imports
@@ -112,6 +122,29 @@ jobs:
           git diff --quiet --cached historical_ratings/ || git commit -m "Update NBA ratings $(date +'%Y-%m-%d')"
           git push
 
+      # ===== NFL Update =====
+      # No-ops until in-season play-by-play data exists for the target season;
+      # early-season runs blend with the preseason baseline in the NFL repo.
+
+      - name: Update NFL ratings
+        id: nfl_update
+        continue-on-error: true
+        if: steps.nfl_checkout.outcome == 'success'
+        working-directory: nfl_power_rating
+        run: |
+          python update_ratings.py --season 2026
+
+      - name: Commit and push NFL ratings
+        if: steps.nfl_update.outcome == 'success'
+        continue-on-error: true
+        working-directory: nfl_power_rating
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add historical_ratings/
+          git diff --quiet --cached historical_ratings/ || git commit -m "Update NFL ratings $(date +'%Y-%m-%d')"
+          git push
+
       # ===== Build & Deploy =====
 
       - name: Build static site
@@ -131,6 +164,6 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add historical_ratings/ docs/data/ratings_*.json docs/data/seasons.json docs/data/nba/ docs/index.html
+          git add historical_ratings/ docs/data/ratings_*.json docs/data/seasons.json docs/data/nba/ docs/data/nfl/ docs/index.html
           git commit -m "Update ratings $(date +'%Y-%m-%d')"
           git push
