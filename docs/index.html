@@ -662,6 +662,10 @@
                     <option value="2026">2025-26</option>
                 </select>
             </div>
+            <div class="control-group" id="week-group" style="display: none;">
+                <label for="cfb-week">Week:</label>
+                <select id="cfb-week"></select>
+            </div>
             <div class="control-group">
                 <label for="search">Search:</label>
                 <div class="autocomplete-wrapper">
@@ -785,6 +789,52 @@
         let selectedConferences = new Set();
         let nbaChartMode = 'current'; // 'season' or 'current'
 
+        // CFB week-by-week history
+        const CFB_WEEKLY_BASE = 'data/cfb/weekly';
+        let cfbWeeklySeasons = null;   // Set of seasons that have weekly snapshots
+        let currentCfbWeek = '';       // '' = season file (Final/Current); otherwise week number
+
+        async function getCfbWeeklySeasons() {
+            if (cfbWeeklySeasons === null) {
+                try {
+                    const r = await fetch(`${CFB_WEEKLY_BASE}/seasons.json`);
+                    cfbWeeklySeasons = new Set((await r.json()).seasons);
+                } catch (e) {
+                    cfbWeeklySeasons = new Set();
+                }
+            }
+            return cfbWeeklySeasons;
+        }
+
+        // Populate the week dropdown for a CFB season that has weekly data.
+        // Returns true if the week selector is shown.
+        async function setupWeekSelector(season) {
+            const group = document.getElementById('week-group');
+            const select = document.getElementById('cfb-week');
+            if (currentSport !== 'cfb' || !(await getCfbWeeklySeasons()).has(Number(season))) {
+                group.style.display = 'none';
+                currentCfbWeek = '';
+                return false;
+            }
+            try {
+                const r = await fetch(`${CFB_WEEKLY_BASE}/${season}/weeks.json`);
+                const weeks = (await r.json()).weeks;
+                const opts = [`<option value="">Final</option>`].concat(
+                    weeks.slice().reverse().map(w => `<option value="${w}">Week ${w}</option>`)
+                );
+                select.innerHTML = opts.join('');
+                // Default to the latest week so the week-over-week delta is visible
+                currentCfbWeek = String(weeks[weeks.length - 1]);
+                select.value = currentCfbWeek;
+                group.style.display = '';
+                return true;
+            } catch (e) {
+                group.style.display = 'none';
+                currentCfbWeek = '';
+                return false;
+            }
+        }
+
         function setNbaChartMode(mode) {
             nbaChartMode = mode;
             document.getElementById('btn-chart-season').classList.toggle('active', mode === 'season');
@@ -830,9 +880,15 @@
             container.innerHTML = '<div class="loading">Loading ratings...</div>';
 
             try {
-                const pathMap = { cbb: 'data', cfb: 'data/cfb', nfl: 'data/nfl', nba: 'data/nba' };
-                const basePath = pathMap[currentSport];
-                const response = await fetch(`${basePath}/ratings_${season}.json`);
+                let response;
+                if (currentSport === 'cfb' && currentCfbWeek !== '') {
+                    const wk = String(currentCfbWeek).padStart(2, '0');
+                    response = await fetch(`${CFB_WEEKLY_BASE}/${season}/week_${wk}.json`);
+                } else {
+                    const pathMap = { cbb: 'data', cfb: 'data/cfb', nfl: 'data/nfl', nba: 'data/nba' };
+                    const basePath = pathMap[currentSport];
+                    response = await fetch(`${basePath}/ratings_${season}.json`);
+                }
                 const data = await response.json();
 
                 if (data.error) {
@@ -849,6 +905,13 @@
                 container.innerHTML = '<div class="loading">Failed to load ratings</div>';
                 console.error(e);
             }
+        }
+
+        // Set up the week selector for the chosen season, then load ratings.
+        async function reloadForSeason() {
+            const season = document.getElementById('season').value;
+            await setupWeekSelector(season);
+            await loadRatings();
         }
 
         function switchSport(sport, updateUrl = true) {
@@ -894,7 +957,7 @@
             document.getElementById('btn-chart-season').classList.remove('active');
             document.getElementById('btn-chart-current').classList.add('active');
 
-            loadSeasons().then(loadRatings);
+            loadSeasons().then(reloadForSeason);
         }
 
         function updateStats(ratings, lastUpdated) {
@@ -1009,17 +1072,30 @@
                     { key: 'adjO', label: 'AdjO' },
                     { key: 'adjD', label: 'AdjD' }
                 ];
+                // CFB weekly view carries a week-over-week delta
+                const showDelta = currentSport === 'cfb' && ratings.some(r => r.delta !== undefined && r.delta !== null);
+                if (showDelta) {
+                    headers.splice(3, 0, { key: 'delta', label: 'Δ' });
+                }
                 if (currentSport === 'cbb') {
                     headers.push({ key: 'tempo', label: 'Tempo', hideOnMobile: true });
                     headers.push({ key: 'sos', label: 'SOS', hideOnMobile: true });
                 }
+                const ratingDp = currentSport === 'cfb' ? 1 : 2;
                 rowsHtml = ratings.map(r => {
                     const ratingClass = r.rating >= 0 ? 'rating' : 'rating negative';
                     let row = `
                         <tr>
                             <td class="rank">${r.rank}</td>
                             <td class="team team-link" data-team="${r.team}" data-team-id="${r.teamId || ''}">${r.team}</td>
-                            <td class="${ratingClass}">${r.rating?.toFixed(2) || '-'}</td>
+                            <td class="${ratingClass}">${r.rating?.toFixed(ratingDp) || '-'}</td>`;
+                    if (showDelta) {
+                        const d = r.delta;
+                        const dStr = (d === null || d === undefined) ? '—' : (d > 0 ? '+' : '') + d.toFixed(1);
+                        const dClass = (d > 0.05) ? 'number delta-pos' : (d < -0.05) ? 'number delta-neg' : 'number';
+                        row += `<td class="${dClass}">${dStr}</td>`;
+                    }
+                    row += `
                             <td class="number">${r.record || '-'}</td>
                             <td class="number">${r.adjO?.toFixed(1) || '-'}</td>
                             <td class="number">${r.adjD?.toFixed(1) || '-'}</td>`;
@@ -2037,7 +2113,11 @@
         }
 
         // Event listeners
-        document.getElementById('season').addEventListener('change', loadRatings);
+        document.getElementById('season').addEventListener('change', reloadForSeason);
+        document.getElementById('cfb-week').addEventListener('change', function() {
+            currentCfbWeek = this.value;
+            loadRatings();
+        });
         document.getElementById('search').addEventListener('input', filterRatings);
         document.getElementById('power-teams-only').addEventListener('change', () => {
             if (allRatings.length > 0) {
@@ -2095,7 +2175,7 @@
         if (initialSport !== 'cbb') {
             switchSport(initialSport, false);
         } else {
-            loadSeasons().then(loadRatings);
+            loadSeasons().then(reloadForSeason);
         }
     </script>
 </body>

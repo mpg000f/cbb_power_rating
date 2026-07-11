@@ -210,6 +210,62 @@ def build_static_site():
         with open(cfb_seasons_path, 'w') as f:
             json.dump({'seasons': sorted(cfb_seasons, reverse=True)}, f)
         print(f"    Generated cfb/seasons.json ({len(cfb_seasons)} seasons)")
+
+        # ----- Weekly snapshots (with week-over-week delta) -----
+        weekly_root = CFB_RATINGS_DIR / "weekly"
+        if weekly_root.exists():
+            print("  CFB weekly snapshots:")
+            for season_dir in sorted(weekly_root.iterdir()):
+                if not season_dir.is_dir():
+                    continue
+                try:
+                    season = int(season_dir.name)
+                except ValueError:
+                    continue
+                week_files = sorted(season_dir.glob("week_*.csv"),
+                                    key=lambda p: int(p.stem.split("_")[1]))
+                if not week_files:
+                    continue
+
+                out_dir = CFB_DATA_DIR / "weekly" / str(season)
+                out_dir.mkdir(parents=True, exist_ok=True)
+
+                weeks = []
+                prev_ratings = {}  # team -> rating from the previous saved week
+                for wf in week_files:
+                    week = int(wf.stem.split("_")[1])
+                    weeks.append(week)
+                    ratings = csv_to_json(wf, sport="cfb")
+
+                    # Week-over-week delta vs the previous available snapshot
+                    for r in ratings:
+                        prev = prev_ratings.get(r["team"])
+                        r["delta"] = (round(r["rating"] - prev, 1)
+                                      if prev is not None else None)
+                    prev_ratings = {r["team"]: r["rating"] for r in ratings}
+
+                    mtime = os.path.getmtime(wf)
+                    last_updated = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d')
+                    with open(out_dir / f"week_{week:02d}.json", 'w') as f:
+                        json.dump({
+                            'season': season,
+                            'week': week,
+                            'lastUpdated': last_updated,
+                            'count': len(ratings),
+                            'ratings': ratings
+                        }, f)
+
+                with open(out_dir / "weeks.json", 'w') as f:
+                    json.dump({'season': season, 'weeks': weeks,
+                               'latest': weeks[-1]}, f)
+                print(f"    Generated cfb/weekly/{season}/ ({len(weeks)} weeks)")
+
+            # Index of which seasons have weekly data
+            weekly_seasons = sorted(
+                (int(d.name) for d in weekly_root.iterdir()
+                 if d.is_dir() and d.name.isdigit()), reverse=True)
+            with open(CFB_DATA_DIR / "weekly" / "seasons.json", 'w') as f:
+                json.dump({'seasons': weekly_seasons}, f)
     else:
         print(f"\n  CFB ratings not found at {CFB_RATINGS_DIR}")
 
