@@ -31,6 +31,30 @@ NFL_DATA_DIR = DATA_DIR / "nfl"
 NBA_DATA_DIR = DATA_DIR / "nba"
 
 
+def merge_sor(ratings: list, season: int) -> int:
+    """Attach full-season strength of record to CFB ratings in place; returns teams matched."""
+    # sor_{season}.csv is the full-season scope, matching the Record column.
+    # The regular-season-only variant lives alongside it as sor_{season}_regular.csv.
+    sor_path = CFB_RATINGS_DIR / "sor" / f"sor_{season}.csv"
+    if not sor_path.exists():
+        return 0
+
+    df = pd.read_csv(sor_path)
+    by_team = {str(r["team"]).strip(): r for _, r in df.iterrows()}
+    matched = 0
+    for entry in ratings:
+        row = by_team.get(str(entry.get("team", "")).strip())
+        if row is None:
+            continue
+        entry["sor"] = float(row["sor"])
+        entry["sorRank"] = int(row["sor_rank"])
+        entry["benchExpWins"] = float(row["bench_exp_wins"])
+        entry["sorGames"] = int(row["games"])
+        entry["avgOppRating"] = float(row["avg_opp_rating"])
+        matched += 1
+    return matched
+
+
 def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
     """Convert a ratings CSV to a list of dicts for JSON."""
     df = pd.read_csv(csv_path)
@@ -186,6 +210,7 @@ def build_static_site():
 
                 # Convert to JSON
                 ratings = csv_to_json(csv_file, sport="cfb")
+                merge_sor(ratings, season)
                 json_path = CFB_DATA_DIR / f"ratings_{season}.json"
 
                 # Get file modification time as last updated

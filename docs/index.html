@@ -1077,6 +1077,17 @@
                 if (showDelta) {
                     headers.splice(3, 0, { key: 'delta', label: 'Δ' });
                 }
+                // Strength of record, present on CFB seasons that have been played
+                const showSor = currentSport === 'cfb' && ratings.some(r => r.sor !== undefined && r.sor !== null);
+                if (showSor) {
+                    const at = headers.findIndex(h => h.key === 'record') + 1;
+                    const sorTip = 'Strength of Record: how hard this record was to earn. '
+                        + 'The share of seasons in which an average top-25 team, playing this exact schedule, '
+                        + 'would finish worse. 0-100, higher is a better resume. Full season, including bowls and the CFP.';
+                    headers.splice(at, 0,
+                        { key: 'sor', label: 'SOR', tip: sorTip },
+                        { key: 'sorRank', label: 'SOR Rk', hideOnMobile: true, tip: sorTip });
+                }
                 if (currentSport === 'cbb') {
                     headers.push({ key: 'tempo', label: 'Tempo', hideOnMobile: true });
                     headers.push({ key: 'sos', label: 'SOS', hideOnMobile: true });
@@ -1096,7 +1107,17 @@
                         row += `<td class="${dClass}">${dStr}</td>`;
                     }
                     row += `
-                            <td class="number">${r.record || '-'}</td>
+                            <td class="number">${r.record || '-'}</td>`;
+                    if (showSor) {
+                        const tip = (r.benchExpWins != null && r.sorGames != null)
+                            ? ` title="An average top-25 team would go ${r.benchExpWins.toFixed(1)}-${(r.sorGames - r.benchExpWins).toFixed(1)} against this schedule`
+                              + (r.avgOppRating != null ? ` (avg opponent ${r.avgOppRating.toFixed(1)})` : '') + '."'
+                            : '';
+                        row += `
+                            <td class="number"${tip}>${r.sor != null ? r.sor.toFixed(1) : '-'}</td>
+                            <td class="number hide-mobile">${r.sorRank != null ? r.sorRank : '-'}</td>`;
+                    }
+                    row += `
                             <td class="number">${r.adjO?.toFixed(1) || '-'}</td>
                             <td class="number">${r.adjD?.toFixed(1) || '-'}</td>`;
                     if (currentSport === 'cbb') {
@@ -1114,7 +1135,8 @@
                     ? `sorted-${currentSort.direction}`
                     : '';
                 const mobileClass = h.hideOnMobile ? 'hide-mobile' : '';
-                return `<th class="${sortClass} ${mobileClass}" data-column="${h.key}">${h.label}</th>`;
+                const tip = h.tip ? ` title="${h.tip}"` : '';
+                return `<th class="${sortClass} ${mobileClass}" data-column="${h.key}"${tip}>${h.label}</th>`;
             }).join('');
 
             container.innerHTML = `
@@ -1143,7 +1165,7 @@
                 currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
             } else {
                 currentSort.column = column;
-                currentSort.direction = column === 'rank' ? 'asc' : 'desc';
+                currentSort.direction = (column === 'rank' || column === 'sorRank') ? 'asc' : 'desc';
             }
 
             const sorted = [...allRatings].sort((a, b) => {
@@ -1162,10 +1184,13 @@
                     return currentSort.direction === 'asc' ? rA.wins - rB.wins : rB.wins - rA.wins;
                 }
 
-                if (typeof valA === 'string') {
-                    valA = valA.toLowerCase();
-                    valB = valB.toLowerCase();
-                }
+                // Teams missing a value (e.g. SOR on an unplayed season) sink to the bottom
+                const missing = currentSort.direction === 'asc' ? Infinity : -Infinity;
+                if (valA === null || valA === undefined) valA = missing;
+                if (valB === null || valB === undefined) valB = missing;
+
+                if (typeof valA === 'string') valA = valA.toLowerCase();
+                if (typeof valB === 'string') valB = valB.toLowerCase();
 
                 if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
                 if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
