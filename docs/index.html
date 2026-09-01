@@ -376,33 +376,6 @@
             flex-wrap: wrap;
         }
 
-        .chart-mode-btns {
-            display: none;
-            gap: 0;
-        }
-
-        .show-nba-chart-toggle .chart-mode-btns {
-            display: flex;
-        }
-
-        .chart-mode-btn {
-            background: #1a1a1a;
-            color: #888;
-            border: 1px solid #333;
-            padding: 4px 12px;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-
-        .chart-mode-btn:first-child { border-radius: 6px 0 0 6px; }
-        .chart-mode-btn:last-child  { border-radius: 0 6px 6px 0; border-left: none; }
-
-        .chart-mode-btn.active {
-            background: #667eea;
-            color: #fff;
-            border-color: #667eea;
-        }
-
         /* Team History Modal */
         .team-link {
             cursor: pointer;
@@ -522,18 +495,28 @@
             color: #4ade80;
         }
 
-        .nba-rating-blurb {
-            font-size: 0.82rem;
-            color: #888;
-            margin-bottom: 12px;
+        .download-btn {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #e0e0e0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 400;
+            cursor: pointer;
+            transition: border-color 0.2s;
         }
 
-        .nba-rating-blurb div {
-            margin-bottom: 4px;
+        .download-btn:hover {
+            border-color: #667eea;
+            transform: none;
+            box-shadow: none;
         }
 
-        .nba-rating-blurb strong {
-            color: #b0b0b0;
+        .download-btn:disabled {
+            opacity: 0.45;
+            cursor: default;
+            border-color: #333;
         }
 
         .conference-select-wrapper {
@@ -652,7 +635,6 @@
             <div class="tab active" data-sport="cbb">College Basketball</div>
             <div class="tab" data-sport="cfb">College Football</div>
             <div class="tab" data-sport="nfl">NFL</div>
-            <div class="tab" data-sport="nba">NBA</div>
         </div>
 
         <div class="controls">
@@ -685,6 +667,10 @@
                         <div id="conference-options"></div>
                     </div>
                 </div>
+            </div>
+            <div class="control-group">
+                <button type="button" class="download-btn" id="download-csv"
+                        onclick="downloadCsv()" title="Download the table as shown — current sport, season, filters and sort order">Download CSV</button>
             </div>
         </div>
 
@@ -747,10 +733,6 @@
                     <input type="checkbox" id="power-teams-only" checked>
                     <span>Power Teams Only (Top 50)</span>
                 </label>
-                <div class="chart-mode-btns">
-                    <button class="chart-mode-btn" id="btn-chart-season" onclick="setNbaChartMode('season')">Season</button>
-                    <button class="chart-mode-btn active" id="btn-chart-current" onclick="setNbaChartMode('current')">Current</button>
-                </div>
             </div>
             <div class="chart-container">
                 <canvas id="efficiency-chart"></canvas>
@@ -778,16 +760,15 @@
         let allRatings = [];
         let currentSort = { column: 'rank', direction: 'asc' };
         let currentSport = 'cbb';
-        const VALID_SPORTS = ['cbb', 'cfb', 'nfl', 'nba'];
-        // Map the URL hash (#cfb, #nfl, #nba) to a sport; default to cbb.
+        const VALID_SPORTS = ['cbb', 'cfb', 'nfl'];
+        // Map the URL hash (#cfb, #nfl) to a sport; default to cbb.
         function sportFromUrl() {
             const h = location.hash.replace('#', '');
             return VALID_SPORTS.includes(h) ? h : 'cbb';
         }
         let historyChart = null;
-        const allSeasonsCache = { cbb: null, cfb: null, nfl: null, nba: null };
+        const allSeasonsCache = { cbb: null, cfb: null, nfl: null };
         let selectedConferences = new Set();
-        let nbaChartMode = 'current'; // 'season' or 'current'
 
         // CFB week-by-week history
         const CFB_WEEKLY_BASE = 'data/cfb/weekly';
@@ -835,30 +816,28 @@
             }
         }
 
-        function setNbaChartMode(mode) {
-            nbaChartMode = mode;
-            document.getElementById('btn-chart-season').classList.toggle('active', mode === 'season');
-            document.getElementById('btn-chart-current').classList.toggle('active', mode === 'current');
-            renderEfficiencyChart(allRatings);
-        }
         let allConferences = [];
+        // What the table is currently showing, captured by renderTable so the
+        // CSV export always matches the view (columns, filters and sort order).
+        let displayedRatings = [];
+        let displayedColumns = [];
 
         function getDataPath() {
             return currentSport === 'cbb' ? 'data' : `data/${currentSport}`;
         }
 
         function isStartYearSport() {
-            return ['cfb', 'nfl', 'nba'].includes(currentSport);
+            return ['cfb', 'nfl'].includes(currentSport);
         }
 
         async function loadSeasons() {
             try {
-                const pathMap = { cbb: 'data/seasons.json', cfb: 'data/cfb/seasons.json', nfl: 'data/nfl/seasons.json', nba: 'data/nba/seasons.json' };
+                const pathMap = { cbb: 'data/seasons.json', cfb: 'data/cfb/seasons.json', nfl: 'data/nfl/seasons.json' };
                 const basePath = pathMap[currentSport];
                 const response = await fetch(basePath);
                 const data = await response.json();
                 const select = document.getElementById('season');
-                // CBB uses end-year (2025 = 2024-25). CFB/NFL/NBA use start-year (2024 = 2024-25).
+                // CBB uses end-year (2025 = 2024-25). CFB/NFL use start-year (2024 = 2024-25).
                 if (currentSport === 'cbb') {
                     select.innerHTML = data.seasons.map(s =>
                         `<option value="${s}">${s-1}-${String(s).slice(2)}</option>`
@@ -885,7 +864,7 @@
                     const wk = String(currentCfbWeek).padStart(2, '0');
                     response = await fetch(`${CFB_WEEKLY_BASE}/${season}/week_${wk}.json`);
                 } else {
-                    const pathMap = { cbb: 'data', cfb: 'data/cfb', nfl: 'data/nfl', nba: 'data/nba' };
+                    const pathMap = { cbb: 'data', cfb: 'data/cfb', nfl: 'data/nfl' };
                     const basePath = pathMap[currentSport];
                     response = await fetch(`${basePath}/ratings_${season}.json`);
                 }
@@ -943,19 +922,9 @@
                 subtitle.textContent = 'Opponent-adjusted efficiency ratings for college football';
             } else if (sport === 'nfl') {
                 subtitle.textContent = 'Opponent-adjusted EPA and success rate ratings';
-            } else if (sport === 'nba') {
-                subtitle.textContent = 'Opponent-adjusted offensive and defensive efficiency ratings';
             }
 
-            // NBA: default sort by current (injury-adjusted) rating
-            currentSort = currentSport === 'nba'
-                ? { column: 'currentRating', direction: 'desc' }
-                : { column: 'rank', direction: 'asc' };
-
-            // Reset NBA chart mode to current when switching sports
-            nbaChartMode = 'current';
-            document.getElementById('btn-chart-season').classList.remove('active');
-            document.getElementById('btn-chart-current').classList.add('active');
+            currentSort = { column: 'rank', direction: 'asc' };
 
             loadSeasons().then(reloadForSeason);
         }
@@ -964,15 +933,8 @@
             document.getElementById('stat-teams').textContent = ratings.length;
             if (ratings.length > 0) {
                 document.getElementById('stat-top-rating').textContent = ratings[0].rating.toFixed(1);
-                if (currentSport === 'nba') {
-                    const avgPace = ratings.reduce((sum, r) => sum + (r.pace || 0), 0) / ratings.length;
-                    document.getElementById('stat-avg-tempo').textContent = avgPace.toFixed(1);
-                    document.querySelector('#stat-avg-tempo').closest('.stat').querySelector('.stat-label').textContent = 'Avg Pace';
-                } else {
-                    const avgTempo = ratings.reduce((sum, r) => sum + (r.tempo || 0), 0) / ratings.length;
-                    document.getElementById('stat-avg-tempo').textContent = avgTempo > 0 ? avgTempo.toFixed(1) : '-';
-                    document.querySelector('#stat-avg-tempo').closest('.stat').querySelector('.stat-label').textContent = 'Avg Tempo';
-                }
+                const avgTempo = ratings.reduce((sum, r) => sum + (r.tempo || 0), 0) / ratings.length;
+                document.getElementById('stat-avg-tempo').textContent = avgTempo > 0 ? avgTempo.toFixed(1) : '-';
             }
             document.getElementById('stat-last-updated').textContent = lastUpdated || '-';
         }
@@ -987,57 +949,7 @@
 
             let headers, rowsHtml;
 
-            // Remove any existing NBA blurb before re-rendering
-            const existingBlurb = document.getElementById('nba-rating-blurb');
-            if (existingBlurb) existingBlurb.remove();
-
-            if (currentSport === 'nba') {
-                const blurb = document.createElement('div');
-                blurb.id = 'nba-rating-blurb';
-                blurb.className = 'nba-rating-blurb';
-                blurb.innerHTML = `
-                    <div><strong>Season</strong> — full-season opponent-adjusted net efficiency (pts per 100 possessions vs. an average team)</div>
-                    <div><strong>Current</strong> — season rating adjusted for today's active injuries</div>
-                    <div><strong>Inj Δ</strong> — estimated point impact of missing players (negative = team is weakened right now)</div>
-                `;
-                container.parentNode.insertBefore(blurb, container);
-
-                const hasInjuryData = ratings.some(r => r.injuryDelta !== undefined && r.injuryDelta !== 0);
-                headers = [
-                    { key: 'rank', label: 'Rank' },
-                    { key: 'teamName', label: 'Team' },
-                    { key: 'currentRating', label: 'Current' },
-                    { key: 'rating', label: 'Season' },
-                    { key: 'injuryDelta', label: 'Inj Δ', hideOnMobile: true },
-                    { key: 'record', label: 'Record' },
-                    { key: 'adjO', label: 'AdjO', hideOnMobile: true },
-                    { key: 'adjD', label: 'AdjD', hideOnMobile: true },
-                    { key: 'pace', label: 'Pace', hideOnMobile: true },
-                ];
-                rowsHtml = ratings.map(r => {
-                    const currentRtg = r.currentRating ?? r.rating;
-                    const ratingClass = currentRtg >= 0 ? 'rating' : 'rating negative';
-                    const seasonClass = r.rating >= 0 ? 'number' : 'number';
-                    const displayName = r.teamName || r.team;
-                    const delta = r.injuryDelta ?? 0;
-                    const deltaStr = delta === 0 ? '—' : (delta > 0 ? '+' : '') + delta.toFixed(2);
-                    const deltaClass = delta < -0.5 ? 'number delta-neg' : delta > 0.5 ? 'number delta-pos' : 'number';
-                    const injuredTitle = r.injuredPlayers ? ` title="${r.injuredPlayers}"` : '';
-                    return `
-                        <tr>
-                            <td class="rank">${r.rank}</td>
-                            <td class="team team-link" data-team="${r.team}" data-team-id="">${displayName}</td>
-                            <td class="${ratingClass}">${currentRtg?.toFixed(2) || '-'}</td>
-                            <td class="number">${r.rating?.toFixed(2) || '-'}</td>
-                            <td class="${deltaClass} hide-mobile"${injuredTitle}>${deltaStr}</td>
-                            <td class="number">${r.record || '-'}</td>
-                            <td class="number hide-mobile">${r.adjO?.toFixed(1) || '-'}</td>
-                            <td class="number hide-mobile">${r.adjD?.toFixed(1) || '-'}</td>
-                            <td class="number hide-mobile">${r.pace?.toFixed(1) || '-'}</td>
-                        </tr>
-                    `;
-                }).join('');
-            } else if (currentSport === 'nfl') {
+            if (currentSport === 'nfl') {
                 headers = [
                     { key: 'rank', label: 'Rank' },
                     { key: 'team', label: 'Team' },
@@ -1130,6 +1042,9 @@
                 }).join('');
             }
 
+            displayedRatings = ratings;
+            displayedColumns = headers;
+
             const headerHtml = headers.map(h => {
                 const sortClass = currentSort.column === h.key
                     ? `sorted-${currentSort.direction}`
@@ -1198,6 +1113,41 @@
             });
 
             renderTable(sorted);
+        }
+
+        // Serialize the table exactly as rendered. Values are the underlying
+        // numbers, not the rounded display strings, so the file is usable for
+        // analysis; the columns and row order come straight from the view.
+        function downloadCsv() {
+            if (!displayedRatings.length) return;
+
+            const escape = (v) => {
+                if (v === null || v === undefined) return '';
+                const str = String(v);
+                return /[",\n\r]/.test(str) ? '"' + str.replace(/"/g, '""') + '"' : str;
+            };
+
+            const lines = [displayedColumns.map(h => escape(h.label)).join(',')];
+            displayedRatings.forEach(r => {
+                lines.push(displayedColumns.map(h => escape(r[h.key])).join(','));
+            });
+
+            // BOM so Excel reads the UTF-8 column labels (Δ) correctly
+            const blob = new Blob(['\uFEFF' + lines.join('\r\n')],
+                                  { type: 'text/csv;charset=utf-8;' });
+            const season = document.getElementById('season').value;
+            const weekPart = (currentSport === 'cfb' && currentCfbWeek !== '')
+                ? `_week_${String(currentCfbWeek).padStart(2, '0')}`
+                : '';
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentSport}_ratings_${season}${weekPart}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         function filterRatings() {
@@ -1319,18 +1269,12 @@
             }
 
             const HOME_COURT_ADVANTAGE = currentSport === 'nfl' ? 2.5
-                : currentSport === 'nba' ? 3.0
                 : currentSport === 'cfb' ? 3.0
                 : 3.5;
 
             let spread;
             let expectedTempo = null;
-            if (currentSport === 'nba') {
-                // NBA: use current (injury-adjusted) rating
-                const ratingA = teamA.currentRating ?? teamA.rating;
-                const ratingB = teamB.currentRating ?? teamB.rating;
-                spread = ratingA - ratingB;
-            } else if (currentSport === 'cfb' || currentSport === 'nfl') {
+            if (currentSport === 'cfb' || currentSport === 'nfl') {
                 // Football ratings are already expected point margins on a
                 // neutral field — no tempo/possession scaling.
                 spread = teamA.rating - teamB.rating;
@@ -1352,11 +1296,9 @@
             valueDiv.textContent = spread === 0 ? "Pick'em" : `${favorite} -${spreadStr}`;
             const teamAName = teamA.teamName || teamA.team;
             const teamBName = teamB.teamName || teamB.team;
-            const displayRatingA = currentSport === 'nba' ? (teamA.currentRating ?? teamA.rating) : teamA.rating;
-            const displayRatingB = currentSport === 'nba' ? (teamB.currentRating ?? teamB.rating) : teamB.rating;
-            const paceInfo = currentSport === 'nba'
-                ? `Avg pace: ${((teamA.pace || 100) + (teamB.pace || 100)) / 2 | 0}`
-                : currentSport === 'cbb'
+            const displayRatingA = teamA.rating;
+            const displayRatingB = teamB.rating;
+            const paceInfo = currentSport === 'cbb'
                 ? `Expected tempo: ${expectedTempo.toFixed(1)}`
                 : '';
             detailsDiv.innerHTML = `
@@ -1465,22 +1407,13 @@
             } else if (currentSport === 'cbb') {
                 return cbbPowerTeams.has(team.team);
             }
-            // NBA and NFL: all teams are "power teams"
+            // NFL: all teams are "power teams"
             return true;
         }
-
-        // nba_api abbreviations that differ from ESPN CDN identifiers
-        const NBA_ESPN_CDN = {
-            'NOP': 'no', 'UTA': 'utah', 'GSW': 'gs',
-            'SAS': 'sa', 'NYK': 'ny', 'WAS': 'wsh',
-        };
 
         function getLogoUrl(team) {
             if (currentSport === 'nfl') {
                 return `https://a.espncdn.com/i/teamlogos/nfl/500/${team.team.toLowerCase()}.png`;
-            } else if (currentSport === 'nba') {
-                const abbr = NBA_ESPN_CDN[team.team] || team.team.toLowerCase();
-                return `https://a.espncdn.com/i/teamlogos/nba/500/${abbr}.png`;
             } else if (currentSport === 'cbb' && team.teamId) {
                 return `https://a.espncdn.com/i/teamlogos/ncaa/500/${team.teamId}.png`;
             } else if (currentSport === 'cfb') {
@@ -1517,19 +1450,12 @@
                 efficiencyChart.destroy();
             }
 
-            // Show/hide power teams toggle (not needed for NFL/NBA - small leagues)
+            // Show/hide power teams toggle (not needed for NFL - small league)
             const gridContainer = document.querySelector('.efficiency-grid');
-            if (currentSport === 'nfl' || currentSport === 'nba') {
+            if (currentSport === 'nfl') {
                 gridContainer.classList.remove('show-power-toggle');
             } else {
                 gridContainer.classList.add('show-power-toggle');
-            }
-
-            // Show/hide NBA season/current toggle
-            if (currentSport === 'nba') {
-                gridContainer.classList.add('show-nba-chart-toggle');
-            } else {
-                gridContainer.classList.remove('show-nba-chart-toggle');
             }
 
             // Filter to power teams if toggle is checked
@@ -1555,9 +1481,8 @@
             } else {
                 xField = 'adjO';
                 yField = 'adjD';
-                const nbaCurrentMode = currentSport === 'nba' && nbaChartMode === 'current';
-                xLabel = nbaCurrentMode ? 'Adj Off Efficiency (injury-adjusted)' : 'Adjusted Offensive Efficiency';
-                yLabel = nbaCurrentMode ? 'Adj Def Efficiency (injury-adjusted, lower is better)' : 'Adjusted Defensive Efficiency (lower is better)';
+                xLabel = 'Adjusted Offensive Efficiency';
+                yLabel = 'Adjusted Defensive Efficiency (lower is better)';
             }
 
             // Preload logos
@@ -1574,21 +1499,13 @@
 
             // Create data points
             const dataPoints = filteredRatings.map((team) => {
-                const nbaCurrentMode = currentSport === 'nba' && nbaChartMode === 'current';
-                const delta = (nbaCurrentMode && team.injuryDelta) ? team.injuryDelta : 0;
-                const displayRating = nbaCurrentMode ? (team.currentRating ?? team.rating) : team.rating;
                 return {
-                    // In current mode, split injury delta evenly across off/def
-                    // current_adjO - current_adjD = (adjO + d/2) - (adjD - d/2) = power_rating + d = current_rating
-                    x: team[xField] + delta / 2,
-                    y: team[yField] - delta / 2,
-                    team: currentSport === 'nba' ? (team.teamName || team.team) : team.team,
+                    x: team[xField],
+                    y: team[yField],
+                    team: team.team,
                     teamAbbr: team.team,
                     teamId: team.teamId,
-                    rating: displayRating,
-                    seasonRating: team.rating,
-                    currentRating: team.currentRating,
-                    injuryDelta: team.injuryDelta,
+                    rating: team.rating,
                     rank: team.rank,
                     logo: logoMap[team.team]
                 };
@@ -1653,14 +1570,6 @@
                         if (d) {
                             if (d.logo) {
                                 const size = window.innerWidth <= 768 ? 18 : 40;
-                                // Draw injury impact ring in Current mode
-                                if (currentSport === 'nba' && nbaChartMode === 'current' && d.injuryDelta && Math.abs(d.injuryDelta) >= 1.0) {
-                                    ctx.beginPath();
-                                    ctx.arc(point.x, point.y, size / 2 + 3, 0, 2 * Math.PI);
-                                    ctx.strokeStyle = d.injuryDelta < 0 ? 'rgba(248, 113, 113, 0.85)' : 'rgba(74, 222, 128, 0.85)';
-                                    ctx.lineWidth = 2.5;
-                                    ctx.stroke();
-                                }
                                 ctx.imageSmoothingEnabled = true;
                                 ctx.imageSmoothingQuality = 'high';
                                 ctx.drawImage(d.logo, point.x - size/2, point.y - size/2, size, size);
@@ -1712,16 +1621,7 @@
                                         `${d.team}`,
                                         `Rank: #${d.rank}`,
                                     ];
-                                    if (currentSport === 'nba' && d.currentRating !== undefined) {
-                                        lines.push(`Current: ${(d.currentRating ?? d.seasonRating)?.toFixed(2)}`);
-                                        lines.push(`Season:  ${d.seasonRating?.toFixed(2)}`);
-                                        if (d.injuryDelta && Math.abs(d.injuryDelta) > 0.05) {
-                                            const sign = d.injuryDelta > 0 ? '+' : '';
-                                            lines.push(`Inj Δ:   ${sign}${d.injuryDelta.toFixed(2)}`);
-                                        }
-                                    } else {
-                                        lines.push(`Rating: ${d.rating?.toFixed(1)}`);
-                                    }
+                                    lines.push(`Rating: ${d.rating?.toFixed(1)}`);
                                     lines.push(`Off: ${d.x.toFixed(1)}`);
                                     lines.push(`Def: ${d.y.toFixed(1)}`);
                                     return lines;
@@ -1778,12 +1678,12 @@
                 return allSeasonsCache[currentSport];
             }
 
-            const pathMap = { cbb: 'data/seasons.json', cfb: 'data/cfb/seasons.json', nfl: 'data/nfl/seasons.json', nba: 'data/nba/seasons.json' };
+            const pathMap = { cbb: 'data/seasons.json', cfb: 'data/cfb/seasons.json', nfl: 'data/nfl/seasons.json' };
             const seasonResponse = await fetch(pathMap[currentSport]);
             const seasonData = await seasonResponse.json();
             const seasons = seasonData.seasons;
 
-            const ratingPathMap = { cbb: 'data', cfb: 'data/cfb', nfl: 'data/nfl', nba: 'data/nba' };
+            const ratingPathMap = { cbb: 'data', cfb: 'data/cfb', nfl: 'data/nfl' };
             const basePath = ratingPathMap[currentSport];
 
             const results = await Promise.all(
@@ -1806,10 +1706,6 @@
         }
 
         function findTeamInSeason(ratings, teamName, teamId) {
-            if (currentSport === 'nba') {
-                // teamName holds the abbreviation for NBA
-                return ratings.find(r => r.team === teamName);
-            }
             if (currentSport === 'cbb' && teamId) {
                 const numId = parseInt(teamId);
                 return ratings.find(r => r.teamId === numId);
@@ -1837,8 +1733,6 @@
         function getTeamHistoryLogoUrl(teamName, teamId) {
             if (currentSport === 'nfl') {
                 return `https://a.espncdn.com/i/teamlogos/nfl/500/${teamName.toLowerCase()}.png`;
-            } else if (currentSport === 'nba') {
-                return `https://a.espncdn.com/i/teamlogos/nba/500/${teamName.toLowerCase()}.png`;
             } else if (currentSport === 'cbb' && teamId) {
                 return `https://a.espncdn.com/i/teamlogos/ncaa/500/${teamId}.png`;
             } else if (currentSport === 'cfb') {
@@ -1860,7 +1754,6 @@
 
         function getTeamKey(r) {
             // Returns the identifier to use for matching teams across seasons
-            if (currentSport === 'nba') return r.team;  // abbreviation
             if (currentSport === 'cbb') return r.teamId;
             return r.team;
         }

@@ -6,8 +6,6 @@ on:
     - cron: '0 17 * * *'
     - cron: '0 23 * * *'
     - cron: '0 5 * * *'
-    # Extra morning run at 8 AM EST for NBA (catches overnight games + injuries)
-    - cron: '0 13 * * *'
   workflow_dispatch:  # Allow manual trigger from GitHub UI
 
 jobs:
@@ -20,15 +18,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: cbb_power_rating
-
-      - name: Checkout NBA repository
-        id: nba_checkout
-        continue-on-error: true
-        uses: actions/checkout@v4
-        with:
-          repository: mpg000f/nba_power_rating
-          token: ${{ secrets.RATINGS_PAT }}
-          path: nba_power_rating
 
       - name: Checkout NFL repository
         id: nfl_checkout
@@ -50,14 +39,12 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r cbb_power_rating/requirements.txt
-          pip install -r nba_power_rating/requirements.txt
           if [ -f nfl_power_rating/requirements.txt ]; then pip install -r nfl_power_rating/requirements.txt; fi
           pip list | grep -i sports
 
       - name: Verify imports
         run: |
           python -c "import sportsdataverse.mbb as mbb; print('sportsdataverse.mbb OK')"
-          python -c "import nba_api; print('nba_api OK')"
           python -c "import pandas; import numpy; print('pandas/numpy OK')"
 
       # ===== CBB Update =====
@@ -99,28 +86,6 @@ jobs:
         working-directory: cbb_power_rating
         run: |
           python update_ratings.py --season 2026
-
-      # ===== NBA Update =====
-      # Always runs regardless of CBB freshness — injuries change daily
-
-      - name: Update NBA ratings
-        id: nba_update
-        continue-on-error: true
-        if: steps.nba_checkout.outcome == 'success'
-        working-directory: nba_power_rating
-        run: |
-          python update_ratings.py --season 2025
-
-      - name: Commit and push NBA ratings
-        if: steps.nba_update.outcome == 'success'
-        continue-on-error: true
-        working-directory: nba_power_rating
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add historical_ratings/
-          git diff --quiet --cached historical_ratings/ || git commit -m "Update NBA ratings $(date +'%Y-%m-%d')"
-          git push
 
       # ===== NFL Update =====
       # No-ops until in-season play-by-play data exists for the target season;
@@ -164,6 +129,6 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add historical_ratings/ docs/data/ratings_*.json docs/data/seasons.json docs/data/nba/ docs/data/nfl/ docs/index.html
+          git add historical_ratings/ docs/data/ratings_*.json docs/data/seasons.json docs/data/nfl/ docs/index.html
           git commit -m "Update ratings $(date +'%Y-%m-%d')"
           git push
