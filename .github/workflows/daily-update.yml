@@ -19,6 +19,15 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: cbb_power_rating
 
+      - name: Checkout CFB repository
+        id: cfb_checkout
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: mpg000f/cfb_power_rating
+          token: ${{ secrets.RATINGS_PAT }}
+          path: cfb_power_rating
+
       - name: Checkout NFL repository
         id: nfl_checkout
         continue-on-error: true
@@ -39,6 +48,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r cbb_power_rating/requirements.txt
+          if [ -f cfb_power_rating/requirements.txt ]; then pip install -r cfb_power_rating/requirements.txt; fi
           if [ -f nfl_power_rating/requirements.txt ]; then pip install -r nfl_power_rating/requirements.txt; fi
           pip list | grep -i sports
 
@@ -87,6 +97,33 @@ jobs:
         run: |
           python update_ratings.py --season 2026
 
+      # ===== CFB Update =====
+      # Ratings hold at the preseason baseline until teams share opponents
+      # (week 2); the blend guard in update_ratings.py enforces that, so these
+      # steps are safe to run from the season opener onward.
+
+      - name: Update CFB ratings
+        id: cfb_update
+        continue-on-error: true
+        if: steps.cfb_checkout.outcome == 'success'
+        working-directory: cfb_power_rating
+        env:
+          CFB_API_KEY: ${{ secrets.CFB_API_KEY }}
+        run: |
+          python update_ratings.py --season 2026
+          python generate_weekly.py --season 2026
+
+      - name: Commit and push CFB ratings
+        if: steps.cfb_update.outcome == 'success'
+        continue-on-error: true
+        working-directory: cfb_power_rating
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add historical_ratings/
+          git diff --quiet --cached historical_ratings/ || git commit -m "Update CFB ratings $(date +'%Y-%m-%d')"
+          git push
+
       # ===== NFL Update =====
       # No-ops until in-season play-by-play data exists for the target season;
       # early-season runs blend with the preseason baseline in the NFL repo.
@@ -129,6 +166,6 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add historical_ratings/ docs/data/ratings_*.json docs/data/seasons.json docs/data/nfl/ docs/index.html
+          git add historical_ratings/ docs/data/ratings_*.json docs/data/seasons.json docs/data/cfb/ docs/data/nfl/ docs/index.html
           git commit -m "Update ratings $(date +'%Y-%m-%d')"
           git push
