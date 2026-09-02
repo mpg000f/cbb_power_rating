@@ -6,6 +6,10 @@ on:
     - cron: '0 17 * * *'
     - cron: '0 23 * * *'
     - cron: '0 5 * * *'
+    # Sunday midday, once the week's games are all in: the CFB refresh.
+    # Cron is UTC and has no DST, so this is noon ET through 1 Nov and
+    # 11 AM ET after the clocks change.
+    - cron: '0 16 * * 0'
   workflow_dispatch:  # Allow manual trigger from GitHub UI
 
 jobs:
@@ -98,6 +102,11 @@ jobs:
           python update_ratings.py --season 2026
 
       # ===== CFB Update =====
+      # Sunday only. A midweek run would rebuild the current week's snapshot
+      # from the two or three games played so far and label it "Week N", when
+      # it is really week N-1 plus a Thursday game. Waiting until the slate is
+      # complete keeps each snapshot meaning what its name says.
+      #
       # Ratings hold at the preseason baseline until teams share opponents
       # (week 2); the blend guard in update_ratings.py enforces that, so these
       # steps are safe to run from the season opener onward.
@@ -105,7 +114,7 @@ jobs:
       - name: Update CFB ratings
         id: cfb_update
         continue-on-error: true
-        if: steps.cfb_checkout.outcome == 'success'
+        if: steps.cfb_checkout.outcome == 'success' && (github.event.schedule == '0 16 * * 0' || github.event_name == 'workflow_dispatch')
         working-directory: cfb_power_rating
         env:
           CFB_API_KEY: ${{ secrets.CFB_API_KEY }}
