@@ -22,6 +22,10 @@ import os
 PROJECT_ROOT = Path(__file__).parent
 RATINGS_DIR = PROJECT_ROOT / "historical_ratings"
 CFB_RATINGS_DIR = PROJECT_ROOT.parent / "cfb_power_rating" / "historical_ratings"
+
+# First season whose weekly snapshots were built with the blend guard, and so
+# the first whose week-1 delta against the preseason prior is meaningful.
+FIRST_GUARDED_SEASON = 2026
 NFL_RATINGS_DIR = PROJECT_ROOT.parent / "nfl_power_rating" / "historical_ratings"
 DOCS_DIR = PROJECT_ROOT / "docs"
 DATA_DIR = DOCS_DIR / "data"
@@ -237,7 +241,21 @@ def build_static_site():
                 out_dir.mkdir(parents=True, exist_ok=True)
 
                 weeks = []
+                # Week 1 has no prior snapshot, but it does have a baseline:
+                # the preseason rating the blend starts from. Seeding with it
+                # makes the first week's delta mean "movement off the prior"
+                # instead of showing nothing at all.
+                #
+                # Only for seasons carrying the blend guard. Before it, week 1
+                # blended ratings whose opponent adjustment had not converged,
+                # so ~70% of winners drift down regardless of result -- a real
+                # artifact, but not one worth surfacing as a delta column.
                 prev_ratings = {}  # team -> rating from the previous saved week
+                baseline = CFB_RATINGS_DIR / f"ratings_{season}_preseason.csv"
+                if season >= FIRST_GUARDED_SEASON and baseline.exists():
+                    prev_ratings = {r["team"]: r["rating"]
+                                    for r in csv_to_json(baseline, sport="cfb")
+                                    if r.get("rating") is not None}
                 for wf in week_files:
                     week = int(wf.stem.split("_")[1])
                     weeks.append(week)
