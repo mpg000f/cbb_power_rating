@@ -11,6 +11,7 @@ This script generates:
 Run this after updating ratings to regenerate the static site.
 """
 
+import argparse
 import json
 import pandas as pd
 from pathlib import Path
@@ -135,9 +136,18 @@ def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
     return [{k: _clean(v) for k, v in row.items()} for row in records]
 
 
-def build_static_site():
-    """Build the complete static site."""
+def build_static_site(skip_sports=()):
+    """Build the complete static site, optionally leaving some sports' JSON alone.
+
+    Skipping matters because each sport's JSON is regenerated from a sibling
+    repo. If that repo is behind what the site already publishes -- which
+    happens when its ratings were not refreshed this run -- rebuilding it
+    silently reverts live data. Only rewrite a sport we just recomputed.
+    """
+    skip_sports = {s.strip().lower() for s in skip_sports if s.strip()}
     print("Building static site...")
+    if skip_sports:
+        print(f"  Leaving untouched: {', '.join(sorted(skip_sports))}")
 
     # Create directories
     DOCS_DIR.mkdir(exist_ok=True)
@@ -183,7 +193,9 @@ def build_static_site():
     print(f"    Generated seasons.json ({len(seasons)} seasons)")
 
     # ===== CFB Ratings =====
-    if CFB_RATINGS_DIR.exists():
+    if "cfb" in skip_sports:
+        print("\n  College Football: skipped, existing JSON left as published")
+    elif CFB_RATINGS_DIR.exists():
         print("\n  College Football:")
         cfb_seasons = []
         for csv_file in sorted(CFB_RATINGS_DIR.glob("ratings_*.csv")):
@@ -295,7 +307,9 @@ def build_static_site():
 
     # ===== NFL Ratings =====
     NFL_DATA_DIR.mkdir(exist_ok=True)
-    if NFL_RATINGS_DIR.exists():
+    if "nfl" in skip_sports:
+        print("\n  NFL: skipped, existing JSON left as published")
+    elif NFL_RATINGS_DIR.exists():
         print("\n  NFL:")
         nfl_seasons = []
         for csv_file in sorted(NFL_RATINGS_DIR.glob("ratings_*.csv")):
@@ -384,4 +398,10 @@ def build_static_site():
 
 
 if __name__ == "__main__":
-    build_static_site()
+    parser = argparse.ArgumentParser(description="Build the static power ratings site")
+    parser.add_argument("--skip-sports", default="",
+                        help="Comma-separated sports whose JSON to leave alone "
+                             "(e.g. 'cfb,nfl') because their ratings were not "
+                             "refreshed this run")
+    args = parser.parse_args()
+    build_static_site(skip_sports=args.skip_sports.split(","))

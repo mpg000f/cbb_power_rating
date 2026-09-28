@@ -122,9 +122,11 @@ jobs:
           python update_ratings.py --season 2026
           python generate_weekly.py --season 2026
 
+      # No continue-on-error: a push that cannot land must fail the run. It
+      # silently 403'd for weeks behind a green check, and the stale checkout
+      # that left behind then reverted published ratings on the next run.
       - name: Commit and push CFB ratings
         if: steps.cfb_update.outcome == 'success'
-        continue-on-error: true
         working-directory: cfb_power_rating
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
@@ -147,7 +149,6 @@ jobs:
 
       - name: Commit and push NFL ratings
         if: steps.nfl_update.outcome == 'success'
-        continue-on-error: true
         working-directory: nfl_power_rating
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
@@ -158,19 +159,35 @@ jobs:
 
       # ===== Build & Deploy =====
 
+      # always(): a failed ratings push above should be loud, but it should not
+      # also stop the sports that did update from reaching the site.
+      #
+      # Each sport's JSON is regenerated from its sibling repo, so rebuilding a
+      # sport we did not recompute this run reads a checkout that may be behind
+      # what the site already serves -- which is how a failed CFB push reverted
+      # week 4 half an hour after the bot had published it correctly.
       - name: Build static site
+        if: always()
         working-directory: cbb_power_rating
         run: |
-          python build_static.py
+          SKIP=""
+          [ "${{ steps.cfb_update.outcome }}" = "success" ] || SKIP="$SKIP,cfb"
+          [ "${{ steps.nfl_update.outcome }}" = "success" ] || SKIP="$SKIP,nfl"
+          if [ -n "$SKIP" ]; then
+            python build_static.py --skip-sports "${SKIP#,}"
+          else
+            python build_static.py
+          fi
 
       - name: Check for changes
         id: changes
+        if: always()
         working-directory: cbb_power_rating
         run: |
           git diff --quiet historical_ratings/ docs/ || echo "changed=true" >> $GITHUB_OUTPUT
 
       - name: Commit and push updated ratings
-        if: steps.changes.outputs.changed == 'true'
+        if: always() && steps.changes.outputs.changed == 'true'
         working-directory: cbb_power_rating
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
