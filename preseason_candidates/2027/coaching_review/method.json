@@ -1,0 +1,19 @@
+{
+  "status": "preliminary diagnostic; not as-of validated",
+  "seasons": [
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "baseline": "previous-five-year game-calibrated 70/20/10; same frozen forecasts for all ablations",
+  "coaching": "existing .35 residual scale, four-season confidence prior, .5 transition penalty, +/-2 cap; no fitting to evaluated outcomes",
+  "limitations": [
+    "ESPN season coach associations were collected retrospectively and not audited against opening-day coaches; midseason changes can leak membership.",
+    "Coach history begins in 2020, truncating experience especially in earlier test years.",
+    "Recruiting and roster production adjustments are omitted; their combined +/-3 cap is not applied.",
+    "Recent seasons were already inspected; scenarios are diagnostic, not an untouched model-selection holdout.",
+    "Season-average RMSE differences are descriptive, not significance estimates."
+  ]
+}

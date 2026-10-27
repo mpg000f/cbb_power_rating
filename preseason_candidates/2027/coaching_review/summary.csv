@@ -1,0 +1,9 @@
+model,scope,games,mean_yearly_rmse,mean_yearly_mae
+all_coaches_old_bonus,all_games,4058,12.881166848485696,10.140704319200967
+all_coaches_old_bonus,known_coach_change_games,1388,12.904761029113953,10.05367550232273
+baseline_only,all_games,4058,12.869444870325035,10.12529561627196
+baseline_only,known_coach_change_games,1388,12.934542485206553,10.068084997417847
+change_only_current,all_games,4058,12.855187700601007,10.11699346708931
+change_only_current,known_coach_change_games,1388,12.89569587039907,10.047712711531892
+change_only_half,all_games,4058,12.861296976067461,10.119926043673182
+change_only_half,known_coach_change_games,1388,12.912216901619042,10.054331349283187
