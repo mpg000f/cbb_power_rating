@@ -875,6 +875,15 @@
                     return;
                 }
 
+                let note = document.getElementById('preseason-note');
+                if (!note) {
+                    note = document.createElement('p');
+                    note.id = 'preseason-note';
+                    note.style.cssText = 'color:var(--text-secondary);margin:12px 0;line-height:1.5';
+                    container.before(note);
+                }
+                note.textContent = currentSport === 'cbb' && data.phase === 'preseason'
+                    ? 'Preseason projection · Prior-season ratings adjusted for returning minutes and incoming transfers. Freshman recruiting is not separately modeled. Offensive and defensive splits will appear after games begin.' : '';
                 allRatings = data.ratings;
                 updateStats(allRatings, data.lastUpdated);
                 renderTable(allRatings);
@@ -1443,6 +1452,10 @@
         }
 
         async function renderEfficiencyChart(ratings) {
+            const grid = document.querySelector('.efficiency-grid');
+            const hasSplits = ratings.some(r => Number.isFinite(r.adjO) && Number.isFinite(r.adjD));
+            grid.style.display = currentSport === 'cbb' && !hasSplits ? 'none' : '';
+            if (currentSport === 'cbb' && !hasSplits) return;
             const ctx = document.getElementById('efficiency-chart').getContext('2d');
 
             // Destroy existing chart if any

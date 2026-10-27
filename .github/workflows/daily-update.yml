@@ -72,17 +72,18 @@ jobs:
           from datetime import datetime, timedelta
           import pandas as pd
 
+          season = datetime.utcnow().year + (datetime.utcnow().month >= 7)
           yesterday = (datetime.utcnow() - timedelta(days=1)).strftime('%Y-%m-%d')
           print(f'Checking for games from {yesterday}')
 
-          sched = load_mbb_schedule([2026])
+          sched = load_mbb_schedule([season])
           sched = sched.to_pandas() if hasattr(sched, 'to_pandas') else pd.DataFrame(sched)
           completed = sched[(sched['home_score'] > 0) | (sched['away_score'] > 0)]
           sched_dates = pd.to_datetime(completed['date']).dt.strftime('%Y-%m-%d')
           yesterday_sched = (sched_dates == yesterday).sum()
           print(f'Schedule: {yesterday_sched} completed games from yesterday')
 
-          box = load_mbb_team_boxscore([2026])
+          box = load_mbb_team_boxscore([season])
           box = box.to_pandas() if hasattr(box, 'to_pandas') else pd.DataFrame(box)
           box_dates = pd.to_datetime(box['game_date']).dt.strftime('%Y-%m-%d')
           yesterday_box = box[box_dates == yesterday]['game_id'].nunique()
@@ -99,7 +100,7 @@ jobs:
         if: steps.freshness.outcome == 'success'
         working-directory: cbb_power_rating
         run: |
-          python update_ratings.py --season 2026
+          python update_ratings.py
 
       # ===== CFB Update =====
       # Sunday only. A midweek run would rebuild the current week's snapshot

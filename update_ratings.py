@@ -47,6 +47,10 @@ def update_season(season: int, config: RatingConfig = None) -> bool:
     print(f"{log_prefix} Starting ratings update for season {season}...")
 
     try:
+        baseline = output_dir / f"ratings_{season}_preseason.csv"
+        if baseline.exists() and datetime.now() < datetime(season - 1, 11, 1):
+            print(f"{log_prefix} Preseason baseline retained until November")
+            return True
         # Run the rating pipeline
         results = run_power_ratings(
             current_season=season,
@@ -80,7 +84,7 @@ def main():
         epilog=__doc__
     )
     parser.add_argument(
-        '--season', type=int, default=2026,
+        '--season', type=int, default=datetime.now().year + (datetime.now().month >= 7),
         help='Season to update (default: 2026)'
     )
     parser.add_argument(

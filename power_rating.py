@@ -24,7 +24,7 @@ import warnings
 try:
     import sportsdataverse.mbb as mbb
 except ImportError:
-    raise ImportError("Install sportsdataverse: pip install sportsdataverse")
+    mbb = None  # Preseason building needs only archived minutes and live rosters.
 
 try:
     from espn_supplement import fetch_espn_supplement
@@ -2046,6 +2046,9 @@ def run_power_ratings(
     if config is None:
         config = RatingConfig()
 
+    baseline_path = Path(config.prior_ratings_path) / f"ratings_{current_season}_preseason.csv"
+    frozen_preseason = pd.read_csv(baseline_path) if config.use_preseason and baseline_path.exists() else None
+
     seasons_to_load = [current_season]
 
     # Load game data from sportsdataverse
@@ -2054,7 +2057,7 @@ def run_power_ratings(
 
     # Supplement with ESPN data for recent games (current season only)
     espn_schedule_supplement = None
-    if ESPN_AVAILABLE and current_season == 2026:
+    if ESPN_AVAILABLE and current_season >= 2026:
         try:
             espn_box, espn_sched = fetch_espn_supplement(boxscores, current_season)
             if not espn_box.empty:
@@ -2066,6 +2069,9 @@ def run_power_ratings(
                 espn_schedule_supplement = espn_sched
         except Exception as e:
             print(f"  ESPN supplement failed ({e}), continuing with sportsdataverse only")
+
+    if boxscores.empty and frozen_preseason is not None:
+        return frozen_preseason.copy()
 
     # Extract team_id -> conference mapping from boxscores
     conference_map = {}
@@ -2148,7 +2154,11 @@ def run_power_ratings(
 
     # Filter out non-D1 teams
     print("Filtering D1 teams...")
-    current_games = filter_d1_teams(current_games, config)
+    if frozen_preseason is not None:
+        # Preseason roster universe identifies D1 teams before ten games exist.
+        current_games = current_games[current_games['team_id'].isin(frozen_preseason['team_id'])]
+    else:
+        current_games = filter_d1_teams(current_games, config)
 
     # Get set of D1 team IDs for opponent filtering
     d1_team_ids = set(current_games['team_id'].unique())
@@ -2193,7 +2203,9 @@ def run_power_ratings(
 
     # Load preseason projections (prior ratings + returning production)
     preseason_data = None
-    if config.use_preseason:
+    if frozen_preseason is not None:
+        preseason_data = frozen_preseason
+    elif config.use_preseason:
         print("Loading preseason projections...")
         prior_ratings = load_prior_season_ratings(current_season, config)
 
@@ -2249,6 +2261,11 @@ def run_power_ratings(
     EXCLUDED_TEAM_IDS = {3229}  # Virginia-Lynchburg Dragons
     results = results[~results['team_id'].isin(EXCLUDED_TEAM_IDS)]
 
+    if frozen_preseason is not None:
+        unplayed = frozen_preseason[~frozen_preseason['team_id'].isin(results['team_id'])]
+        results = pd.concat([results, unplayed], ignore_index=True)
+        results['rating_phase'] = np.where(results['games_played'] == 0, 'preseason', 'in-season')
+
     # Sort by power rating
     results = results.sort_values('power_rating', ascending=False).reset_index(drop=True)
     results['rank'] = range(1, len(results) + 1)
@@ -2261,6 +2278,9 @@ def run_power_ratings(
         on='team_id',
         how='left'
     )
+
+    if frozen_preseason is not None:
+        results['record'] = results['record'].fillna('0-0')
 
     # Add conference column
     if conference_map:

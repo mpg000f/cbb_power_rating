@@ -93,7 +93,7 @@ def _extract_schedule_rows(events):
     return rows
 
 
-def _parse_summary_stats(summary_data, game_id, game_date):
+def _parse_summary_stats(summary_data, game_id, game_date, season=2026):
     """Parse ESPN summary response into sportsdataverse-format boxscore rows."""
     boxscore = summary_data.get('boxscore', {})
     header = summary_data.get('header', {})
@@ -149,7 +149,7 @@ def _parse_summary_stats(summary_data, game_id, game_date):
 
         row = {
             'game_id': game_id,
-            'season': 2026,
+            'season': season,
             'game_date': pd.Timestamp(game_date),
             'team_id': tid,
             'opponent_team_id': opp_id,
@@ -171,30 +171,26 @@ def fetch_espn_supplement(boxscores_df, current_season):
     Returns (boxscore_supplement_df, schedule_supplement_df). Both may be
     empty DataFrames if there's nothing to supplement.
     """
-    if current_season != 2026:
-        return pd.DataFrame(), pd.DataFrame()
-
     if requests is None:
         warnings.warn("requests package not installed, ESPN supplement disabled")
         return pd.DataFrame(), pd.DataFrame()
 
-    # Find the latest date in sportsdataverse data
-    if 'game_date' not in boxscores_df.columns or boxscores_df.empty:
-        return pd.DataFrame(), pd.DataFrame()
-
-    dates = pd.to_datetime(boxscores_df['game_date'], errors='coerce')
-    max_date = dates.max()
-    if pd.isna(max_date):
-        return pd.DataFrame(), pd.DataFrame()
-
-    max_date = max_date.normalize()  # strip time component
+    # Before the first archived game, start at the season boundary.
     today = pd.Timestamp(datetime.now().date())
+    if 'game_date' not in boxscores_df.columns or boxscores_df.empty:
+        max_date = pd.Timestamp(current_season - 1, 11, 1) - timedelta(days=1)
+    else:
+        dates = pd.to_datetime(boxscores_df['game_date'], errors='coerce')
+        max_date = dates.max()
+        if pd.isna(max_date):
+            return pd.DataFrame(), pd.DataFrame()
+        max_date = max_date.normalize()
 
     # Nothing to supplement if sportsdataverse is up to date
     if max_date >= today:
         return pd.DataFrame(), pd.DataFrame()
 
-    existing_game_ids = set(boxscores_df['game_id'].dropna().astype(int).unique())
+    existing_game_ids = set(boxscores_df.get('game_id', pd.Series(dtype=int)).dropna().astype(int).unique())
 
     all_schedule_rows = []
     new_game_ids = []
@@ -239,7 +235,7 @@ def fetch_espn_supplement(boxscores_df, current_season):
             )
             resp.raise_for_status()
             summary = resp.json()
-            rows = _parse_summary_stats(summary, gid, game_date_map[gid])
+            rows = _parse_summary_stats(summary, gid, game_date_map[gid], current_season)
             boxscore_rows.extend(rows)
             fetched += 1
         except Exception as e:

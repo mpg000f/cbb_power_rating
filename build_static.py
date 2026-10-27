@@ -108,6 +108,9 @@ def csv_to_json(csv_path: Path, sport: str = "cbb") -> list:
             'tempo': 'tempo',
             'games_played': 'games',
             'sos': 'sos',
+            'rating_phase': 'ratingPhase',
+            'prior_weight': 'priorWeight',
+            'effective_returning': 'effectiveReturning',
         }
 
     available = [c for c in columns.keys() if c in df.columns]
@@ -176,6 +179,7 @@ def build_static_site(skip_sports=()):
             with open(json_path, 'w') as f:
                 json.dump({
                     'season': season,
+                    'phase': 'preseason' if all(r.get('games') == 0 for r in ratings) else 'in-season',
                     'lastUpdated': last_updated,
                     'count': len(ratings),
                     'ratings': ratings
