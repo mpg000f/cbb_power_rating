@@ -15,5 +15,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install numpy pandas
-      - run: python -m unittest test_preseason test_preseason_v2 -v
+      - run: python -m unittest test_preseason test_preseason_v2 test_preseason_v3 test_preseason_evaluation -v
       - run: python build_preseason_v2.py --season 2027
+      - run: python build_preseason_v3.py
+      - run: python build_preseason_v4.py
