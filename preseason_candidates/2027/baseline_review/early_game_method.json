@@ -1,0 +1,21 @@
+{
+  "target_seasons": [
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "scope": "regular-season games where both teams are within their first five completed D1 games against prior-year-rated opponents; unranked/new D1 opponents omitted consistently",
+  "regression_selection": "minimum mean season margin RMSE over previous five seasons only, grid .50 to 1.25 by .01",
+  "pace": "prior-season home tempo * prior-season away tempo / prior-season national mean tempo",
+  "home_advantage": 3.5,
+  "unchanged_preseason_decay": "20 games, power 1.32; not applied here because the test isolates the preseason prior",
+  "limitations": [
+    "Retrospective comparison; recent historical years already inspected during project development",
+    "Tests history-only forecasts, not full roster/coaching/recruiting candidates",
+    "Home advantage and pace rule held fixed across models, not fitted to target outcomes",
+    "No odds/ATS or betting profitability test",
+    "Coach metadata and historical preseason rosters are not needed or used"
+  ]
+}

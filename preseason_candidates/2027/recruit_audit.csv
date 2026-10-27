@@ -1,0 +1,102 @@
+rank,recruit,committed_college,team_id,athlete_id,matched_player,status,bonus
+1,Tyran Stokes,Kansas,2305.0,5142731.0,Tyran Stokes,matched,1.25
+2,Caleb Holt,Arizona,12.0,5142722.0,Caleb Holt,matched,1.225125
+3,Jordan Smith Jr.,Arkansas,8.0,5142729.0,Jordan Smith Jr.,matched,1.2005
+4,Cam Williams,Duke,150.0,5210407.0,Cameron Williams,matched,1.1761249999999999
+5,Bruce Branch III,BYU,252.0,5210917.0,Bruce Branch III,matched,1.152
+6,Christian Collins,USC,30.0,5217192.0,Christian Collins,matched,1.128125
+6,Jason Crowe Jr.,Missouri,142.0,5142715.0,Jason Crowe Jr.,matched,1.128125
+8,Anthony Thompson,Ohio State,194.0,5210824.0,Anthony Thompson,matched,1.0811250000000001
+9,Brandon McCoy,Michigan,,,,excluded,0.0
+9,Dylan Mingo,Baylor,239.0,5144473.0,Dylan Mingo,matched,1.058
+9,Baba Oladotun,Maryland,120.0,5210434.0,Baba Oladotun,matched,1.058
+12,Deron Rippey Jr.,Duke,150.0,5144476.0,Deron Rippey Jr.,matched,0.990125
+13,Abdou Toure,Arkansas,8.0,5222135.0,Abdou Toure,matched,0.968
+14,Obina Ekezie Jr.,Louisville,97.0,5210950.0,Obinna Ekezie Jr.,matched,0.946125
+15,Caleb Gaskins,Miami,2390.0,5142723.0,Caleb Gaskins,matched,0.9244999999999999
+16,JJ Andrews,Arkansas,8.0,5142711.0,JJ Andrews,matched,0.903125
+17,Quentin Coleman,Illinois,356.0,5307569.0,Quentin Coleman,matched,0.8819999999999999
+18,Miles Sadler,West Virginia,277.0,5210795.0,Miles Sadler,matched,0.8611249999999999
+19,Adonis Ratliff,USC,30.0,5210968.0,Adonis Ratliff,matched,0.8404999999999998
+19,Toni Bryant,Missouri,142.0,5144572.0,Toni Bryant,matched,0.8404999999999998
+21,Bryson Howard,Duke,150.0,5287512.0,Bryson Howard,matched,0.8000000000000002
+21,Taylen Kinney,Kansas,2305.0,5144479.0,Taylen Kinney,matched,0.8000000000000002
+23,Austin Goosby,Texas,251.0,5210802.0,Austin Goosby,matched,0.7605000000000001
+24,Maximo Adams,North Carolina,153.0,5144522.0,Maximo Adams,matched,0.741125
+24,Jaxon Richardson,Alabama,333.0,5144554.0,Jaxon Richardson,matched,0.741125
+26,Colben Landrew,Connecticut,41.0,5292585.0,Colben Landrew,matched,0.703125
+27,Arafan Diane,Houston,248.0,5239109.0,Arafan Diane,matched,0.6845
+28,Qayden Samuels,Alabama,333.0,5210406.0,Qayden Samuels,matched,0.6661249999999999
+29,DaKari Spear,Texas Tech,2641.0,5210398.0,DaKari Spear,matched,0.6479999999999999
+30,Darius Ratliff,USC,30.0,5210865.0,Darius Ratliff,matched,0.630125
+31,Jasiah Jervis,Michigan State,127.0,5210837.0,Jasiah Jervis,matched,0.6124999999999999
+32,Quinn Costello,Michigan,130.0,5292584.0,Quinn Costello,matched,0.5951249999999999
+33,Tajh Ariza,Oregon,2483.0,5142714.0,Tajh Ariza,matched,0.5780000000000001
+34,Latrell Allmond,Oklahoma State,197.0,5457346.0,Latrell Allmond,matched,0.5611250000000001
+35,Elijah Williams,Baylor,239.0,5142735.0,Elijah Williams,matched,0.5445000000000001
+36,Anthony Felesi,Oklahoma State,197.0,5457345.0,Anthony Felesi,matched,0.5281250000000001
+37,Chase Foster,Pittsburgh,221.0,5144530.0,Chase Foster,matched,0.512
+38,Ethan Taylor,Michigan State,127.0,5210912.0,Ethan Taylor,matched,0.49612500000000004
+39,Junior County,Connecticut,41.0,5210821.0,Junior County,matched,0.48050000000000004
+40,Marcis Ponder,Florida State,52.0,5144573.0,Marcis Ponder,matched,0.465125
+41,Lincoln Cosby,Michigan,130.0,5210435.0,Lincoln Cosby,matched,0.44999999999999996
+42,Ikenna Alozie,Houston,248.0,5144493.0,Ikenna Alozie,matched,0.435125
+43,Kaden House,Maryland,120.0,5142725.0,Kaden House,matched,0.4205
+43,Bo Ogden,Texas,251.0,5210408.0,Bo Ogden,matched,0.4205
+43,Cameron Holmes,Arizona,12.0,5142719.0,Cameron Holmes,matched,0.4205
+46,Luke Ertel,Purdue,2509.0,5292603.0,Luke Ertel,matched,0.37812500000000004
+47,Lucas Morillo,Illinois,,,,not_on_roster,0.0
+48,Boyuan Zhang,Louisville,97.0,5329577.0,Boyuan Zhang,matched,0.351125
+48,Tarris Bouie,Alabama,333.0,5459438.0,Tarris Bouie,matched,0.351125
+50,Carlos Medlock Jr.,Michigan State,127.0,5295577.0,Carlos Medlock Jr.,matched,0.325125
+51,Chris Washington Jr.,Tennessee,2633.0,5142734.0,Chris Washington Jr.,matched,0.3125
+52,Luca Foster,Gonzaga,2250.0,5210404.0,Luca Foster,matched,0.300125
+53,Quincy Wadley,Oklahoma,201.0,5144557.0,Quincy Wadley,matched,0.288
+54,Joe Philon,UCLA,26.0,5144546.0,Joe Philon III,matched,0.27612499999999995
+55,Alex Constanza,Georgetown,2492.0,5142712.0,Alex Constanza,matched,0.2645
+56,Sammy Jackson,VCU,2670.0,5280952.0,Sammy Jackson,matched,0.25312500000000004
+57,Vaughn Karvala,Indiana,84.0,5280897.0,Vaughn Karvala,matched,0.242
+58,Adam Oumiddoch,Villanova,222.0,5455871.0,Adam Oumiddoch,matched,0.23112499999999997
+59,Amadou Seini,West Virginia,277.0,5346556.0,Amadou Seini,matched,0.22049999999999997
+60,Davion Adkins,Kansas,2305.0,5210400.0,Davion Adkins,matched,0.21012499999999995
+61,Jacob Webber,Purdue,2509.0,5307568.0,Jacob Webber,matched,0.20000000000000004
+62,Tristan Reed,Mississippi State,344.0,5210911.0,Tristan Reed,matched,0.19012500000000002
+63,Darius Bivins,Saint Mary's,2608.0,5210403.0,Darius Bivins,matched,0.1805
+64,Sinan Huan,Purdue,2509.0,5210402.0,Sinan Huan,matched,0.171125
+65,Aziz Olajuwon,Stanford,24.0,5292604.0,Aziz Olajuwon,matched,0.16199999999999998
+66,Josh Irving,Texas A&M,245.0,5308457.0,Josh Irving,matched,0.15312499999999998
+67,Ralph Scott,Tennessee,2633.0,5308440.0,Ralph Scott,matched,0.14450000000000002
+68,Aiden Derkack,Dayton,2168.0,5210401.0,Aiden Derkack,matched,0.13612500000000002
+69,Ethan Mgbako,Vanderbilt,238.0,5196966.0,Ethan Mgbako,matched,0.128
+69,Marcus Johnson,South Carolina,2579.0,5142726.0,Marcus Johnson,matched,0.128
+71,Kayden Allen,Georgia Tech,59.0,5174455.0,Kayden Allen,matched,0.11249999999999999
+72,Trevor Manhertz,Indiana,84.0,5331201.0,Trevor Manhertz,matched,0.105125
+72,Katrelle Harmon,Creighton,156.0,5142717.0,Katrelle Harmon,matched,0.105125
+74,Jonathan Sanderson,Notre Dame,87.0,5210410.0,Jonathan Sanderson,matched,0.09112500000000001
+75,Collin Ross,VCU,2670.0,5310770.0,Collin Ross,matched,0.0845
+76,Anthony Brown,Vanderbilt,238.0,5195075.0,Ant Brown Jr.,matched,0.078125
+77,Dean Rueckert,BYU,252.0,5455680.0,Dean Rueckert,matched,0.072
+78,Gavin Placide,Wake Forest,154.0,5144551.0,Gavin Placide,matched,0.066125
+78,Josiah Johnson,,300.0,5308007.0,Josiah Johnson,matched,0.066125
+80,Gage Mayfield,Oklahoma,201.0,5280903.0,Gage Mayfield,matched,0.05512499999999999
+80,Martay Barnes,Florida State,52.0,5339169.0,Martay Barnes,matched,0.05512499999999999
+82,Colin Rice,Nebraska,158.0,5292605.0,Colin Rice,matched,0.045125
+83,Jayden Hodge,Northwestern,77.0,5142720.0,Jayden Hodge,matched,0.040499999999999994
+84,Alex Egbuonu,Marquette,269.0,5459458.0,Alex Egbuonu,matched,0.036125000000000004
+85,Julius Avent,Michigan State,127.0,5210399.0,Julius Avent,matched,0.032
+86,Dhani Miller,Kent State,2309.0,5144503.0,Dhani Miller,matched,0.028124999999999997
+87,Kevin Thomas,North Carolina,153.0,5210844.0,Kevin Thomas,matched,0.024500000000000004
+88,Joseph Hartman,Michigan,130.0,5210811.0,Joseph Hartman,matched,0.021125
+89,Kalek House,Xavier,2752.0,5144468.0,Kalek House,matched,0.018
+90,Sam Funches,Gonzaga,2250.0,5142721.0,Sam Funches,matched,0.015125
+91,Gallagher Placide,Wake Forest,154.0,5144552.0,Gallagher Placide,matched,0.012500000000000002
+92,Harris Reynolds,Clemson,228.0,5327784.0,Harris Reynolds,matched,0.010124999999999999
+92,Jalen Montonati,Oklahoma State,197.0,5142730.0,Jalen Montonati,matched,0.010124999999999999
+92,Willie Burnett III,Mississippi State,344.0,5258493.0,Willie Burnett III,matched,0.010124999999999999
+95,Felipe Quinones,Florida Atlantic,2226.0,5144553.0,Felipe Quinones,matched,0.0045
+96,Aiden Chronister,Missouri,142.0,5210405.0,Aidan Chronister,matched,0.0031250000000000006
+97,Cody Peck,Dayton,2168.0,5239134.0,Cody Peck,matched,0.002
+98,Fred Smith Jr.,Memphis,235.0,5297733.0,Fred Smith Jr.,matched,0.001125
+99,Trent Perry,Kansas,2305.0,5142733.0,Trent Perry,matched,0.0005
+100,Favour Ibe,Virginia,258.0,5222140.0,Favour Ibe,matched,0.000125
+100,Kendre Harrison,Oregon,,,,not_on_roster,0.0

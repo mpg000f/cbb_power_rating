@@ -1,0 +1,35 @@
+{
+  "version": "game-calibrated-v4-candidate",
+  "baseline_weights": [
+    0.7,
+    0.2,
+    0.1
+  ],
+  "baseline_scale": 1.1,
+  "selection_training_years": [
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "selection_rule": "minimum average season margin RMSE, grid .50-1.25 by .01",
+  "training_fit_rmse_not_out_of_sample": 12.857514977520907,
+  "out_of_time_evaluation": "see ../baseline_review/early_game_yearly.csv: each 2022-2026 forecast uses the preceding five seasons only",
+  "ratings_sd": 11.476388136741827,
+  "v3_ratings_sd": 8.712731036548902,
+  "net_replacement_scale": 0.3,
+  "combined_adjustment_cap": 3.0,
+  "player_development": false,
+  "unchanged_coach_bonus": 0.0,
+  "phaseout_games": 20,
+  "phaseout_power": 1.32,
+  "full_model_validated": false,
+  "limitations": [
+    "Recent evaluation periods already inspected; these are retrospective comparisons, not a fresh untouched holdout",
+    "History-only calibration does not validate provisional player, recruiting or coaching terms",
+    "Calibration is specific to the existing tempo and 3.5-point home-advantage rule",
+    "No betting/ATS performance claim; no target-season games are used",
+    "Coaching-change residuals are recomputed against the recalibrated baseline, while unchanged coaches still get zero bonus"
+  ]
+}

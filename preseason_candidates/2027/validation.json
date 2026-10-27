@@ -1,0 +1,68 @@
+{
+  "training_end": 2021,
+  "holdout_start": 2022,
+  "selection": "minimum mean season RMSE on training seasons only",
+  "selected": {
+    "weights": [
+      0.7,
+      0.2,
+      0.1
+    ],
+    "shrink": 0.85
+  },
+  "training_rmse": 6.490301481653333,
+  "holdout": [
+    {
+      "season": 2022,
+      "rmse": 6.633248119372276,
+      "n": 345,
+      "last_year_only_rmse": 7.333195885710938
+    },
+    {
+      "season": 2023,
+      "rmse": 6.373147487451845,
+      "n": 358,
+      "last_year_only_rmse": 7.070645887793834
+    },
+    {
+      "season": 2024,
+      "rmse": 6.543005732260866,
+      "n": 361,
+      "last_year_only_rmse": 7.264364401211705
+    },
+    {
+      "season": 2025,
+      "rmse": 6.8806324573388284,
+      "n": 362,
+      "last_year_only_rmse": 7.4716080419635444
+    },
+    {
+      "season": 2026,
+      "rmse": 6.715341579382859,
+      "n": 364,
+      "last_year_only_rmse": 7.540214470338891
+    }
+  ],
+  "holdout_mean_rmse": 6.629075075161334,
+  "last_year_only_holdout_mean_rmse": 7.336005737403783,
+  "player_coach_recruit_weights": "Provisional capped assumptions; not fitted or claimed validated by the baseline holdout",
+  "historical_roster_limitation": "No verified preseason-date historical roster snapshots are available. No full-model accuracy claim or coefficient tuning uses retrospectively observed player participation.",
+  "coaching_limitation": "Historical program-baseline residual proxy; not a causal effect controlling historical roster quality.",
+  "source_coverage": {
+    "teams": 365,
+    "roster_players": 5541,
+    "prior_production_player_stints": 5015,
+    "coaches": 365,
+    "missing_current_coach_ids": 1,
+    "missing_previous_coach": 2,
+    "matched_recruits": 98,
+    "unmatched_recruits": 2,
+    "excluded_recruits": 1,
+    "confirmed_unavailable_players": 2
+  },
+  "phaseout": {
+    "games_until_zero": 20,
+    "power": 1.32,
+    "unchanged": true
+  }
+}

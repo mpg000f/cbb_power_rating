@@ -36,3 +36,6 @@ backtest_results_*.csv
 
 # Submodules / nested repos
 cbbdata_src/
+
+# Resumable preseason source download cache (compact snapshots are versioned)
+research/

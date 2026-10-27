@@ -1,0 +1,9 @@
+{
+  "baseline_sd": 9.395346035292317,
+  "v3_sd": 8.712731036548902,
+  "baseline_adjustment_correlation": -0.561746064549343,
+  "baseline_raw_net_replacement_correlation": -0.6574186787020129,
+  "top25_mean_adjustment": -0.9307816721478633,
+  "teams_at_cap": 13,
+  "scope": "Team final-rating prediction only; not full-model/game validation. All tuning uses seasons earlier than the forecast year. 2022-2026 evaluation results were previously inspected."
+}
