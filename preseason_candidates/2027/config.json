@@ -1,0 +1,21 @@
+{
+  "history_weights": [
+    0.7,
+    0.2,
+    0.1
+  ],
+  "baseline_shrink": 0.85,
+  "player_sample_minutes": 250.0,
+  "replacement_bpm": -2.0,
+  "returning_scale": 0.35,
+  "returning_cap": 3.0,
+  "transfer_scale": 0.3,
+  "transfer_cap": 3.0,
+  "recruit_max_player": 1.25,
+  "recruit_cap": 3.0,
+  "coach_scale": 0.35,
+  "coach_cap": 2.0,
+  "coach_prior_seasons": 4.0,
+  "transition_penalty": 0.5,
+  "model_version": "production-v2-candidate"
+}

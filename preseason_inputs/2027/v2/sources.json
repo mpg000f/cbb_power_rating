@@ -1,0 +1,26 @@
+{
+  "season": 2027,
+  "retrieved_at": "2026-10-27T19:20:38.254963+00:00",
+  "roster_source_timestamps": {
+    "earliest": "2026-10-27T17:55:18Z",
+    "latest": "2026-10-27T19:08:34Z"
+  },
+  "player_production": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/mbb_player_value/mbb_player_value_2026.parquet",
+  "player_metric_definition": "SportsDataverse team/opponent-adjusted box BPM. Not Sports-Reference BPM and not a causal measure.",
+  "recruiting": "https://sites.google.com/site/rscihoops/home/rankings/2026-final",
+  "recruiting_csv": "https://docs.google.com/spreadsheets/d/1neBv9U0fBIbMbWLh0v3oZ_7XX9BGGj5d3jp7VtI7DSk/export?format=csv",
+  "coach_history_template": "https://sports.core.api.espn.com/v2/sports/basketball/leagues/mens-college-basketball/seasons/{season}/teams/{team_id}/coaches?limit=10",
+  "coach_history_seasons": [
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "availability_policy": "Confirmed full-season exclusions only. No complete injury/eligibility census is claimed. Unresolved eligibility follows roster inclusion and is an explicit remaining limitation.",
+  "recruit_alias_policy": "Five reviewed athlete-ID matches; no automatic fuzzy matching. College commitment is not used to override current roster membership.",
+  "player_development": "disabled: no age/class improvement term",
+  "roster_url_template": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/teams/{team_id}/roster?season=2027"
+}
